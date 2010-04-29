@@ -29,7 +29,7 @@ ASMFILES= \
 	res\$(T)\OptionsMenu.s \
 	res\$(T)\PlatformSpecific.s
 
-PROGRAM	=cbmcommand.prg
+PROGRAM	=cbmcommand.$(T)
 
 TITLE	=$(PROGRAM:.prg=)
 

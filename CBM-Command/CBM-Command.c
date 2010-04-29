@@ -23,8 +23,8 @@ int main(void)
 #if defined(__C128__)
 	// For testing only.  
 	// Will remove for actual release.
-	videomode(VIDEOMODE_80COL);
-	fast();
+	//videomode(VIDEOMODE_80COL);
+	//fast();
 #endif
 
 	initialize();

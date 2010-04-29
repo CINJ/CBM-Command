@@ -9,6 +9,7 @@
 
 #include "FileMenu.h"
 #include "constants.h"
+#include "input.h"
 #include "screen.h"
 #include "menus.h"
 
@@ -111,8 +112,9 @@ void handleFileMenu(enum menus menu)
 			if(key == FILE_MENU_ABOUT_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, FILE_MENU_ABOUT);
-				writeStatusBar(buffer, 0, 20);
+				//strcpy(buffer, FILE_MENU_ABOUT);
+				//writeStatusBar(buffer, 0, 20);
+				writeAboutBox();
 			}
 			else if(key == FILE_MENU_HELP_KEY)
 			{
@@ -173,4 +175,58 @@ void handleFileMenu(enum menus menu)
 			break;
 		}
 	}
+}
+
+void __fastcall__ writeAboutBox(void)
+{
+	unsigned char x, y, i;
+	unsigned char oldColor;
+	unsigned char oldReverse;
+
+	const unsigned char w = 25;
+	const unsigned char h = 11;
+	
+	unsigned char* lines[7] =
+		{
+			"Copyright 2010",
+			"Payton Byrd",
+			"",
+			"Thanks to Uz for CC65",
+			"and all the support!",
+			"",
+#ifdef __C128__
+			"C128 Edition"
+#else
+			"C64 Edition"
+#endif
+	};
+
+
+	x = getCenterX(w);
+	y = getCenterY(h);
+
+	writePanel(TRUE, TRUE,
+		COLOR_RED, 
+		x, y, h, w,
+		"About CBM-Command",
+		"Close", "Done");
+
+	oldReverse = revers(FALSE);
+	oldColor = textcolor(COLOR_WHITE);
+	y = getCenterY(7);
+	for(i=0; i<7; i++)
+	{
+		x = getCenterX(strlen(lines[i]));
+		gotoxy(x, y + i);
+		cputs(lines[i]);
+	}
+
+	revers(oldReverse);
+	textcolor(oldColor);
+
+	waitForEnterEsc();
+
+	retrieveScreen();
+
+	writeStatusBar("Thank you for using CBM Command.", 0, 10);
 }

@@ -44,4 +44,5 @@ extern unsigned char FILE_MENU_KEYS[8];
 
 void initFileMenu(void);
 void handleFileMenu();
+void __fastcall__ writeAboutBox(void);
 #endif

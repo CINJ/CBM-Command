@@ -143,8 +143,7 @@ void drawBox(
 		spcs[i] = ' ';
 	}
 	line[i] = '\0';
-	spcs[i] = '\0';
-	
+	spcs[i] = '\0';	
 	
 	oldColor = textcolor(color);
 	oldReverse = revers(reverse);
@@ -169,4 +168,81 @@ void drawBox(
 	
 	revers(oldReverse);
 	textcolor(oldColor);
+}
+
+unsigned char __fastcall__ getCenterX(unsigned char w)
+{
+	return size_x / 2 - w / 2;
+}
+
+unsigned char __fastcall__ getCenterY(unsigned char h)
+{
+	return size_y / 2 - h / 2;
+}
+
+void writePanel(
+	unsigned drawBorder,
+	unsigned reverse,
+	unsigned char color,
+	unsigned char x, unsigned char y,
+	unsigned char h, unsigned char w,
+	unsigned char *title,
+	unsigned char *cancel,
+	unsigned char *ok)
+{
+	int i, okLeft, cancelLeft;
+	unsigned char oldColor;
+	unsigned char oldReverse;
+	unsigned char buffer[80];
+
+	saveScreen();
+
+	oldColor = textcolor(color);
+	oldReverse = revers(reverse);
+
+	if(drawBorder)
+	{
+		drawBox(x, y, w, h, color, reverse);
+	}
+	else
+	{
+		strncpy(buffer, SPACES, w);
+		buffer[w] = '\0';
+
+		for(i=0; i<h; i++)
+		{
+			gotoxy(x, y+i);
+			cputs(buffer);
+		}
+	}
+
+	if(title != NULL)
+	{
+		sprintf(buffer, "[%s]", title);
+		gotoxy(x+1, y);
+		cputs(buffer);
+	}
+
+	revers(FALSE);
+
+	okLeft = x + w - 2;
+	if(ok != NULL)
+	{
+		sprintf(buffer, "[%s]", ok);
+		okLeft -= strlen(buffer);
+		gotoxy(okLeft, y + h - 1);
+		cputs(buffer);
+	}
+
+	cancelLeft = okLeft - 2;
+	if(cancel != NULL)
+	{
+		sprintf(buffer, "[%s]", cancel);
+		cancelLeft -= strlen(buffer);
+		gotoxy(cancelLeft, y + h - 1);
+		cputs(buffer);
+	}
+
+	textcolor(oldColor);
+	revers(oldReverse);
 }

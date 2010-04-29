@@ -34,3 +34,17 @@ void readKeyboard(void)
 		writeStatusBar(buffer, 0, 20);
 	}
 }
+
+unsigned char __fastcall__ waitForEnterEsc(void)
+{
+	unsigned char key = 0;
+
+	while(key != CH_ESC
+		&& key != CH_STOP
+		&& key != CH_ENTER)
+	{
+		key = cgetc();
+	}
+	
+	return key;
+}

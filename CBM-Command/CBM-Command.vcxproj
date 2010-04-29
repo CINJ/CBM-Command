@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="C128|Win32">
+      <Configuration>C128</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="C64|Win32">
+      <Configuration>C64</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7F4E2F75-2BFC-4198-80B0-A76EA363E36A}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+    <SccProjectName>SAK</SccProjectName>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C128|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='C= 64|Win32'">
+    <ConfigurationType>Makefile</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='C= 128|Win32'">
+    <ConfigurationType>Makefile</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='C128|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C128|Win32'">
+    <NMakeBuildCommandLine>make T:=c128</NMakeBuildCommandLine>
+    <NMakeOutput>
+    </NMakeOutput>
+    <NMakeCleanCommandLine>make clean T:=c128</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make T:=c128</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>__C128__</NMakePreprocessorDefinitions>
+    <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'">
+    <NMakeBuildCommandLine>make T:=c64</NMakeBuildCommandLine>
+    <NMakeOutput />
+    <NMakeCleanCommandLine>make clean T:=c64</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make T:=c64</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>__C64__</NMakePreprocessorDefinitions>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C= 128|Win32'">
+    <NMakeBuildCommandLine>make T:=c128</NMakeBuildCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C= 128|Win32'">
+    <NMakeReBuildCommandLine>make T:=c128</NMakeReBuildCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C= 128|Win32'">
+    <NMakeCleanCommandLine>make clean T:=c128</NMakeCleanCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C= 64|Win32'">
+    <NMakeBuildCommandLine>make</NMakeBuildCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C= 64|Win32'">
+    <NMakeReBuildCommandLine>make</NMakeReBuildCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C= 64|Win32'">
+    <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='C128|Win32'">
+    <BuildLog>
+      <Path>$(Configuration).log</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'">
+    <BuildLog>
+      <Path>$(Configuration).log</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='C= 128|Win32'">
+    <BuildLog>
+      <Path>$(Configuration).log</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="res\common\CommandMenu.s" />
+    <None Include="res\c128\PlatformSpecific.s" />
+    <None Include="res\c64\FileMenu.s" />
+    <None Include="res\c64\OptionsMenu.s" />
+    <None Include="res\c64\PlatformSpecific.s" />
+    <None Include="res\common\DriveMenu.s" />
+    <None Include="res\c128\Text.s" />
+    <None Include="res\c64\Text.s" />
+    <None Include="res\common\Common.s" />
+    <None Include="res\c128\FileMenu.s" />
+    <None Include="res\c128\OptionsMenu.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssemblerMethods.c" />
+    <ClCompile Include="CBM-Command.c" />
+    <ClCompile Include="CommandMenu.c" />
+    <ClCompile Include="DriveMenu.c" />
+    <ClCompile Include="FileMenu.c" />
+    <ClCompile Include="globals.c" />
+    <ClCompile Include="input.c" />
+    <ClCompile Include="makefile" />
+    <ClCompile Include="menus.c" />
+    <ClCompile Include="OptionMenu.c" />
+    <ClCompile Include="screen.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AssemblerMethods.h" />
+    <ClInclude Include="CommandMenu.h" />
+    <ClInclude Include="constants.h" />
+    <ClInclude Include="DriveMenu.h" />
+    <ClInclude Include="FileMenu.h" />
+    <ClInclude Include="globals.h" />
+    <ClInclude Include="input.h" />
+    <ClInclude Include="menus.h" />
+    <ClInclude Include="OptionMenu.h" />
+    <ClInclude Include="PlatformSpecific.h" />
+    <ClInclude Include="screen.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

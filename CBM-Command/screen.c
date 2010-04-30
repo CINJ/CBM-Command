@@ -172,12 +172,12 @@ void drawBox(
 
 unsigned char __fastcall__ getCenterX(unsigned char w)
 {
-	return size_x / 2 - w / 2;
+	return size_x / 2 - w / 2 - 1;
 }
 
 unsigned char __fastcall__ getCenterY(unsigned char h)
 {
-	return size_y / 2 - h / 2;
+	return size_y / 2 - h / 2 - 1;
 }
 
 void writePanel(

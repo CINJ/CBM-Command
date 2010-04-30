@@ -9,16 +9,17 @@ X128 := c:\winvice\x128.exe -autostart
 T := c128
 
 SOURCES	= \
-	globals.c \
-	CBM-Command.c \
 	AssemblerMethods.c \
-	menus.c \
-	screen.c \
+	CBM-Command.c \
 	CommandMenu.c \
 	DriveMenu.c \
+	drives.c \
 	FileMenu.c \
+	globals.c \
+	input.c \
+	menus.c \
 	OptionMenu.c \
-	input.c
+	screen.c 
 
 ASMFILES= \
 	res\$(T)\Text.s \

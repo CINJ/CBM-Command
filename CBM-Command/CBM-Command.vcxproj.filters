@@ -89,6 +89,9 @@
     <ClCompile Include="CommandMenu.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="drives.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="constants.h">
@@ -122,6 +125,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CommandMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="drives.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

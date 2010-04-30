@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "DriveMenu.h"
+#include "drives.h"
 #include "constants.h"
 #include "screen.h"
 #include "menus.h"
@@ -109,6 +110,7 @@ void handleDriveMenu(enum menus menu)
 				retrieveScreen();
 				strcpy(buffer, DRIVE_MENU_DRIVE);
 				writeStatusBar(buffer, 0, 20);
+				listDrives(menu);
 			}
 			else if(key == DRIVE_MENU_REREAD_KEY)
 			{

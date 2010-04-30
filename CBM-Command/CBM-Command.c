@@ -3,6 +3,7 @@
 #include <string.h>
 #include <conio.h>
 #include "constants.h"
+#include "drives.h"
 #include "AssemblerMethods.h"
 #include "globals.h";
 #include "menus.h";
@@ -18,7 +19,8 @@ void initialize(void);
 
 int main(void)
 {
-	unsigned char message[21];
+	unsigned char i;
+	unsigned char message[39];
 
 #if defined(__C128__)
 	// For testing only.  
@@ -35,7 +37,9 @@ int main(void)
 			SCREEN_SIZE_FORMAT, 
 			size_x, size_y);
 
-	writeStatusBar(message, 0, 10);
+	//writeStatusBar(message, 0, 10);
+	gotoxy(0,1); cputs(message);
+
 		
 	while(TRUE)
 	{

@@ -110,6 +110,7 @@
     <ClCompile Include="CBM-Command.c" />
     <ClCompile Include="CommandMenu.c" />
     <ClCompile Include="DriveMenu.c" />
+    <ClCompile Include="drives.c" />
     <ClCompile Include="FileMenu.c" />
     <ClCompile Include="globals.c" />
     <ClCompile Include="input.c" />
@@ -123,6 +124,7 @@
     <ClInclude Include="CommandMenu.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="DriveMenu.h" />
+    <ClInclude Include="drives.h" />
     <ClInclude Include="FileMenu.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="input.h" />

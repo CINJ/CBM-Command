@@ -31,6 +31,7 @@ void initDriveMenu(void)
 
 void handleDriveMenu(enum menus menu)
 {
+	unsigned finalRetrieve = TRUE;
 	unsigned char key;
 	unsigned handleKeys = TRUE;
 	unsigned char buffer[39];
@@ -108,9 +109,9 @@ void handleDriveMenu(enum menus menu)
 			else if(key == DRIVE_MENU_DRIVE_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, DRIVE_MENU_DRIVE);
-				writeStatusBar(buffer, 0, 20);
 				listDrives(menu);
+				retrieveScreen();
+				finalRetrieve = FALSE;
 			}
 			else if(key == DRIVE_MENU_REREAD_KEY)
 			{
@@ -127,5 +128,5 @@ void handleDriveMenu(enum menus menu)
 
 	}
 
-	retrieveScreen();
+	if(finalRetrieve) retrieveScreen();
 }

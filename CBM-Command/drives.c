@@ -44,8 +44,8 @@ int getDriveStatus(
 
 	if(dr < 8 || dr > 19)
 	{
-		sprintf(drive->message, "Cannot open drive %d", dr);
-		writeStatusBar(drive->message, wherex(), wherey());
+		//sprintf(drive->message, "Cannot open drive %d", dr);
+		//writeStatusBar(drive->message, wherex(), wherey());
 		return -1;
 	}
 
@@ -53,15 +53,15 @@ int getDriveStatus(
 
 	if(_oserror == 0)
 	{
-		sprintf(buffer, "Opened drive %d", dr);
-		writeStatusBar(buffer, wherex(), wherey());
+		//sprintf(buffer, "Opened drive %d", dr);
+		//writeStatusBar(buffer, wherex(), wherey());
 	}
 	else
 	{
 		cbm_close(15);
 
-		sprintf(buffer, "_oserror = %d, closed channel.", _oserror);
-		writeStatusBar(buffer, wherex(), wherey());
+		//sprintf(buffer, "_oserror = %d, closed channel.", _oserror);
+		//writeStatusBar(buffer, wherex(), wherey());
 
 		return -1;
 	}
@@ -91,8 +91,10 @@ int getDriveStatus(
 
 void listDrives(enum menus menu)
 {
-	unsigned char x, y, i, status;
-	const unsigned char h = 15;
+	unsigned char x, y, i;
+	unsigned char status, current, original, key;
+	unsigned selected = FALSE;
+	const unsigned char h = 17;
 	const unsigned char w = 39;
 	unsigned char message[40];
 
@@ -106,6 +108,8 @@ void listDrives(enum menus menu)
 
 	textcolor(COLOR_WHITE);
 
+	current = 0;
+
 	for(i=0; i<12; i++)
 	{
 		if( 
@@ -114,6 +118,7 @@ void listDrives(enum menus menu)
 		)
 		{
 			revers(TRUE);
+			original = current = i;
 		}
 
 		gotoxy(x + 2, i + 2 + y);
@@ -121,8 +126,8 @@ void listDrives(enum menus menu)
 		cputs(message);
 
 		status = checkDrive(2, "UJ", i + 8);
-		sprintf(message, "Drive %d returns %d", i + 8, status);
-		writeStatusBar(message, wherex(), wherey());
+		//sprintf(message, "Drive %d returns %d", i + 8, status);
+		//writeStatusBar(message, wherex(), wherey());
 
 		gotoxy(x + 5, i + 2 + y);
 
@@ -137,6 +142,65 @@ void listDrives(enum menus menu)
 		}
 
 		revers(FALSE);
+	}
+
+	textcolor(COLOR_YELLOW);
+	gotoxy(x + 1, y + 15); cputs("Use arrow keys & enter to select drive");
+	textcolor(COLOR_RED);
+
+	gotoxy(x + 1, current + 2 + y); cputc('>');
+
+	while(!selected)
+	{
+		key = cgetc();
+
+		switch((int)key)
+		{
+		case CH_ESC: 
+		case CH_STOP:
+			selected = TRUE;
+			current = original;
+			break;
+
+		case CH_ENTER:
+			selected = TRUE;
+			break;
+
+		case CH_CURS_UP:
+			if(current > 0)
+			{
+				gotoxy(x + 1, current + 2 + y); cputc(' ');
+				current--;
+				gotoxy(x + 1, current + 2 + y); cputc('>');
+			}
+			break;
+
+		case CH_CURS_DOWN:
+			if(current < 11)
+			{
+				gotoxy(x + 1, current + 2 + y); cputc(' ');
+				current++;
+				gotoxy(x + 1, current + 2 + y); cputc('>');
+			}
+			break;
+		}
+	}
+
+	if(menu == left)
+	{
+		leftPanelDrive.drive = &(drives[current]);
+		currentLeft = leftPanelDrive.drive->drive;
+
+		sprintf(message, "Left is now drive %d", currentLeft);
+		writeStatusBar(message, wherex(), wherey());
+	}
+	else
+	{
+		rightPanelDrive.drive = &(drives[current]);
+		currentRight = rightPanelDrive.drive->drive;
+
+		sprintf(message, "Right is now drive %d", currentRight);
+		writeStatusBar(message, wherex(), wherey());
 	}
 
 	waitForEnterEsc();

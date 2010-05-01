@@ -49,17 +49,12 @@ int getDriveStatus(
 		return -1;
 	}
 
-	sprintf(buffer, "Opening drive %d", dr);
-	writeStatusBar(buffer, wherex(), wherey());
-		waitForEnterEsc();
-
 	result = cbm_open(15, dr, 15, "");
 
 	if(_oserror == 0)
 	{
 		sprintf(buffer, "Opened drive %d", dr);
 		writeStatusBar(buffer, wherex(), wherey());
-			waitForEnterEsc();
 	}
 	else
 	{
@@ -67,7 +62,6 @@ int getDriveStatus(
 
 		sprintf(buffer, "_oserror = %d, closed channel.", _oserror);
 		writeStatusBar(buffer, wherex(), wherey());
-			waitForEnterEsc();
 
 		return -1;
 	}
@@ -78,17 +72,9 @@ int getDriveStatus(
 		if(size >=0) drive->message[size] = '\0';
 		else drive->message[0] = '\0';
 		
-		sprintf(buffer, "%s", drive->message);
-		writeStatusBar(buffer, wherex(), wherey());
-		waitForEnterEsc();
-
 		if(strlen(drive->message) > 0)
 		{
 			cbm_write(15, "uj", 2); 
-
-			sprintf(buffer, "Sending UJ to %d", dr);
-			writeStatusBar(buffer, wherex(), wherey());		
-			waitForEnterEsc();
 
 			size = cbm_read(15, drive->message, 38);
 			if(size >=0) drive->message[size] = '\0';
@@ -96,10 +82,6 @@ int getDriveStatus(
 		}
 
 		cbm_close(15);
-
-		sprintf(buffer, "Closed %d", dr);
-		writeStatusBar(buffer, wherex(), wherey());		
-		waitForEnterEsc();
 
 		return size;
 	}
@@ -109,7 +91,7 @@ int getDriveStatus(
 
 void listDrives(enum menus menu)
 {
-	unsigned char x, y, i;
+	unsigned char x, y, i, status;
 	const unsigned char h = 15;
 	const unsigned char w = 39;
 	unsigned char message[40];
@@ -138,19 +120,23 @@ void listDrives(enum menus menu)
 		sprintf(message, "%d", i + 8);
 		cputs(message);
 
+		status = checkDrive(2, "UJ", i + 8);
+		sprintf(message, "Drive %d returns %d", i + 8, status);
+		writeStatusBar(message, wherex(), wherey());
+
 		gotoxy(x + 5, i + 2 + y);
 
-		if(getDriveStatus(&(drives[i])) > -1)
+		if(status !=5)
 		{
+			getDriveStatus(&(drives[i]));
 			cputs(drives[i].message);
 		}
 		else
 		{
-			cputs("Error reading drive");
+			cputs("No device present.");
 		}
 
 		revers(FALSE);
-		waitForEnterEsc();
 	}
 
 	waitForEnterEsc();

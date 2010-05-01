@@ -54,6 +54,7 @@
     <None Include="res\common\CommandMenu.s">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\common\driveRoutines.s" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="makefile">

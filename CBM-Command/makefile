@@ -26,6 +26,7 @@ ASMFILES= \
 	res\common\Common.s \
 	res\common\CommandMenu.s \
 	res\common\DriveMenu.s \
+	res\common\driveRoutines.s \
 	res\$(T)\FileMenu.s \
 	res\$(T)\OptionsMenu.s \
 	res\$(T)\PlatformSpecific.s

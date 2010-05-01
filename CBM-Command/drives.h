@@ -25,4 +25,9 @@ int getDriveStatus(
 	struct drive_status *drive);
 
 void listDrives(enum menus menu);
+
+extern unsigned char __fastcall__ checkDrive(
+	unsigned char length,
+	unsigned char* file,
+	unsigned char drive);
 #endif

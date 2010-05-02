@@ -32,6 +32,8 @@ void drawBox(
 void saveScreen(void);
 void retrieveScreen(void);
 
+void __fastcall__ notImplemented(void);
+
 unsigned char __fastcall__ getCenterX(unsigned char w);
 unsigned char __fastcall__ getCenterY(unsigned char h);
 #endif

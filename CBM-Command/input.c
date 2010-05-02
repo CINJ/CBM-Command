@@ -5,7 +5,7 @@
 #include "menus.h"
 #include "screen.h"
 
-void readKeyboard(void)
+void __fastcall__ readKeyboard(void)
 {
 	unsigned char key;
 	unsigned char buffer[39];

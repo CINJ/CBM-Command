@@ -9,6 +9,7 @@
 #include "constants.h"
 #include "globals.h"
 #include "PlatformSpecific.h"
+#include "input.h"
 
 // Prepares the screen 
 void setupScreen(void)
@@ -218,6 +219,12 @@ void writePanel(
 
 	if(title != NULL)
 	{
+#ifdef __C128__
+		// Works around a bug in CC65's CONIO 
+		// library on the VDC.
+		textcolor(color);
+		revers(reverse);
+#endif
 		sprintf(buffer, "[%s]", title);
 		gotoxy(x+1, y);
 		cputs(buffer);
@@ -228,6 +235,12 @@ void writePanel(
 	okLeft = x + w - 2;
 	if(ok != NULL)
 	{
+#ifdef __C128__
+		// Works around a bug in CC65's CONIO 
+		// library on the VDC.
+		textcolor(color);
+		revers(reverse);
+#endif
 		sprintf(buffer, "[%s]", ok);
 		okLeft -= strlen(buffer);
 		gotoxy(okLeft, y + h - 1);
@@ -237,6 +250,12 @@ void writePanel(
 	cancelLeft = okLeft - 2;
 	if(cancel != NULL)
 	{
+#ifdef __C128__
+		// Works around a bug in CC65's CONIO 
+		// library on the VDC.
+		textcolor(color);
+		revers(reverse);
+#endif
 		sprintf(buffer, "[%s]", cancel);
 		cancelLeft -= strlen(buffer);
 		gotoxy(cancelLeft, y + h - 1);
@@ -245,4 +264,27 @@ void writePanel(
 
 	textcolor(oldColor);
 	revers(oldReverse);
+}
+
+void __fastcall__ notImplemented(void)
+{
+	unsigned char x, y, h = 5, w = 23;
+	unsigned char buffer[39];
+
+	saveScreen();
+
+	x = getCenterX(w);
+	y = getCenterY(h);
+
+	writePanel(TRUE, TRUE, COLOR_RED, x, y, h, w,
+		"Sorry...", "OK", NULL);
+
+	textcolor(COLOR_RED);
+	revers(TRUE);
+	gotoxy(x+2, y+2);
+	cputs("Not yet implemented.");
+
+	waitForEnterEsc();
+
+	retrieveScreen();
 }

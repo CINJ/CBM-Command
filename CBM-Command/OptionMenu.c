@@ -97,22 +97,19 @@ void handleOptionMenu(void)
 			if(key == OPTION_MENU_OPTIONS_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, OPTION_MENU_OPTIONS);
-				writeStatusBar(buffer, 0, 20);
+				notImplemented();
 			}
 #ifdef __C128__
 			else if(key == OPTION_MENU_TOGGLE_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, OPTION_MENU_TOGGLE);
-				writeStatusBar(buffer, 0, 20);
+				notImplemented();
 			}
 #endif
 			else if(key == OPTION_MENU_SAVE_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, OPTION_MENU_SAVE);
-				writeStatusBar(buffer, 0, 20);
+				notImplemented();
 			}
 			else
 			{

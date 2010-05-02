@@ -7,9 +7,12 @@
 
 #include "constants.h"
 #include "drives.h"
+#include "globals.h"
 #include "input.h"
 #include "screen.h"
 #include "menus.h"
+
+unsigned char drivesBuffer[80];
 
 struct drive_status drives[12] =
 {
@@ -33,7 +36,7 @@ struct panel_drive rightPanelDrive;
 unsigned char currentLeft = 0;
 unsigned char currentRight = 0;
 
-int getDriveStatus(
+int __fastcall__ getDriveStatus(
 	struct drive_status *drive)
 {
 	int result;
@@ -89,7 +92,7 @@ int getDriveStatus(
 	return result;
 }
 
-void listDrives(enum menus menu)
+void __fastcall__ listDrives(enum menus menu)
 {
 	unsigned char x, y, i;
 	unsigned char status, current, original, key;
@@ -125,7 +128,7 @@ void listDrives(enum menus menu)
 		sprintf(message, "%d", i + 8);
 		cputs(message);
 
-		status = checkDrive(2, "UJ", i + 8);
+		status = checkDrive(2, "UI", i + 8);
 		//sprintf(message, "Drive %d returns %d", i + 8, status);
 		//writeStatusBar(message, wherex(), wherey());
 
@@ -203,6 +206,159 @@ void listDrives(enum menus menu)
 		writeStatusBar(message, wherex(), wherey());
 	}
 
-	waitForEnterEsc();
+	//waitForEnterEsc();
 }
 
+int __fastcall__ getDirectory(struct panel_drive *drive)
+{
+	unsigned char result, dr;
+	int counter;
+	struct cbm_dirent *currentDE;
+	struct dir_node *currentNode, *newNode;
+
+	currentNode = drive->tail;
+	while(currentNode != NULL && currentNode->prev != NULL)
+	{
+		if(currentNode->next != NULL)
+			free(currentNode->next);
+
+		currentNode = currentNode->prev;
+	}
+	if(currentNode != NULL) 
+		free(currentNode);
+
+	drive->head = NULL;
+	drive->tail = NULL;
+	drive->length = 0;
+
+	dr = drive->drive->drive;
+
+	result = cbm_opendir(dr, dr);
+	if(result == 0)
+	{
+		writeStatusBar("Reading directory...", wherex(), wherey());
+		counter = 0;
+		currentDE = malloc(sizeof(struct cbm_dirent));
+		currentNode = malloc(sizeof(struct dir_node));
+		currentNode->prev = NULL;
+		currentNode->next = NULL;
+		drive->head = currentNode;
+		drive->tail = currentNode;
+		while(!cbm_readdir(dr, currentDE))
+		{
+			//writeStatusBar(currentDE->name, wherex(), wherey());
+			currentNode->dir_entry = currentDE;
+			currentDE = malloc(sizeof(struct cbm_dirent));
+			newNode = malloc(sizeof(struct dir_node));
+			currentNode->next = newNode;
+			drive->tail = newNode;
+			newNode->prev = currentNode;
+			newNode->next = NULL;
+			currentNode = newNode;
+			counter++;
+		}
+		cbm_closedir(dr);
+		drive->length = counter;
+		writeStatusBar("Finished reading directory.", 
+			wherex(), wherey());
+	}
+
+	return counter;
+}
+
+void __fastcall__ displayDirectory(struct panel_drive *drive, enum menus menu)
+{
+	unsigned char oldReverse, fileType, w = 19, x = 0;
+	int i;
+	struct dir_node *currentNode;
+	unsigned char size[4];
+	currentNode = drive->head;
+
+	if(size_x > 40) w=39;
+	if(menu == right) x=w + 1;
+	
+	writePanel(TRUE, FALSE, COLOR_GRAY3, x, 1, 21, w, 
+		currentNode->dir_entry->name, NULL, NULL);
+	
+	textcolor(COLOR_YELLOW);
+	currentNode = currentNode->next;
+	for(i=1; i < drive->length; i++)
+	{
+		if(i+1 == 22) break;
+		
+		gotoxy(x + 2, i+1);
+		
+		shortenSize(size, currentNode->dir_entry->size);
+		fileType = getFileType(currentNode->dir_entry->type);
+		//writeStatusBar(size, wherex(), wherey());
+
+#ifdef __C128__
+		// Works around a bug in CC65's CONIO 
+		// library on the VDC.
+		textcolor(COLOR_YELLOW);
+#endif
+		sprintf(drivesBuffer, "%c %s %s", 
+			fileType, 
+			size,
+			shortenString(currentNode->dir_entry->name)
+			);
+
+		cputs(drivesBuffer);
+		currentNode = currentNode->next;
+	}
+}
+
+unsigned char __fastcall__ getFileType(unsigned char type)
+{
+	switch((int)type)
+	{
+	case 0: return 'D';
+	case 1: return 'S';
+	case 2: return 'P';
+	case 3: return 'U';
+	case 4: return 'R';
+	case 5: return 'C';
+	case 6: return 'D';
+	default: return 'O';
+	}
+}
+
+void __fastcall__ shortenSize(unsigned char* buffer, unsigned int value)
+{
+	if(value < 1000)
+	{
+		sprintf(buffer, "%3d", value);
+	}
+	else
+	{
+		sprintf(buffer, "%2dK", value/1024);
+	}
+}
+
+unsigned char* __fastcall__ shortenString(unsigned char* source)
+{
+	const int targetLength = 11;
+	unsigned char buffer[18];
+
+	if(size_x == 40)
+	{
+		if(strlen(source) > targetLength)
+		{
+			strncpy(buffer, source, targetLength - 3);
+			buffer[targetLength - 3] = '.';
+			buffer[targetLength - 2] = '.';
+			buffer[targetLength - 1] = '.';
+			buffer[targetLength] = '\0';
+		}
+		else
+		{
+			return source;
+		}
+	}
+	else
+	{
+		return source;
+	}
+
+	return buffer;
+}

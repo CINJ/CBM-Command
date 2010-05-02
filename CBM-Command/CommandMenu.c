@@ -84,14 +84,12 @@ void handleCommandMenu(void)
 			if(key == COMMAND_MENU_SWAP_PANELS_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, COMMAND_MENU_SWAP_PANELS);
-				writeStatusBar(buffer, 0, 20);
+				notImplemented();
 			}
 			else if(key == COMMAND_MENU_PANELS_ON_OFF_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, COMMAND_MENU_PANELS_ON_OFF);
-				writeStatusBar(buffer, 0, 20);
+				notImplemented();
 			}
 			else
 			{

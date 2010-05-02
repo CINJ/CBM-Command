@@ -54,10 +54,11 @@ int main(void)
 
 // Obtains the screen size and sets up global
 // strings as necessary.
-void initialize()
+void initialize(void)
 {
 #if defined(__C128__)
 	getScreenSize(&size_x, &size_y);
+	if(size_x > 40) fast();
 #else
 	screensize(&size_x, &size_y);
 #endif

@@ -112,45 +112,37 @@ void handleFileMenu(enum menus menu)
 			if(key == FILE_MENU_ABOUT_KEY)
 			{
 				retrieveScreen();
-				//strcpy(buffer, FILE_MENU_ABOUT);
-				//writeStatusBar(buffer, 0, 20);
 				writeAboutBox();
 			}
 			else if(key == FILE_MENU_HELP_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, FILE_MENU_HELP);
-				writeStatusBar(buffer, 0, 20);
+				notImplemented();
 			}
 			else if(key == FILE_MENU_COPY_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, FILE_MENU_COPY);
-				writeStatusBar(buffer, 0, 20);
+				notImplemented();
 			}
 			else if(key == FILE_MENU_RENAME_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, FILE_MENU_RENAME);
-				writeStatusBar(buffer, 0, 20);
+				notImplemented();
 			}
 			else if(key == FILE_MENU_MAKE_DIR_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, FILE_MENU_MAKE_DIR);
-				writeStatusBar(buffer, 0, 20);
+				notImplemented();
 			}
 			else if(key == FILE_MENU_DELETE_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, FILE_MENU_DELETE);
-				writeStatusBar(buffer, 0, 20);
+				notImplemented();
 			}
 			else if(key == FILE_MENU_FILE_INFO_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, FILE_MENU_FILE_INFO);
-				writeStatusBar(buffer, 0, 20);
+				notImplemented();
 			}
 			else if(key == FILE_MENU_QUIT_KEY)
 			{
@@ -190,7 +182,7 @@ void __fastcall__ writeAboutBox(void)
 		{
 			"Copyright 2010",
 			"Payton Byrd",
-			"",
+			"version 2010-05-01",
 			"Thanks to Uz for CC65",
 			"and all the support!",
 			"",
@@ -209,7 +201,7 @@ void __fastcall__ writeAboutBox(void)
 		COLOR_RED, 
 		x, y, h, w,
 		"About CBM-Command",
-		"Close", "Done");
+		NULL, "OK");
 
 	oldReverse = revers(FALSE);
 	oldColor = textcolor(COLOR_WHITE);

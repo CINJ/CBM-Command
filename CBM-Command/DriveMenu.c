@@ -103,21 +103,39 @@ void handleDriveMenu(enum menus menu)
 			if(key == DRIVE_MENU_ON_OFF_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, DRIVE_MENU_ON_OFF);
-				writeStatusBar(buffer, 0, 20);
+				notImplemented();
 			}
 			else if(key == DRIVE_MENU_DRIVE_KEY)
 			{
 				retrieveScreen();
 				listDrives(menu);
 				retrieveScreen();
+				if(menu == left)
+				{
+					getDirectory(&leftPanelDrive);
+					displayDirectory(&leftPanelDrive, menu);
+				}
+				else
+				{
+					getDirectory(&rightPanelDrive);
+					displayDirectory(&rightPanelDrive, menu);
+				}
 				finalRetrieve = FALSE;
 			}
 			else if(key == DRIVE_MENU_REREAD_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, DRIVE_MENU_REREAD);
-				writeStatusBar(buffer, 0, 20);
+				if(menu == left)
+				{
+					getDirectory(&leftPanelDrive);
+					displayDirectory(&leftPanelDrive, menu);
+				}
+				else
+				{
+					getDirectory(&rightPanelDrive);
+					displayDirectory(&rightPanelDrive, menu);
+				}
+				finalRetrieve = FALSE;
 			}
 			else
 			{

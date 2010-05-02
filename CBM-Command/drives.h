@@ -40,6 +40,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "menus.h"
 
+extern int currentLeftIndex;
+extern int currentRightIndex;
+extern enum menus currentPanel;
+
 struct drive_status
 {
 	unsigned char drive;
@@ -62,11 +66,17 @@ struct panel_drive
 	struct dir_node *head;
 	struct dir_node *tail;
 	int length;
+	int currentIndex;
+	int displayStartAt;
+	enum menus position;
 };
 
+extern unsigned areDrivesInitialized;
 extern struct drive_status drives[12];
 extern struct panel_drive leftPanelDrive;
 extern struct panel_drive rightPanelDrive;
+
+void __fastcall__ initializeDrives(void);
 
 int __fastcall__ getDriveStatus(
 	struct drive_status *drive);
@@ -80,7 +90,7 @@ extern unsigned char __fastcall__ checkDrive(
 
 int __fastcall__ getDirectory(struct panel_drive *drive);
 
-void __fastcall__ displayDirectory(struct panel_drive *drive, enum menus menu);
+void __fastcall__ displayDirectory(struct panel_drive *drive);
 
 unsigned char __fastcall__ getFileType(unsigned char type);
 void __fastcall__ shortenSize(unsigned char* buffer, unsigned int value);

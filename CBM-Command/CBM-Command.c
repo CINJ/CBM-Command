@@ -103,6 +103,6 @@ void initialize(void)
 	strncpy(blank_line, SPACES, size_x);
 	blank_line[size_x] = '\0';
 
-
+	initializeDrives();
 }
 

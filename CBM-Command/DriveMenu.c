@@ -151,12 +151,12 @@ void handleDriveMenu(enum menus menu)
 				if(menu == left)
 				{
 					getDirectory(&leftPanelDrive);
-					displayDirectory(&leftPanelDrive, menu);
+					displayDirectory(&leftPanelDrive);
 				}
 				else
 				{
 					getDirectory(&rightPanelDrive);
-					displayDirectory(&rightPanelDrive, menu);
+					displayDirectory(&rightPanelDrive);
 				}
 				finalRetrieve = FALSE;
 			}
@@ -183,11 +183,11 @@ void rereadDrivePanel(enum menus menu)
 	if(menu == left)
 	{
 		getDirectory(&leftPanelDrive);
-		displayDirectory(&leftPanelDrive, menu);
+		displayDirectory(&leftPanelDrive);
 	}
 	else
 	{
 		getDirectory(&rightPanelDrive);
-		displayDirectory(&rightPanelDrive, menu);
+		displayDirectory(&rightPanelDrive);
 	}
 }

@@ -67,11 +67,33 @@ struct drive_status drives[12] =
 	{ 19, "", FALSE, FALSE },	// 11
 };
 
-struct panel_drive leftPanelDrive;
+unsigned areDrivesInitialized = FALSE;
+struct panel_drive leftPanelDrive; 
 struct panel_drive rightPanelDrive;
 
 unsigned char currentLeft = 0;
 unsigned char currentRight = 0;
+
+
+int currentLeftIndex = 0;
+int currentRightIndex = 0;
+enum menus currentPanel = left;
+
+void __fastcall__ initializeDrives(void)
+{
+	if(!areDrivesInitialized)
+	{
+		leftPanelDrive.currentIndex = 0;
+		leftPanelDrive.displayStartAt = 0;
+		leftPanelDrive.position = left;
+
+		rightPanelDrive.currentIndex = 0;
+		rightPanelDrive.displayStartAt = 0;
+		rightPanelDrive.position = right;
+
+		areDrivesInitialized = TRUE;
+	}
+}
 
 int __fastcall__ getDriveStatus(
 	struct drive_status *drive)
@@ -303,7 +325,8 @@ int __fastcall__ getDirectory(struct panel_drive *drive)
 	return counter;
 }
 
-void __fastcall__ displayDirectory(struct panel_drive *drive, enum menus menu)
+void __fastcall__ displayDirectory(
+	struct panel_drive *drive)
 {
 	unsigned char oldReverse, fileType, w = 19, x = 0;
 	int i;
@@ -312,14 +335,21 @@ void __fastcall__ displayDirectory(struct panel_drive *drive, enum menus menu)
 	currentNode = drive->head;
 
 	if(size_x > 40) w=39;
-	if(menu == right) x=w + 1;
+	if(drive->position == right) x=w + 1;
 	
 	writePanel(TRUE, FALSE, COLOR_GRAY3, x, 1, 21, w, 
 		currentNode->dir_entry->name, NULL, NULL);
 	
 	textcolor(COLOR_YELLOW);
+	
 	currentNode = currentNode->next;
-	for(i=1; i < drive->length; i++)
+
+	for(i=0; i < drive->displayStartAt; i++)
+	{
+		currentNode = currentNode->next;
+	}
+
+	for(i=1; i + drive->displayStartAt < drive->length; i++)
 	{
 		if(i+1 == 22) break;
 		

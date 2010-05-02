@@ -128,16 +128,22 @@ void handleCommandMenu(void)
 				tempPanel.head = leftPanelDrive.head;
 				tempPanel.length = leftPanelDrive.length;
 				tempPanel.tail = leftPanelDrive.tail;
+				tempPanel.currentIndex = leftPanelDrive.currentIndex;
+				tempPanel.displayStartAt = leftPanelDrive.displayStartAt;
 
 				leftPanelDrive.drive = rightPanelDrive.drive;
 				leftPanelDrive.head = rightPanelDrive.head;
 				leftPanelDrive.length = rightPanelDrive.length;
 				leftPanelDrive.tail = rightPanelDrive.tail;
+				leftPanelDrive.currentIndex = rightPanelDrive.currentIndex;
+				leftPanelDrive.displayStartAt = rightPanelDrive.displayStartAt;
 
 				rightPanelDrive.drive = tempPanel.drive;
 				rightPanelDrive.head = tempPanel.head;
 				rightPanelDrive.length = tempPanel.length;
 				rightPanelDrive.tail = tempPanel.tail;
+				rightPanelDrive.currentIndex = tempPanel.currentIndex;
+				rightPanelDrive.displayStartAt = tempPanel.displayStartAt;
 				
 				displayPanels();
 			}

@@ -47,20 +47,20 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "menus.h"
 
 unsigned isInitialized = FALSE;
-char* DRIVE_MENU_LABELS[3];
-unsigned char DRIVE_MENU_KEYS[3];
+char* DRIVE_MENU_LABELS[2];
+unsigned char DRIVE_MENU_KEYS[2];
 
 void initDriveMenu(void)
 {
 	if(!isInitialized)
 	{
-		DRIVE_MENU_LABELS[0] = DRIVE_MENU_ON_OFF;
-		DRIVE_MENU_LABELS[1] = DRIVE_MENU_REREAD;
-		DRIVE_MENU_LABELS[2] = DRIVE_MENU_DRIVE;
+		//DRIVE_MENU_LABELS[0] = DRIVE_MENU_ON_OFF;
+		DRIVE_MENU_LABELS[0] = DRIVE_MENU_REREAD;
+		DRIVE_MENU_LABELS[1] = DRIVE_MENU_DRIVE;
 
-		DRIVE_MENU_KEYS[0] = DRIVE_MENU_ON_OFF_KEY;
-		DRIVE_MENU_KEYS[1] = DRIVE_MENU_REREAD_KEY;
-		DRIVE_MENU_KEYS[2] = DRIVE_MENU_DRIVE_KEY;
+		//DRIVE_MENU_KEYS[0] = DRIVE_MENU_ON_OFF_KEY;
+		DRIVE_MENU_KEYS[0] = DRIVE_MENU_REREAD_KEY;
+		DRIVE_MENU_KEYS[1] = DRIVE_MENU_DRIVE_KEY;
 
 		isInitialized = TRUE;
 	}
@@ -137,12 +137,13 @@ void handleDriveMenu(enum menus menu)
 			key = DRIVE_MENU_KEYS[currentMenuLine];
 
 		default:
-			if(key == DRIVE_MENU_ON_OFF_KEY)
-			{
-				retrieveScreen();
-				notImplemented();
-			}
-			else if(key == DRIVE_MENU_DRIVE_KEY)
+			//if(key == DRIVE_MENU_ON_OFF_KEY)
+			//{
+			//	retrieveScreen();
+			//	notImplemented();
+			//}
+			//else 
+			if(key == DRIVE_MENU_DRIVE_KEY)
 			{
 				retrieveScreen();
 				listDrives(menu);
@@ -162,16 +163,7 @@ void handleDriveMenu(enum menus menu)
 			else if(key == DRIVE_MENU_REREAD_KEY)
 			{
 				retrieveScreen();
-				if(menu == left)
-				{
-					getDirectory(&leftPanelDrive);
-					displayDirectory(&leftPanelDrive, menu);
-				}
-				else
-				{
-					getDirectory(&rightPanelDrive);
-					displayDirectory(&rightPanelDrive, menu);
-				}
+				rereadDrivePanel(menu);
 				finalRetrieve = FALSE;
 			}
 			else
@@ -184,4 +176,18 @@ void handleDriveMenu(enum menus menu)
 	}
 
 	if(finalRetrieve) retrieveScreen();
+}
+
+void rereadDrivePanel(enum menus menu)
+{
+	if(menu == left)
+	{
+		getDirectory(&leftPanelDrive);
+		displayDirectory(&leftPanelDrive, menu);
+	}
+	else
+	{
+		getDirectory(&rightPanelDrive);
+		displayDirectory(&rightPanelDrive, menu);
+	}
 }

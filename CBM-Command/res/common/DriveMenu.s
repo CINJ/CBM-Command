@@ -36,16 +36,16 @@
 ;***************************************************************/
 
 .export _DRIVE_MENU_COUNT
-_DRIVE_MENU_COUNT: .byte $03
+_DRIVE_MENU_COUNT: .byte $02
 
 .export _DRIVE_MENU_WIDTH
 _DRIVE_MENU_WIDTH: .byte $08
 
-.export _DRIVE_MENU_ON_OFF
-_DRIVE_MENU_ON_OFF: .asciiz "On/Off"
+;.export _DRIVE_MENU_ON_OFF
+;_DRIVE_MENU_ON_OFF: .asciiz "On/Off"
 
-.export _DRIVE_MENU_ON_OFF_KEY
-_DRIVE_MENU_ON_OFF_KEY: .byte $4F
+;.export _DRIVE_MENU_ON_OFF_KEY
+;_DRIVE_MENU_ON_OFF_KEY: .byte $4F
 
 .export _DRIVE_MENU_REREAD
 _DRIVE_MENU_REREAD: .asciiz "Re-read"

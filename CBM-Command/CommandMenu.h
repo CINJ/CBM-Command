@@ -53,5 +53,5 @@ extern unsigned char COMMAND_MENU_KEYS[2];
 
 void initCommandMenu(void);
 void handleCommandMenu();
-
+void displayPanels(void);
 #endif

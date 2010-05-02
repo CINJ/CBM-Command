@@ -42,9 +42,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include "CommandMenu.h"
 #include "constants.h"
-#include "screen.h"
+#include "DriveMenu.h"
+#include "drives.h"
 #include "menus.h"
+#include "screen.h"
 
+unsigned arePanelsOn = TRUE;
 unsigned isInitialized = FALSE;
 
 char* COMMAND_MENU_LABELS[2];
@@ -69,6 +72,7 @@ void handleCommandMenu(void)
 	unsigned char key;
 	unsigned handleKeys = TRUE;
 	unsigned char buffer[39];
+	struct panel_drive tempPanel;
 
 	while(handleKeys)
 	{
@@ -120,13 +124,36 @@ void handleCommandMenu(void)
 		default:
 			if(key == COMMAND_MENU_SWAP_PANELS_KEY)
 			{
-				retrieveScreen();
-				notImplemented();
+				tempPanel.drive = leftPanelDrive.drive;
+				tempPanel.head = leftPanelDrive.head;
+				tempPanel.length = leftPanelDrive.length;
+				tempPanel.tail = leftPanelDrive.tail;
+
+				leftPanelDrive.drive = rightPanelDrive.drive;
+				leftPanelDrive.head = rightPanelDrive.head;
+				leftPanelDrive.length = rightPanelDrive.length;
+				leftPanelDrive.tail = rightPanelDrive.tail;
+
+				rightPanelDrive.drive = tempPanel.drive;
+				rightPanelDrive.head = tempPanel.head;
+				rightPanelDrive.length = tempPanel.length;
+				rightPanelDrive.tail = tempPanel.tail;
+				
+				displayPanels();
 			}
 			else if(key == COMMAND_MENU_PANELS_ON_OFF_KEY)
 			{
-				retrieveScreen();
-				notImplemented();
+				if(arePanelsOn)
+				{
+					setupScreen();
+					writeMenuBar();
+					arePanelsOn = FALSE;
+				}
+				else
+				{
+					displayPanels();
+					arePanelsOn = TRUE;
+				}
 			}
 			else
 			{
@@ -134,5 +161,17 @@ void handleCommandMenu(void)
 			}
 			break;
 		}
+	}
+}
+
+void displayPanels(void)
+{
+	if(leftPanelDrive.drive != NULL)
+	{
+		rereadDrivePanel(left);
+	}
+	if(rightPanelDrive.drive != NULL)
+	{
+		rereadDrivePanel(right);
 	}
 }

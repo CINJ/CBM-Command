@@ -57,7 +57,8 @@
     <NMakeOutput />
     <NMakeCleanCommandLine>make clean T:=c64</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>make T:=c64</NMakeReBuildCommandLine>
-    <NMakePreprocessorDefinitions>__C64__ __CBM__</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions>__C64__ __CBM__ __fastcall__=__fastcall</NMakePreprocessorDefinitions>
+    <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C= 128|Win32'">
     <NMakeBuildCommandLine>make T:=c128</NMakeBuildCommandLine>

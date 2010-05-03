@@ -52,7 +52,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <c128.h>
 #endif
 
-void initialize(void);
+
 
 int main(void)
 {
@@ -89,20 +89,5 @@ int main(void)
 	return EXIT_SUCCESS;
 }
 
-// Obtains the screen size and sets up global
-// strings as necessary.
-void initialize(void)
-{
-#if defined(__C128__)
-	getScreenSize(&size_x, &size_y);
-	if(size_x > 40) fast();
-#else
-	screensize(&size_x, &size_y);
-#endif
 
-	strncpy(blank_line, SPACES, size_x);
-	blank_line[size_x] = '\0';
-
-	initializeDrives();
-}
 

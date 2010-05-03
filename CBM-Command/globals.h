@@ -41,5 +41,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern unsigned char size_x;
 extern unsigned char size_y;
 extern unsigned char blank_line[81];
+extern unsigned arePanelsOn;
 
+
+void initialize(void);
 #endif

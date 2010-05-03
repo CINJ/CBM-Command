@@ -44,10 +44,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constants.h"
 #include "DriveMenu.h"
 #include "drives.h"
+#include "globals.h"
 #include "menus.h"
 #include "screen.h"
 
-unsigned arePanelsOn = TRUE;
 unsigned isInitialized = FALSE;
 
 char* COMMAND_MENU_LABELS[2];
@@ -145,7 +145,10 @@ void handleCommandMenu(void)
 				rightPanelDrive.currentIndex = tempPanel.currentIndex;
 				rightPanelDrive.displayStartAt = tempPanel.displayStartAt;
 				
+				setupScreen();
+				writeMenuBar();
 				displayPanels();
+				arePanelsOn = TRUE;
 			}
 			else if(key == COMMAND_MENU_PANELS_ON_OFF_KEY)
 			{
@@ -157,6 +160,7 @@ void handleCommandMenu(void)
 				}
 				else
 				{
+					retrieveScreen();
 					displayPanels();
 					arePanelsOn = TRUE;
 				}

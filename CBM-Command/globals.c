@@ -34,9 +34,39 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
+#include <string.h>
+#include <conio.h>
 
+#include "AssemblerMethods.h"
+#include "constants.h"
+#include "drives.h"
 #include "globals.h"
+#include "screen.h"
+#include "PlatformSpecific.h"
+
+#if defined(__C128__)
+#include <c128.h>
+#endif
 
 unsigned char size_x;
 unsigned char size_y;
 unsigned char blank_line[81];
+unsigned arePanelsOn = TRUE;
+
+
+// Obtains the screen size and sets up global
+// strings as necessary.
+void initialize(void)
+{
+#if defined(__C128__)
+	getScreenSize(&size_x, &size_y);
+	if(size_x > 40) fast();
+#else
+	screensize(&size_x, &size_y);
+#endif
+
+	strncpy(blank_line, SPACES, size_x);
+	blank_line[size_x] = '\0';
+
+	initializeDrives();
+}

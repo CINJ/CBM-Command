@@ -41,7 +41,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 #include "OptionMenu.h"
+#include "CommandMenu.h"
 #include "constants.h"
+#include "globals.h"
 #include "screen.h"
 #include "menus.h"
 #include "FileMenu.h"
@@ -139,8 +141,33 @@ void handleOptionMenu(void)
 #ifdef __C128__
 			else if(key == OPTION_MENU_TOGGLE_KEY)
 			{
-				retrieveScreen();
-				notImplemented();
+				//retrieveScreen();
+				//notImplemented();
+				if(size_x == 40)
+				{
+					writeStatusBar(
+						"Toggling display.  Please use your 80 columns display."
+						, wherex(), wherey());
+
+					videomode(VIDEOMODE_80COL);
+					fast();
+				}
+				else
+				{
+					writeStatusBar(
+						"Toggling display.  Please use your 40 columns display."
+						, wherex(), wherey());
+
+					slow();
+					videomode(VIDEOMODE_40COL);
+				}
+				initialize();
+				setupScreen();
+				writeMenuBar();
+				if(arePanelsOn)
+				{
+					displayPanels();
+				}				
 			}
 #endif
 			else if(key == OPTION_MENU_SAVE_KEY)

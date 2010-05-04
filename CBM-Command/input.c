@@ -48,7 +48,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void __fastcall__ readKeyboard(void)
 {
 	unsigned char key;
-	unsigned char buffer[39];
+//	unsigned char buffer[39];
 
 	key = cgetc();
 
@@ -82,6 +82,12 @@ void __fastcall__ readKeyboard(void)
 			writeSelectorPosition(&leftPanelDrive, ' ');
 			writeSelectorPosition(&rightPanelDrive, '>');
 		}
+		break;
+	case KEY_SH_PLUS:
+		enterDirectory(selectedPanel);
+		break;
+	case KEY_SH_MINUS:
+		leaveDirectory(selectedPanel);
 		break;
 	case 188: // C= C - Command Menu
 		writeMenu(command);
@@ -150,8 +156,7 @@ void __fastcall__ readKeyboard(void)
 		makeDirectory();
 		break;
 	default:
-		sprintf(buffer, "%c", key);
-		writeStatusBar(buffer, 0, 20);
+		writeStatusBarf("%c", key);
 	}
 }
 

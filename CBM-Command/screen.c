@@ -107,12 +107,12 @@ void __fastcall__ retrieveScreen(void)
 	memcpy(colorMemoryStart, COLOR_BUFFER, 1000);
 }
 
-void writeStatusBar(
-	unsigned char message[], 
-	unsigned char return_x, 
-	unsigned char return_y)
+void __fastcall__ writeStatusBar(
+	unsigned char message[])
 {
-	unsigned char oldColor;
+	unsigned char oldColor, oldX, oldY;
+	oldX = wherex();
+	oldY = wherey();
 
 	oldColor = textcolor(COLOR_GRAY3);
 	revers(TRUE);
@@ -125,7 +125,7 @@ void writeStatusBar(
 	
 	revers(FALSE);
 
-	gotoxy(return_x, return_y);
+	gotoxy(oldY, oldY);
 	textcolor(oldColor);
 }
 
@@ -422,3 +422,12 @@ unsigned __fastcall__ writeYesNo(
 	return result == YES_RESULT;
 }
 
+void writeStatusBarf(unsigned char format[], ...)
+{
+	unsigned char buffer[80];
+	va_list ap;
+	va_start(ap,  format);
+	vsprintf(buffer, format, ap);
+	va_end(ap);
+	writeStatusBar(buffer);
+}

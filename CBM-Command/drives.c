@@ -53,18 +53,18 @@ unsigned char drivesBuffer[80];
 
 struct drive_status drives[12] =
 {
-	{ 8, "", FALSE, FALSE },	// 0
-	{ 9, "", FALSE, FALSE },	// 1
-	{ 10, "", FALSE, FALSE },	// 2
-	{ 11, "", FALSE, FALSE },	// 3
-	{ 12, "", FALSE, FALSE },	// 4
-	{ 13, "", FALSE, FALSE },	// 5
-	{ 14, "", FALSE, FALSE },	// 6
-	{ 15, "", FALSE, FALSE },	// 7
-	{ 16, "", FALSE, FALSE },	// 8
-	{ 17, "", FALSE, FALSE },	// 9
-	{ 18, "", FALSE, FALSE },	// 10
-	{ 19, "", FALSE, FALSE },	// 11
+	{ 8, "" },	// 0
+	{ 9, "" },	// 1
+	{ 10, "" },	// 2
+	{ 11, "" },	// 3
+	{ 12, "" },	// 4
+	{ 13, "" },	// 5
+	{ 14, "" },	// 6
+	{ 15, "" },	// 7
+	{ 16, "" },	// 8
+	{ 17, "" },	// 9
+	{ 18, "" },	// 10
+	{ 19, "" },	// 11
 };
 
 unsigned areDrivesInitialized = FALSE;
@@ -102,30 +102,19 @@ int __fastcall__ getDriveStatus(
 {
 	int result;
 	int size;
-	//unsigned char buffer[39];
 	unsigned char dr;
 	dr = drive->drive;
 
 	if(dr < 8 || dr > 19)
 	{
-		//sprintf(drive->message, "Cannot open drive %d", dr);
-		//writeStatusBar(drive->message, wherex(), wherey());
 		return -1;
 	}
 
 	result = cbm_open(15, dr, 15, "");
 
-	if(_oserror == 0)
-	{
-		//sprintf(buffer, "Opened drive %d", dr);
-		//writeStatusBar(buffer, wherex(), wherey());
-	}
-	else
+	if(_oserror != 0)
 	{
 		cbm_close(15);
-
-		//sprintf(buffer, "_oserror = %d, closed channel.", _oserror);
-		//writeStatusBar(buffer, wherex(), wherey());
 
 		return -1;
 	}
@@ -138,7 +127,7 @@ int __fastcall__ getDriveStatus(
 		
 		if(strlen(drive->message) > 0)
 		{
-			cbm_write(15, "uj", 2); 
+			cbm_write(15, "ui", 2); 
 
 			size = cbm_read(15, drive->message, 38);
 			if(size >=0) drive->message[size] = '\0';
@@ -160,7 +149,7 @@ void __fastcall__ listDrives(enum menus menu)
 	unsigned selected = FALSE;
 	const unsigned char h = 17;
 	const unsigned char w = 39;
-	unsigned char message[40];
+	unsigned char message[10];
 
 	x = getCenterX(w);
 	y = getCenterY(h);
@@ -190,8 +179,6 @@ void __fastcall__ listDrives(enum menus menu)
 		cputs(message);
 
 		status = checkDrive(2, "UI", i + 8);
-		//sprintf(message, "Drive %d returns %d", i + 8, status);
-		//writeStatusBar(message, wherex(), wherey());
 
 		gotoxy(x + 5, i + 2 + y);
 
@@ -209,7 +196,8 @@ void __fastcall__ listDrives(enum menus menu)
 	}
 
 	textcolor(COLOR_YELLOW);
-	gotoxy(x + 1, y + 15); cputs("Use arrow keys & enter to select drive");
+	gotoxy(x + 1, y + 15); 
+	cputs("Use arrow keys & enter to select drive");
 	textcolor(COLOR_RED);
 
 	gotoxy(x + 1, current + 2 + y); cputc('>');
@@ -255,19 +243,15 @@ void __fastcall__ listDrives(enum menus menu)
 		leftPanelDrive.drive = &(drives[current]);
 		currentLeft = leftPanelDrive.drive->drive;
 
-		sprintf(message, "Left is now drive %d", currentLeft);
-		writeStatusBar(message, wherex(), wherey());
+		writeStatusBarf("Left is now drive %d", currentLeft);
 	}
 	else
 	{
 		rightPanelDrive.drive = &(drives[current]);
 		currentRight = rightPanelDrive.drive->drive;
 
-		sprintf(message, "Right is now drive %d", currentRight);
-		writeStatusBar(message, wherex(), wherey());
+		writeStatusBarf("Right is now drive %d", currentRight);
 	}
-
-	//waitForEnterEsc();
 }
 
 int __fastcall__ getDirectory(struct panel_drive *drive)
@@ -275,21 +259,21 @@ int __fastcall__ getDirectory(struct panel_drive *drive)
 	unsigned char result, dr;
 	int counter;
 	struct cbm_dirent *currentDE;
-	struct dir_node *currentNode, *newNode;
+	struct dir_node *currentNode, *newNode, *nextNode;
 
-	currentNode = drive->tail;
-	while(currentNode != NULL && currentNode->prev != NULL)
+	currentNode = drive->head;
+	while(currentNode != NULL)
 	{
-		if(currentNode->next != NULL)
-			free(currentNode->next);
-
-		currentNode = currentNode->prev;
-	}
-	if(currentNode != NULL) 
+		nextNode = currentNode->next;
+		if(currentNode->dir_entry != NULL)
+		{
+			free(currentNode->dir_entry);
+		}
 		free(currentNode);
+		currentNode = nextNode;
+	}
 
 	drive->head = NULL;
-	drive->tail = NULL;
 	drive->length = 0;
 
 	dr = drive->drive->drive;
@@ -297,23 +281,19 @@ int __fastcall__ getDirectory(struct panel_drive *drive)
 	result = cbm_opendir(dr, dr);
 	if(result == 0)
 	{
-		writeStatusBar("Reading directory...", wherex(), wherey());
+		writeStatusBar("Reading directory...");
 		counter = 0;
 		currentDE = malloc(sizeof(struct cbm_dirent));
 		currentNode = malloc(sizeof(struct dir_node));
-		currentNode->prev = NULL;
 		currentNode->next = NULL;
 		drive->head = currentNode;
-		drive->tail = currentNode;
 		while(!cbm_readdir(dr, currentDE))
 		{
-			//writeStatusBar(currentDE->name, wherex(), wherey());
 			currentNode->dir_entry = currentDE;
 			currentDE = malloc(sizeof(struct cbm_dirent));
 			newNode = malloc(sizeof(struct dir_node));
 			currentNode->next = newNode;
-			drive->tail = newNode;
-			newNode->prev = currentNode;
+			newNode->dir_entry = NULL;
 			newNode->next = NULL;
 			newNode->isSelected = FALSE;
 			currentNode = newNode;
@@ -321,8 +301,7 @@ int __fastcall__ getDirectory(struct panel_drive *drive)
 		}
 		cbm_closedir(dr);
 		drive->length = counter;
-		writeStatusBar("Finished reading directory.", 
-			wherex(), wherey());
+		writeStatusBar("Finished reading directory.");
 	
 		drive->currentIndex = 0;
 		drive->displayStartAt = 0;
@@ -348,8 +327,6 @@ void __fastcall__ displayDirectory(
 	writePanel(TRUE, FALSE, COLOR_GRAY3, x, 1, 21, w, 
 		currentNode->dir_entry->name, NULL, NULL);
 	
-	//textcolor(COLOR_YELLOW);
-	
 	currentNode = currentNode->next;
 
 	for(i=0; i < drive->displayStartAt; i++)
@@ -365,20 +342,16 @@ void __fastcall__ displayDirectory(
 		
 		shortenSize(size, currentNode->dir_entry->size);
 		fileType = getFileType(currentNode->dir_entry->type);
-		//writeStatusBar(size, wherex(), wherey());
 
 		textcolor(COLOR_YELLOW);
 		if(currentNode->isSelected == TRUE)
 		{
-			//writeStatusBar("Reverse On", wherex(), wherey());
 			revers(TRUE);
 		}
 		else
 		{
-			//writeStatusBar("Reverse Off", wherex(), wherey());
 			revers(FALSE);
 		}		
-		//waitForEnterEsc();
 
 		sprintf(drivesBuffer, "%c %s %s", 
 			fileType, 
@@ -427,8 +400,7 @@ void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
 			if(currentDirNode != NULL)
 			{
 				writeStatusBar(
-					currentDirNode->dir_entry->name,
-					wherex(), wherey());
+					currentDirNode->dir_entry->name);
 			}
 		}
 	}
@@ -438,17 +410,10 @@ void __fastcall__ moveSelectorUp(struct panel_drive *panel)
 {
 	unsigned char diff;
 	unsigned firstPage;
-	//unsigned char buffer[79];
 
 	writeSelectorPosition(panel, ' ');
 	firstPage = panel->displayStartAt == 0;
 	diff = panel->currentIndex - panel->displayStartAt;
-
-	//sprintf(buffer, "fP: %d  diff: %d  dsa: %d  ci: %d  l: %d",
-	//	firstPage, diff, panel->displayStartAt, 
-	//	panel->currentIndex, panel->length);
-
-	//writeStatusBar(buffer, wherex(), wherey());
 
 	if(!firstPage && diff == 1)
 	{
@@ -459,7 +424,6 @@ void __fastcall__ moveSelectorUp(struct panel_drive *panel)
 	else if(diff > 0)
 	{
 		panel->currentIndex--;
-		//displayDirectory(panel);
 	}
 	
 	writeSelectorPosition(panel, '>');
@@ -471,18 +435,11 @@ void __fastcall__ moveSelectorDown(struct panel_drive *panel)
 	const unsigned char offset = 19;
 	unsigned char diff;
 	unsigned lastPage;
-	//unsigned char buffer[79];
 
 	writeSelectorPosition(panel, ' ');
 
 	lastPage = panel->displayStartAt + offset + 2 >= panel->length;
 	diff = panel->length - panel->displayStartAt;
-
-	//sprintf(buffer, "lP: %d  diff: %d  dsa: %d  ci: %d  l: %d",
-	//	lastPage, diff, panel->displayStartAt, 
-	//	panel->currentIndex, panel->length);
-
-	//writeStatusBar(buffer, wherex(), wherey());
 
 	if(!lastPage && diff > offset &&
 		((panel->currentIndex - panel->displayStartAt) == offset))
@@ -566,8 +523,6 @@ void __fastcall__ selectCurrentFile(void)
 {
 	int i;
 	struct dir_node *currentDirNode;
-	//unsigned char buffer[39];
-	//unsigned isSelected;
 
 	if(selectedPanel != NULL)
 	{
@@ -593,18 +548,154 @@ void __fastcall__ selectCurrentFile(void)
 				displayDirectory(selectedPanel);
 				writeSelectorPosition(selectedPanel, '>');
 			}
-			else
-			{
-				writeStatusBar("currentDirNode is null!", wherex(), wherey());
-			}
 		}
 		else
 		{
-			writeStatusBar("No drive selected.", wherex(), wherey());
+			writeStatusBar("No drive selected.");
 		}
 	}
 	else
 	{
-		writeStatusBar("No panel selected.", wherex(), wherey());
+		writeStatusBar("No panel selected.");
 	}
+}
+
+void __fastcall__ enterDirectory(struct panel_drive *panel)
+{
+	unsigned char command[40];
+	struct dir_node *node;
+
+	node = getSelectedNode(panel);
+
+	if(isDiskImage(panel) || isDirectory(panel))
+	{
+		strcpy(command, "cd:");
+		strcat(command, node->dir_entry->name);
+		sendCommand(panel, command);
+		getDirectory(panel);
+		displayDirectory(panel);
+	}
+}
+
+void __fastcall__ leaveDirectory(struct panel_drive *panel)
+{
+	unsigned char buffer[4];
+	buffer[0] = 'c';
+	buffer[1] = 'd';
+	buffer[2] = 95;
+	buffer[3] = '\0';
+
+	sendCommand(panel, buffer);
+	getDirectory(panel);
+	displayDirectory(panel);
+}
+
+unsigned __fastcall__ isDiskImage(struct panel_drive *panel)
+{
+	unsigned result = FALSE;
+	struct dir_node *currentDirNode = NULL;
+
+	currentDirNode = getSelectedNode(panel);
+
+	if(currentDirNode != NULL)
+	{
+		if(strstr(currentDirNode->dir_entry->name, ".D64") > 0
+			|| strstr(currentDirNode->dir_entry->name, ".D81") > 0
+			|| strstr(currentDirNode->dir_entry->name, ".D71") > 0
+			|| strstr(currentDirNode->dir_entry->name, ".DNP") > 0
+			|| strstr(currentDirNode->dir_entry->name, ".d64") > 0
+			|| strstr(currentDirNode->dir_entry->name, ".d81") > 0
+			|| strstr(currentDirNode->dir_entry->name, ".d71") > 0
+			|| strstr(currentDirNode->dir_entry->name, ".dnp") > 0
+		)
+		{
+			result = TRUE;
+		}
+		else
+		{
+			result = FALSE;
+		}
+	}
+	else
+	{
+		writeStatusBar("Cannot get dir node, returned null.");
+	}
+
+	return result;
+}
+
+unsigned __fastcall__ isDirectory(struct panel_drive *panel)
+{
+	unsigned result = FALSE;
+	struct dir_node *currentDirNode = NULL;
+
+	currentDirNode = getSelectedNode(panel);
+
+	if(currentDirNode != NULL)
+	{
+		if(currentDirNode->dir_entry->type == 6)
+		{
+			result = TRUE;
+		}
+		else
+		{
+			result = FALSE;
+		}
+	}
+	else
+	{
+		writeStatusBar("Cannot get dir node, returned null.");
+	}
+
+	return result;
+}
+
+struct dir_node* __fastcall__ getSelectedNode(struct panel_drive *panel)
+{
+	int i;
+	struct dir_node *currentDirNode = NULL;
+
+	if(panel != NULL)
+	{
+		if(panel->drive != NULL)
+		{
+			currentDirNode = panel->head;
+			for(
+				i=0; 
+				i<=panel->currentIndex
+					&& currentDirNode != NULL; 
+				i++)
+			{
+				currentDirNode = currentDirNode->next;
+			}
+		}
+	}
+
+	return currentDirNode;
+}
+
+unsigned char __fastcall__ sendCommand(
+	struct panel_drive *panel,
+	unsigned char *command)
+{
+	char result;
+	unsigned char drive;
+	unsigned char buffer[40];
+
+	drive = panel->drive->drive;
+
+	result = cbm_open(drive, drive, 15, "");
+
+	result = cbm_write(drive, command, strlen(command));
+
+	if(result > -1)
+	{
+		cbm_read(drive, buffer, 39);
+		writeStatusBarf(buffer);
+		waitForEnterEsc();
+	}
+
+	cbm_close(drive);
+
+	return result;
 }

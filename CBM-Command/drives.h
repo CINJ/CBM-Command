@@ -48,14 +48,11 @@ struct drive_status
 {
 	unsigned char drive;
 	unsigned char message[39];
-	unsigned selected_left;
-	unsigned selected_right;
 };
 
 struct dir_node
 {
 	struct cbm_dirent *dir_entry;
-	struct dir_node *prev;
 	struct dir_node *next;
 	unsigned isSelected;
 };
@@ -64,7 +61,6 @@ struct panel_drive
 {
 	struct drive_status *drive;
 	struct dir_node *head;
-	struct dir_node *tail;
 	int length;
 	int currentIndex;
 	int displayStartAt;
@@ -102,4 +98,13 @@ void __fastcall__ moveSelectorUp(struct panel_drive *panel);
 void __fastcall__ moveSelectorDown(struct panel_drive *panel);
 void __fastcall__ selectCurrentFile(void);
 void __fastcall__ writeCurrentFilename(struct panel_drive *panel);
+void __fastcall__ enterDirectory(struct panel_drive *panel);
+void __fastcall__ leaveDirectory(struct panel_drive *panel);
+unsigned __fastcall__ isDiskImage(struct panel_drive *panel);
+unsigned __fastcall__ isDirectory(struct panel_drive *panel);
+struct dir_node* __fastcall__ getSelectedNode(struct panel_drive *panel);
+
+unsigned char __fastcall__ sendCommand(
+	struct panel_drive *panel,
+	unsigned char *command);
 #endif

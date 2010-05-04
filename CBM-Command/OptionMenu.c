@@ -80,7 +80,6 @@ void __fastcall__ handleOptionMenu(void)
 {
 	unsigned char key;
 	unsigned handleKeys = TRUE;
-	unsigned char buffer[39];
 
 	while(handleKeys)
 	{
@@ -93,8 +92,7 @@ void __fastcall__ handleOptionMenu(void)
 #endif
 		case CH_STOP:
 			retrieveScreen();
-			strcpy(buffer, "Escaping menu...");
-			writeStatusBar(buffer, 0, 20);
+			writeStatusBarf("Escaping menu...");
 			return;
 			break;
 
@@ -166,7 +164,7 @@ void __fastcall__ toggleScreenWidth(void)
 	{
 		writeStatusBar(
 			"Toggling display.  Please use your 80 columns display."
-			, wherex(), wherey());
+			);
 
 		videomode(VIDEOMODE_80COL);
 		fast();
@@ -175,7 +173,7 @@ void __fastcall__ toggleScreenWidth(void)
 	{
 		writeStatusBar(
 			"Toggling display.  Please use your 40 columns display."
-			, wherex(), wherey());
+			);
 
 		slow();
 		videomode(VIDEOMODE_40COL);

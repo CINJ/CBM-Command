@@ -103,7 +103,6 @@ void __fastcall__ handleFileMenu(void)
 {
 	unsigned char key;
 	unsigned handleKeys = TRUE;
-	unsigned char buffer[39];
 
 	while(handleKeys)
 	{
@@ -116,8 +115,7 @@ void __fastcall__ handleFileMenu(void)
 #endif
 		case CH_STOP:
 			retrieveScreen();
-			strcpy(buffer, "Escaping menu...");
-			writeStatusBar(buffer, 0, 20);
+			writeStatusBar("Escaping menu...");
 			return;
 			break;
 
@@ -248,7 +246,7 @@ void __fastcall__ go64(void)
 	
 	if(result == TRUE)
 	{
-		writeStatusBar("Going to 64 mode.  Goodbye!", 0, 20);
+		writeStatusBar("Going to 64 mode.  Goodbye!");
 		c64mode();
 	}
 }
@@ -264,7 +262,7 @@ void __fastcall__ quit(void)
 	
 	if(result == TRUE)
 	{
-		writeStatusBar("Goodbye!", 0, 20);
+		writeStatusBar("Goodbye!");
 		exit(EXIT_SUCCESS);
 	}
 
@@ -273,54 +271,55 @@ void __fastcall__ quit(void)
 
 void __fastcall__ writeAboutBox(void)
 {
-	unsigned char x, y, i;
-	unsigned char oldColor;
-	unsigned char oldReverse;
-
-	const unsigned char w = 25;
-	const unsigned char h = 11;
-	
-	unsigned char* lines[7] =
-		{
-			"Copyright 2010",
-			"Payton Byrd",
-			"version 2010-05-01",
-			"Thanks to Uz for CC65",
-			"and all the support!",
-			"",
-#ifdef __C128__
-			"C128 Edition"
-#else
-			"C64 Edition"
-#endif
-	};
-
-
-	x = getCenterX(w);
-	y = getCenterY(h);
-
-	writePanel(TRUE, TRUE,
-		COLOR_RED, 
-		x, y, h, w,
-		"About CBM-Command",
-		NULL, "OK");
-
-	oldReverse = revers(FALSE);
-	oldColor = textcolor(COLOR_WHITE);
-	y = getCenterY(7);
-	for(i=0; i<7; i++)
-	{
-		x = getCenterX(strlen(lines[i]));
-		gotoxy(x, y + i);
-		cputs(lines[i]);
-	}
-
-	revers(oldReverse);
-	textcolor(oldColor);
-
-	waitForEnterEsc();
-
-	retrieveScreen();
-
-	writeStatusBar("Thank you for using CBM Command.", 0, 10);
+//	unsigned char x, y, i;
+//	unsigned char oldColor;
+//	unsigned char oldReverse;
+//
+//	const unsigned char w = 25;
+//	const unsigned char h = 11;
+//	
+//	unsigned char* lines[7] =
+//		{
+//			"Copyright 2010",
+//			"Payton Byrd",
+//			"version 2010-05-01",
+//			"Thanks to Uz for CC65",
+//			"and all the support!",
+//			"",
+//#ifdef __C128__
+//			"C128 Edition"
+//#else
+//			"C64 Edition"
+//#endif
+//	};
+//
+//
+//	x = getCenterX(w);
+//	y = getCenterY(h);
+//
+//	writePanel(TRUE, TRUE,
+//		COLOR_RED, 
+//		x, y, h, w,
+//		"About CBM-Command",
+//		NULL, "OK");
+//
+//	oldReverse = revers(FALSE);
+//	oldColor = textcolor(COLOR_WHITE);
+//	y = getCenterY(7);
+//	for(i=0; i<7; i++)
+//	{
+//		x = getCenterX(strlen(lines[i]));
+//		gotoxy(x, y + i);
+//		cputs(lines[i]);
+//	}
+//
+//	revers(oldReverse);
+//	textcolor(oldColor);
+//
+//	waitForEnterEsc();
+//
+//	retrieveScreen();
+//
+//	writeStatusBar("Thank you for using CBM Command.", 0, 10);
+	writeStatusBarf("Thank You for using CBM-Command Alpa");
 }

@@ -70,7 +70,6 @@ void __fastcall__ handleCommandMenu(void)
 {
 	unsigned char key;
 	unsigned handleKeys = TRUE;
-	unsigned char buffer[39];
 	
 	while(handleKeys)
 	{
@@ -83,8 +82,7 @@ void __fastcall__ handleCommandMenu(void)
 #endif
 		case CH_STOP:
 			retrieveScreen();
-			strcpy(buffer, "Escaping menu...");
-			writeStatusBar(buffer, 0, 20);
+			writeStatusBarf("Escaping menu...");
 			return;
 			break;
 
@@ -172,21 +170,21 @@ void __fastcall__ swapPanels(void)
 	tempPanel.drive = leftPanelDrive.drive;
 	tempPanel.head = leftPanelDrive.head;
 	tempPanel.length = leftPanelDrive.length;
-	tempPanel.tail = leftPanelDrive.tail;
+//	tempPanel.tail = leftPanelDrive.tail;
 	tempPanel.currentIndex = leftPanelDrive.currentIndex;
 	tempPanel.displayStartAt = leftPanelDrive.displayStartAt;
 
 	leftPanelDrive.drive = rightPanelDrive.drive;
 	leftPanelDrive.head = rightPanelDrive.head;
 	leftPanelDrive.length = rightPanelDrive.length;
-	leftPanelDrive.tail = rightPanelDrive.tail;
+//	leftPanelDrive.tail = rightPanelDrive.tail;
 	leftPanelDrive.currentIndex = rightPanelDrive.currentIndex;
 	leftPanelDrive.displayStartAt = rightPanelDrive.displayStartAt;
 
 	rightPanelDrive.drive = tempPanel.drive;
 	rightPanelDrive.head = tempPanel.head;
 	rightPanelDrive.length = tempPanel.length;
-	rightPanelDrive.tail = tempPanel.tail;
+//	rightPanelDrive.tail = tempPanel.tail;
 	rightPanelDrive.currentIndex = tempPanel.currentIndex;
 	rightPanelDrive.displayStartAt = tempPanel.displayStartAt;
 				

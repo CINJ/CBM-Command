@@ -67,6 +67,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define KEY_F4				0x8A
 #define KEY_F6				0x8B
 #define KEY_F8				0x8C
+#define KEY_SH_PLUS			0xDB
+#define KEY_SH_MINUS		0xDD
 
 void __fastcall__ readKeyboard(void);
 unsigned char __fastcall__ waitForEnterEsc(void);

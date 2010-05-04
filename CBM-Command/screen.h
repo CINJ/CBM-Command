@@ -49,9 +49,11 @@ enum buttons { OK = 1, CANCEL = 2, YES = 4, NO = 8 };
 
 void setupScreen(void);
 void writeMenuBar(void);
-void writeStatusBar(unsigned char[], 
-					unsigned char, 
-					unsigned char);
+void __fastcall__ writeStatusBar(unsigned char[]);
+
+void writeStatusBarf(
+	unsigned char[], ...);
+	
 
 void writePanel(
 	unsigned drawBorder,

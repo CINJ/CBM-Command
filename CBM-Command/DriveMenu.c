@@ -72,7 +72,6 @@ void __fastcall__ handleDriveMenu(enum menus menu)
 	unsigned finalRetrieve = TRUE;
 	unsigned char key;
 	unsigned handleKeys = TRUE;
-	unsigned char buffer[39];
 
 	while(handleKeys)
 	{
@@ -85,8 +84,7 @@ void __fastcall__ handleDriveMenu(enum menus menu)
 #endif
 		case CH_STOP:
 			retrieveScreen();
-			strcpy(buffer, "Escaping menu...");
-			writeStatusBar(buffer, 0, 20);
+			writeStatusBarf("Escaping menu...");
 			return;
 			break;
 

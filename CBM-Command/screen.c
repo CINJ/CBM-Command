@@ -60,7 +60,7 @@ void setupScreen(void)
 	return;
 }
 
-void saveScreen(void)
+void __fastcall__ saveScreen(void)
 {
 	int vicRegister = 53272;
 	int screenMemoryStart;
@@ -84,7 +84,7 @@ void saveScreen(void)
 	memcpy(COLOR_BUFFER, colorMemoryStart, 1000);
 }
 
-void retrieveScreen(void)
+void __fastcall__ retrieveScreen(void)
 {
 	int vicRegister = 53272;
 	int screenMemoryStart;
@@ -325,3 +325,100 @@ void __fastcall__ notImplemented(void)
 
 	retrieveScreen();
 }
+
+enum results __fastcall__ drawDialog(
+	unsigned char* message[],
+	unsigned char lineCount,
+	unsigned char* title,
+	enum buttons button)
+{
+	unsigned char x, y, h, w, i, key;
+	unsigned char okButton[4];
+	unsigned char cancelButton[7];
+
+	h = lineCount + 5;
+	w = 20;
+	for(i=0; i<lineCount; i++);
+	{
+		if(strlen(message[i]) > w) 
+			w = strlen(message[i]);
+	}
+
+	w += 3;
+
+	x = getCenterX(w);
+	y = getCenterY(h);
+
+	if(button & OK) 
+	{
+		strcpy(okButton, "OK");
+	}
+
+	if(button & YES)
+	{
+		strcpy(okButton, "Yes");
+	}
+
+	if(button & CANCEL)
+	{
+		strcpy(cancelButton, "Cancel");
+	}
+
+	if(button & NO)
+	{
+		strcpy(cancelButton, "No");
+	}
+
+	writePanel(
+		TRUE, FALSE, COLOR_GRAY2,
+		x, y, h, w,
+		title,
+		(button & NO || button & CANCEL ? cancelButton : NULL),
+		(button & OK || button & YES ? okButton : NULL));
+
+	for(i=0; i<lineCount; i++)
+	{
+		textcolor(COLOR_GRAY1);
+		gotoxy(x+2, i+2+y);
+		cputs(message[i]);
+	}	
+
+	while(TRUE)
+	{
+		key = cgetc();
+
+		if(key == CH_ENTER) break;
+		if(key == CH_ESC || key == CH_STOP) break;
+		if(key == 'o' && button & OK) break;
+		if(key == 'y' && button & YES) break;
+		if(key == 'c' && button & CANCEL) break;
+		if(key == 'n' && button & NO) break;
+	}
+
+	switch((int)key)
+	{
+	case CH_ESC: case CH_STOP: case (int)'n': case (int)'c':
+		if(button & NO) return NO_RESULT;
+		if(button & CANCEL) return CANCEL_RESULT;
+		break;
+
+	case CH_ENTER: case (int)'y': case (int)'o':
+		if(button & YES) return YES_RESULT;
+		if(button & OK) return OK_RESULT;
+		break;
+	}
+
+	return CANCEL_RESULT;
+}
+
+unsigned __fastcall__ writeYesNo(
+	unsigned char *title,
+	unsigned char *message[],
+	unsigned char lineCount)
+{
+	enum results result =
+		drawDialog(message, lineCount, title, YES | NO);
+
+	return result == YES_RESULT;
+}
+

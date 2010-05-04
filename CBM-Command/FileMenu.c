@@ -51,6 +51,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 unsigned isInitialized = FALSE;
 
+unsigned char *quit_message[1] =
+{
+	"Quit CBM-Command?"
+};
+	
+
 #ifdef __C128__
 char* FILE_MENU_LABELS[9];
 unsigned char FILE_MENU_KEYS[9];
@@ -234,15 +240,35 @@ void __fastcall__ writeFileInfoPanel(void)
 #ifdef __C128__
 void __fastcall__ go64(void)
 {
-	writeStatusBar("Going to 64 mode.  Goodbye!", 0, 20);
-	c64mode();
+	unsigned result;
+
+	saveScreen();
+
+	result = writeYesNo("Confirm GO64", quit_message, 1);
+	
+	if(result == TRUE)
+	{
+		writeStatusBar("Going to 64 mode.  Goodbye!", 0, 20);
+		c64mode();
+	}
 }
 #endif
 
 void __fastcall__ quit(void)
 {
-	writeStatusBar("Goodbye!", 0, 20);
-	exit(EXIT_SUCCESS);
+	unsigned result;
+
+	saveScreen();
+
+	result = writeYesNo("Confirm", quit_message, 1);
+	
+	if(result == TRUE)
+	{
+		writeStatusBar("Goodbye!", 0, 20);
+		exit(EXIT_SUCCESS);
+	}
+
+	retrieveScreen();
 }
 
 void __fastcall__ writeAboutBox(void)

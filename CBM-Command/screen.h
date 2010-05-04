@@ -41,6 +41,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 unsigned char SCREEN_BUFFER[1000];
 unsigned char COLOR_BUFFER[1000];
 
+enum results { OK_RESULT, CANCEL_RESULT, YES_RESULT, NO_RESULT };
+enum buttons { OK = 1, CANCEL = 2, YES = 4, NO = 8 };
+
 //enum buttonTypes { cancel, ok, other };
 //typedef void *ButtonCallback(enum buttonTypes buttonType);
 
@@ -66,8 +69,19 @@ void drawBox(
 	unsigned char, unsigned char,
 	unsigned char, unsigned);
 
-void saveScreen(void);
-void retrieveScreen(void);
+enum results __fastcall__ drawDialog(
+	unsigned char* message[],
+	unsigned char lineCount,
+	unsigned char* title,
+	enum buttons button);
+
+unsigned __fastcall__ writeYesNo(
+	unsigned char *title,
+	unsigned char *message[],
+	unsigned char lineCount);
+
+void __fastcall__ saveScreen(void);
+void __fastcall__ retrieveScreen(void);
 
 void __fastcall__ notImplemented(void);
 

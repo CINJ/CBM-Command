@@ -66,6 +66,57 @@ void __fastcall__ readKeyboard(void)
 	case 185: // C= O - Options Menu
 		writeMenu(options);
 		break;
+	case HK_REREAD_LEFT:
+		rereadDrivePanel(left);
+		break;
+	case HK_REREAD_RIGHT:
+		rereadDrivePanel(right);
+		break;
+	case HK_DRIVE_LEFT:
+		writeDriveSelectionPanel(left);
+		break;
+	case HK_DRIVE_RIGHT:
+		writeDriveSelectionPanel(right);
+		break;
+	case HK_SWAP_PANELS:
+		swapPanels();
+		break;
+	case HK_TOGGLE_PANELS:
+		togglePanels();
+		break;
+	case HK_ABOUT:
+		writeAboutBox();
+		break;
+	case HK_HELP_128:
+	case HK_HELP:
+		writeHelpPanel();
+		break;
+	case HK_QUIT:
+		quit();
+		break;
+#ifdef __C128__
+	case HK_GO64:
+		go64();
+		break;
+#endif
+	case HK_TOGGLE_4080:
+		toggleScreenWidth();
+		break;
+	case HK_COPY:
+		copyFiles();
+		break;
+	case HK_RENAME:
+		renameFile();
+		break;
+	case HK_DELETE:
+		deleteFiles();
+		break;
+	case HK_FILE_INFO:
+		writeFileInfoPanel();
+		break;
+	case HK_MAKE_DIRECTORY:
+		makeDirectory();
+		break;
 	default:
 		sprintf(buffer, "%c", key);
 		writeStatusBar(buffer, 0, 20);

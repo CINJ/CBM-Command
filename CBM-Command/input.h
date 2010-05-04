@@ -38,6 +38,25 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _INPUT_H
 #define _INPUT_H
 
+// Global Hotkeys
+#define HK_REREAD_LEFT		0x05	// CTRL-E
+#define HK_REREAD_RIGHT		0xB1	// C=-E
+#define HK_DRIVE_LEFT		0x04	// CTRL-D
+#define HK_DRIVE_RIGHT		0xAC	// C=-D
+#define HK_SWAP_PANELS		0x17	// CTRL-W
+#define HK_TOGGLE_PANELS	0x14	// CTRL-T
+#define HK_ABOUT			0x01	// CTRL-A
+#define HK_HELP_128			0x0D	// HELP
+#define HK_HELP				0x08	// CTRL-H
+#define HK_QUIT				0x11	// CTRL-Q
+#define HK_GO64				0x07	// CTRL-G
+#define HK_TOGGLE_4080		0x0F	// CTRL-O
+#define HK_COPY				0x03	// CTRL-C
+#define HK_RENAME			0x12	// CTRL-R
+#define HK_DELETE			0x1E	// CTRL-^
+#define HK_FILE_INFO		0x09	// CTRL-I
+#define HK_MAKE_DIRECTORY	0x0B	// CTRL-K
+
 void __fastcall__ readKeyboard(void);
 unsigned char __fastcall__ waitForEnterEsc(void);
 #endif

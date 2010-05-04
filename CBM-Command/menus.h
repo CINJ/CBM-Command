@@ -38,26 +38,124 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _MENUS_H
 #define _MENUS_H
 
-//#define MENU_LEFT		0;
-//#define MENU_RIGHT		1;
-//#define MENU_FILE		2;
-//#define MENU_COMMAND	3;
-//#define MENU_OPTIONS	4;
-
+// Menu Globals
 extern unsigned char currentMenuX;
 extern unsigned char currentMenuLine;
-
 enum menus
 {
 	left, right, file, command, options
 };
 
-void writeMenu(enum menus);
 
-void drawFileMenu(unsigned char);
-void drawDriveMenu(unsigned char);
-void drawCommandMenu(unsigned char);
-void drawOptionsMenu(unsigned char);
-void drawMenu(unsigned char, unsigned char, unsigned char, char*[], unsigned char[]);
-void drawMenuLine(unsigned, unsigned char, char*, unsigned char, unsigned char);
+// Option Menu Externals
+extern char OPTION_MENU_OPTIONS[];
+extern const unsigned char OPTION_MENU_OPTIONS_KEY;
+extern char OPTION_MENU_SAVE[];
+extern const unsigned char OPTION_MENU_SAVE_KEY;
+#ifdef __C128__
+extern char OPTION_MENU_TOGGLE[];
+extern const unsigned char OPTION_MENU_TOGGLE_KEY;
+#endif
+extern const unsigned char OPTION_MENU_COUNT;
+extern const unsigned char OPTION_MENU_WIDTH;
+#ifdef __C128__
+extern char* OPTION_MENU_LABELS[3];
+extern unsigned char OPTION_MENU_KEYS[3];
+#else
+extern char* OPTION_MENU_LABELS[2];
+extern unsigned char OPTION_MENU_KEYS[2];
+#endif
+
+// File Menu Externals
+extern char FILE_MENU_ABOUT[];
+extern const unsigned char FILE_MENU_ABOUT_KEY;
+extern char FILE_MENU_HELP[];
+extern const unsigned char FILE_MENU_HELP_KEY;
+extern char FILE_MENU_COPY[];
+extern const unsigned char FILE_MENU_COPY_KEY;
+extern char FILE_MENU_RENAME[];
+extern const unsigned char FILE_MENU_RENAME_KEY;
+extern char FILE_MENU_MAKE_DIR[];
+extern const unsigned char FILE_MENU_MAKE_DIR_KEY;
+extern char FILE_MENU_DELETE[];
+extern const unsigned char FILE_MENU_DELETE_KEY;
+extern char FILE_MENU_FILE_INFO[];
+extern const unsigned char FILE_MENU_FILE_INFO_KEY;
+extern char FILE_MENU_QUIT[];
+extern const unsigned char FILE_MENU_QUIT_KEY;
+#ifdef __C128__
+extern char FILE_MENU_GO64[];
+extern const unsigned char FILE_MENU_GO64_KEY;
+#endif
+extern const unsigned char FILE_MENU_COUNT;
+extern const unsigned char FILE_MENU_WIDTH;
+#ifdef __C128__
+extern char* FILE_MENU_LABELS[9];
+extern unsigned char FILE_MENU_KEYS[9];
+#else
+extern char* FILE_MENU_LABELS[8];
+extern unsigned char FILE_MENU_KEYS[8];
+#endif
+
+// Drive Menu Externals
+extern char DRIVE_MENU_REREAD[];
+extern const unsigned char DRIVE_MENU_REREAD_KEY;
+extern char DRIVE_MENU_DRIVE[];
+extern const unsigned char DRIVE_MENU_DRIVE_KEY;
+extern const unsigned char DRIVE_MENU_COUNT;
+extern const unsigned char DRIVE_MENU_WIDTH;
+extern char* DRIVE_MENU_LABELS[2];
+extern unsigned char DRIVE_MENU_KEYS[2];
+
+// Command Menu Externals
+extern char COMMAND_MENU_SWAP_PANELS[];
+extern const unsigned char COMMAND_MENU_SWAP_PANELS_KEY;
+extern char COMMAND_MENU_PANELS_ON_OFF[];
+extern const unsigned char COMMAND_MENU_PANELS_ON_OFF_KEY;
+extern const unsigned char COMMAND_MENU_COUNT;
+extern const unsigned char COMMAND_MENU_WIDTH;
+extern char* COMMAND_MENU_LABELS[2];
+extern unsigned char COMMAND_MENU_KEYS[2];
+
+// Initialize menus
+void __fastcall__ initOptionMenu(void);
+void __fastcall__ initFileMenu(void);
+void __fastcall__ initDriveMenu(void);
+void __fastcall__ initCommandMenu(void);
+
+// Handle menus
+void __fastcall__ handleOptionMenu(void);
+void __fastcall__ handleFileMenu(void);
+void __fastcall__ handleCommandMenu(void);
+void __fastcall__ handleDriveMenu(enum menus);
+
+// Menu actions
+void __fastcall__ rereadDrivePanel(enum menus menu);
+void __fastcall__ writeDriveSelectionPanel(enum menus menu);
+void __fastcall__ writeAboutBox(void);
+void __fastcall__ displayPanels(void);
+void __fastcall__ writeMenu(enum menus);
+void __fastcall__ writeOptionsPanel(void);
+void __fastcall__ toggleScreenWidth(void);
+void __fastcall__ saveOptions(void);
+void __fastcall__ swapPanels(void);
+void __fastcall__ togglePanels(void);
+void __fastcall__ writeHelpPanel(void);
+void __fastcall__ copyFiles(void);
+void __fastcall__ renameFile(void);
+void __fastcall__ makeDirectory(void);
+void __fastcall__ deleteFiles(void);
+void __fastcall__ writeFileInfoPanel(void);
+void __fastcall__ quit(void);
+#ifdef __C128__
+void __fastcall__ go64(void);
+#endif
+
+// Menu drawing
+void __fastcall__ drawFileMenu(unsigned char);
+void __fastcall__ drawDriveMenu(unsigned char);
+void __fastcall__ drawCommandMenu(unsigned char);
+void __fastcall__ drawOptionsMenu(unsigned char);
+void __fastcall__ drawMenu(unsigned char, unsigned char, unsigned char, char*[], unsigned char[]);
+void __fastcall__ drawMenuLine(unsigned, unsigned char, char*, unsigned char, unsigned char);
 #endif

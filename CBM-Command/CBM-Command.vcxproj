@@ -51,6 +51,7 @@
     <NMakeReBuildCommandLine>make T:=c128</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>__C128__ __CBM__</NMakePreprocessorDefinitions>
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
+    <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'">
     <NMakeBuildCommandLine>make T:=c64</NMakeBuildCommandLine>
@@ -59,6 +60,7 @@
     <NMakeReBuildCommandLine>make T:=c64</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>__C64__ __CBM__ __fastcall__=__fastcall</NMakePreprocessorDefinitions>
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
+    <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C= 128|Win32'">
     <NMakeBuildCommandLine>make T:=c128</NMakeBuildCommandLine>
@@ -123,15 +125,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssemblerMethods.h" />
-    <ClInclude Include="CommandMenu.h" />
     <ClInclude Include="constants.h" />
-    <ClInclude Include="DriveMenu.h" />
     <ClInclude Include="drives.h" />
-    <ClInclude Include="FileMenu.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="menus.h" />
-    <ClInclude Include="OptionMenu.h" />
     <ClInclude Include="PlatformSpecific.h" />
     <ClInclude Include="screen.h" />
   </ItemGroup>

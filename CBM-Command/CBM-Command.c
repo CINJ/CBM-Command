@@ -56,7 +56,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int main(void)
 {
-	unsigned char i;
 	unsigned char message[39];
 
 #if defined(__C128__)

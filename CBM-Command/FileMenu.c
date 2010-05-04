@@ -44,11 +44,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <c128.h>
 #endif
 
-#include "FileMenu.h"
 #include "constants.h"
 #include "input.h"
-#include "screen.h"
 #include "menus.h"
+#include "screen.h"
 
 unsigned isInitialized = FALSE;
 
@@ -60,7 +59,7 @@ char* FILE_MENU_LABELS[8];
 unsigned char FILE_MENU_KEYS[8];
 #endif
 
-void initFileMenu(void)
+void __fastcall__ initFileMenu(void)
 {
 	if(!isInitialized)
 	{
@@ -94,7 +93,7 @@ void initFileMenu(void)
 	}
 }
 
-void handleFileMenu(enum menus menu)
+void __fastcall__ handleFileMenu(void)
 {
 	unsigned char key;
 	unsigned handleKeys = TRUE;
@@ -154,47 +153,43 @@ void handleFileMenu(enum menus menu)
 			else if(key == FILE_MENU_HELP_KEY)
 			{
 				retrieveScreen();
-				notImplemented();
+				writeHelpPanel();
 			}
 			else if(key == FILE_MENU_COPY_KEY)
 			{
 				retrieveScreen();
-				notImplemented();
+				copyFiles();
 			}
 			else if(key == FILE_MENU_RENAME_KEY)
 			{
 				retrieveScreen();
-				notImplemented();
+				renameFile();
 			}
 			else if(key == FILE_MENU_MAKE_DIR_KEY)
 			{
 				retrieveScreen();
-				notImplemented();
+				makeDirectory();
 			}
 			else if(key == FILE_MENU_DELETE_KEY)
 			{
 				retrieveScreen();
-				notImplemented();
+				deleteFiles();
 			}
 			else if(key == FILE_MENU_FILE_INFO_KEY)
 			{
 				retrieveScreen();
-				notImplemented();
+				writeFileInfoPanel();
 			}
 			else if(key == FILE_MENU_QUIT_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, "Goodbye!");
-				writeStatusBar(buffer, 0, 20);
-				exit(EXIT_SUCCESS);
+				quit();
 			}
 #ifdef __C128__
 			else if(key == FILE_MENU_GO64_KEY)
 			{
 				retrieveScreen();
-				strcpy(buffer, "Going to 64 mode.  Goodbye!");
-				writeStatusBar(buffer, 0, 20);
-				c64mode();
+				go64();
 			}
 #endif
 			else
@@ -204,6 +199,50 @@ void handleFileMenu(enum menus menu)
 			break;
 		}
 	}
+}
+
+void __fastcall__ writeHelpPanel(void)
+{
+	notImplemented();
+}
+
+void __fastcall__ copyFiles(void)
+{
+	notImplemented();
+}
+
+void __fastcall__ renameFile(void)
+{
+	notImplemented();
+}
+
+void __fastcall__ makeDirectory(void)
+{
+	notImplemented();
+}
+
+void __fastcall__ deleteFiles(void)
+{
+	notImplemented();
+}
+
+void __fastcall__ writeFileInfoPanel(void)
+{
+	notImplemented();
+}
+
+#ifdef __C128__
+void __fastcall__ go64(void)
+{
+	writeStatusBar("Going to 64 mode.  Goodbye!", 0, 20);
+	c64mode();
+}
+#endif
+
+void __fastcall__ quit(void)
+{
+	writeStatusBar("Goodbye!", 0, 20);
+	exit(EXIT_SUCCESS);
 }
 
 void __fastcall__ writeAboutBox(void)

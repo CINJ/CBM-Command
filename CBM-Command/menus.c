@@ -42,18 +42,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "constants.h"
 #include "globals.h"
-#include "menus.h"
-#include "CommandMenu.h"
-#include "DriveMenu.h"
-#include "FileMenu.h"
-#include "OptionMenu.h"
-#include "screen.h"
 #include "input.h"
+#include "menus.h"
+#include "screen.h"
 
 unsigned char currentMenuX;
 unsigned char currentMenuLine;
 
-void writeMenu(enum menus menu)
+void __fastcall__ writeMenu(enum menus menu)
 {
 	unsigned char x;
 
@@ -94,7 +90,7 @@ void writeMenu(enum menus menu)
 	}	
 }
 
-void drawFileMenu(unsigned char x)
+void __fastcall__ drawFileMenu(unsigned char x)
 {
 	int i = 0;
 	unsigned char oldColor;
@@ -115,7 +111,7 @@ void drawFileMenu(unsigned char x)
 	textcolor(oldColor);
 }
 
-void drawDriveMenu(unsigned char x)
+void __fastcall__ drawDriveMenu(unsigned char x)
 {
 	int i = 0;
 	unsigned char oldColor;
@@ -137,7 +133,7 @@ void drawDriveMenu(unsigned char x)
 }
 
 
-void drawCommandMenu(unsigned char x)
+void __fastcall__ drawCommandMenu(unsigned char x)
 {
 	int i = 0;
 	unsigned char oldColor;
@@ -158,7 +154,7 @@ void drawCommandMenu(unsigned char x)
 	textcolor(oldColor);
 }
 
-void drawOptionsMenu(unsigned char x)
+void __fastcall__ drawOptionsMenu(unsigned char x)
 {
 	int i = 0;
 	unsigned char oldColor;
@@ -179,7 +175,7 @@ void drawOptionsMenu(unsigned char x)
 	textcolor(oldColor);
 }
 
-void drawMenu(
+void __fastcall__ drawMenu(
 	unsigned char x,
 	unsigned char width, 
 	unsigned char count, 
@@ -200,11 +196,19 @@ void drawMenu(
 
 	for(i=0; i < count; i++)
 	{
-		drawMenuLine((i==currentMenuLine), keys[i], labels[i], x + 1, i + 2);
+		drawMenuLine(
+			(i==currentMenuLine), 
+			keys[i], labels[i], 
+			x + 1, i + 2);
 	}
 }
 
-void drawMenuLine(unsigned reverse, unsigned char key, char* label, unsigned char x, unsigned char y)
+void __fastcall__ drawMenuLine(
+	unsigned reverse, 
+	unsigned char key, 
+	char* label, 
+	unsigned char x, 
+	unsigned char y)
 {
 	int j;
 	const unsigned char offset = 0x80;

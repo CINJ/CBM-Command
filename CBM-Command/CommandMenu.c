@@ -40,9 +40,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "CommandMenu.h"
+
 #include "constants.h"
-#include "DriveMenu.h"
 #include "drives.h"
 #include "globals.h"
 #include "menus.h"
@@ -53,7 +52,7 @@ unsigned isInitialized = FALSE;
 char* COMMAND_MENU_LABELS[2];
 unsigned char COMMAND_MENU_KEYS[2];
 
-void initCommandMenu(void)
+void __fastcall__ initCommandMenu(void)
 {
 	if(!isInitialized)
 	{
@@ -67,13 +66,12 @@ void initCommandMenu(void)
 	}
 }
 
-void handleCommandMenu(void)
+void __fastcall__ handleCommandMenu(void)
 {
 	unsigned char key;
 	unsigned handleKeys = TRUE;
 	unsigned char buffer[39];
-	struct panel_drive tempPanel;
-
+	
 	while(handleKeys)
 	{
 		key = cgetc();
@@ -124,46 +122,11 @@ void handleCommandMenu(void)
 		default:
 			if(key == COMMAND_MENU_SWAP_PANELS_KEY)
 			{
-				tempPanel.drive = leftPanelDrive.drive;
-				tempPanel.head = leftPanelDrive.head;
-				tempPanel.length = leftPanelDrive.length;
-				tempPanel.tail = leftPanelDrive.tail;
-				tempPanel.currentIndex = leftPanelDrive.currentIndex;
-				tempPanel.displayStartAt = leftPanelDrive.displayStartAt;
-
-				leftPanelDrive.drive = rightPanelDrive.drive;
-				leftPanelDrive.head = rightPanelDrive.head;
-				leftPanelDrive.length = rightPanelDrive.length;
-				leftPanelDrive.tail = rightPanelDrive.tail;
-				leftPanelDrive.currentIndex = rightPanelDrive.currentIndex;
-				leftPanelDrive.displayStartAt = rightPanelDrive.displayStartAt;
-
-				rightPanelDrive.drive = tempPanel.drive;
-				rightPanelDrive.head = tempPanel.head;
-				rightPanelDrive.length = tempPanel.length;
-				rightPanelDrive.tail = tempPanel.tail;
-				rightPanelDrive.currentIndex = tempPanel.currentIndex;
-				rightPanelDrive.displayStartAt = tempPanel.displayStartAt;
-				
-				setupScreen();
-				writeMenuBar();
-				displayPanels();
-				arePanelsOn = TRUE;
+				swapPanels();
 			}
 			else if(key == COMMAND_MENU_PANELS_ON_OFF_KEY)
 			{
-				if(arePanelsOn)
-				{
-					setupScreen();
-					writeMenuBar();
-					arePanelsOn = FALSE;
-				}
-				else
-				{
-					retrieveScreen();
-					displayPanels();
-					arePanelsOn = TRUE;
-				}
+				togglePanels();
 			}
 			else
 			{
@@ -174,7 +137,23 @@ void handleCommandMenu(void)
 	}
 }
 
-void displayPanels(void)
+void __fastcall__ togglePanels(void)
+{
+	if(arePanelsOn)
+	{
+		setupScreen();
+		writeMenuBar();
+		arePanelsOn = FALSE;
+	}
+	else
+	{
+		retrieveScreen();
+		displayPanels();
+		arePanelsOn = TRUE;
+	}
+}
+
+void __fastcall__ displayPanels(void)
 {
 	if(leftPanelDrive.drive != NULL)
 	{
@@ -184,4 +163,35 @@ void displayPanels(void)
 	{
 		rereadDrivePanel(right);
 	}
+}
+
+void __fastcall__ swapPanels(void)
+{
+	struct panel_drive tempPanel;
+
+	tempPanel.drive = leftPanelDrive.drive;
+	tempPanel.head = leftPanelDrive.head;
+	tempPanel.length = leftPanelDrive.length;
+	tempPanel.tail = leftPanelDrive.tail;
+	tempPanel.currentIndex = leftPanelDrive.currentIndex;
+	tempPanel.displayStartAt = leftPanelDrive.displayStartAt;
+
+	leftPanelDrive.drive = rightPanelDrive.drive;
+	leftPanelDrive.head = rightPanelDrive.head;
+	leftPanelDrive.length = rightPanelDrive.length;
+	leftPanelDrive.tail = rightPanelDrive.tail;
+	leftPanelDrive.currentIndex = rightPanelDrive.currentIndex;
+	leftPanelDrive.displayStartAt = rightPanelDrive.displayStartAt;
+
+	rightPanelDrive.drive = tempPanel.drive;
+	rightPanelDrive.head = tempPanel.head;
+	rightPanelDrive.length = tempPanel.length;
+	rightPanelDrive.tail = tempPanel.tail;
+	rightPanelDrive.currentIndex = tempPanel.currentIndex;
+	rightPanelDrive.displayStartAt = tempPanel.displayStartAt;
+				
+	setupScreen();
+	writeMenuBar();
+	displayPanels();
+	arePanelsOn = TRUE;
 }

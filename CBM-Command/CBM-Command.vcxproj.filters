@@ -106,28 +106,16 @@
     <ClInclude Include="menus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DriveMenu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="screen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FileMenu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PlatformSpecific.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OptionMenu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="drives.h">

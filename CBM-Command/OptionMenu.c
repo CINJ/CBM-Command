@@ -40,14 +40,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "OptionMenu.h"
-#include "CommandMenu.h"
+
 #include "constants.h"
 #include "globals.h"
-#include "screen.h"
 #include "menus.h"
-#include "FileMenu.h"
-#include "DriveMenu.h"
+#include "screen.h"
 
 unsigned isInitialized = FALSE;
 
@@ -59,7 +56,7 @@ char* OPTION_MENU_LABELS[2];
 unsigned char OPTION_MENU_KEYS[2];
 #endif
 
-void initOptionMenu(void)
+void __fastcall__ initOptionMenu(void)
 {
 	if(!isInitialized)
 	{
@@ -79,7 +76,7 @@ void initOptionMenu(void)
 	}
 }
 
-void handleOptionMenu(void)
+void __fastcall__ handleOptionMenu(void)
 {
 	unsigned char key;
 	unsigned handleKeys = TRUE;
@@ -135,45 +132,17 @@ void handleOptionMenu(void)
 		default:
 			if(key == OPTION_MENU_OPTIONS_KEY)
 			{
-				retrieveScreen();
-				notImplemented();
+				writeOptionsPanel();
 			}
 #ifdef __C128__
 			else if(key == OPTION_MENU_TOGGLE_KEY)
 			{
-				//retrieveScreen();
-				//notImplemented();
-				if(size_x == 40)
-				{
-					writeStatusBar(
-						"Toggling display.  Please use your 80 columns display."
-						, wherex(), wherey());
-
-					videomode(VIDEOMODE_80COL);
-					fast();
-				}
-				else
-				{
-					writeStatusBar(
-						"Toggling display.  Please use your 40 columns display."
-						, wherex(), wherey());
-
-					slow();
-					videomode(VIDEOMODE_40COL);
-				}
-				initialize();
-				setupScreen();
-				writeMenuBar();
-				if(arePanelsOn)
-				{
-					displayPanels();
-				}				
+				toggleScreenWidth();
 			}
 #endif
 			else if(key == OPTION_MENU_SAVE_KEY)
 			{
-				retrieveScreen();
-				notImplemented();
+				saveOptions();
 			}
 			else
 			{
@@ -182,4 +151,45 @@ void handleOptionMenu(void)
 			break;
 		}
 	}
+}
+
+void __fastcall__ saveOptions(void)
+{
+	retrieveScreen();
+	notImplemented();
+}
+
+void __fastcall__ toggleScreenWidth(void)
+{
+	if(size_x == 40)
+	{
+		writeStatusBar(
+			"Toggling display.  Please use your 80 columns display."
+			, wherex(), wherey());
+
+		videomode(VIDEOMODE_80COL);
+		fast();
+	}
+	else
+	{
+		writeStatusBar(
+			"Toggling display.  Please use your 40 columns display."
+			, wherex(), wherey());
+
+		slow();
+		videomode(VIDEOMODE_40COL);
+	}
+	initialize();
+	setupScreen();
+	writeMenuBar();
+	if(arePanelsOn)
+	{
+		displayPanels();
+	}				
+}
+
+void __fastcall__ writeOptionsPanel(void)
+{
+	retrieveScreen();
+	notImplemented();
 }

@@ -40,17 +40,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "DriveMenu.h"
-#include "drives.h"
+
 #include "constants.h"
-#include "screen.h"
+#include "drives.h"
 #include "menus.h"
+#include "screen.h"
 
 unsigned isInitialized = FALSE;
 char* DRIVE_MENU_LABELS[2];
 unsigned char DRIVE_MENU_KEYS[2];
 
-void initDriveMenu(void)
+void __fastcall__ initDriveMenu(void)
 {
 	if(!isInitialized)
 	{
@@ -66,7 +66,7 @@ void initDriveMenu(void)
 	}
 }
 
-void handleDriveMenu(enum menus menu)
+void __fastcall__ handleDriveMenu(enum menus menu)
 {
 	unsigned finalRetrieve = TRUE;
 	unsigned char key;
@@ -146,18 +146,7 @@ void handleDriveMenu(enum menus menu)
 			if(key == DRIVE_MENU_DRIVE_KEY)
 			{
 				retrieveScreen();
-				listDrives(menu);
-				retrieveScreen();
-				if(menu == left)
-				{
-					getDirectory(&leftPanelDrive);
-					displayDirectory(&leftPanelDrive);
-				}
-				else
-				{
-					getDirectory(&rightPanelDrive);
-					displayDirectory(&rightPanelDrive);
-				}
+				writeDriveSelectionPanel(menu);
 				finalRetrieve = FALSE;
 			}
 			else if(key == DRIVE_MENU_REREAD_KEY)
@@ -178,8 +167,24 @@ void handleDriveMenu(enum menus menu)
 	if(finalRetrieve) retrieveScreen();
 }
 
-void rereadDrivePanel(enum menus menu)
+void __fastcall__ rereadDrivePanel(enum menus menu)
 {
+	if(menu == left)
+	{
+		getDirectory(&leftPanelDrive);
+		displayDirectory(&leftPanelDrive);
+	}
+	else
+	{
+		getDirectory(&rightPanelDrive);
+		displayDirectory(&rightPanelDrive);
+	}
+}
+
+void __fastcall__ writeDriveSelectionPanel(enum menus menu)
+{
+	listDrives(menu);
+	retrieveScreen();
 	if(menu == left)
 	{
 		getDirectory(&leftPanelDrive);

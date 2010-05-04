@@ -100,4 +100,6 @@ void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
 	unsigned char character);
 void __fastcall__ moveSelectorUp(struct panel_drive *panel);
 void __fastcall__ moveSelectorDown(struct panel_drive *panel);
+void __fastcall__ selectCurrentFile(void);
+void __fastcall__ writeCurrentFilename(struct panel_drive *panel);
 #endif

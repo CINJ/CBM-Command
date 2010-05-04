@@ -47,7 +47,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_TOGGLE_PANELS	0x14	// CTRL-T
 #define HK_ABOUT			0x01	// CTRL-A
 #define HK_HELP_128			0x0D	// HELP
-#define HK_HELP				0x08	// CTRL-H
+#define HK_HELP				0x84	// CTRL-H
 #define HK_QUIT				0x15	// CTRL-U
 #define HK_GO64				0x07	// CTRL-G
 #define HK_TOGGLE_4080		0x0F	// CTRL-O
@@ -56,6 +56,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_DELETE			0x1E	// CTRL-^
 #define HK_FILE_INFO		0x09	// CTRL-I
 #define HK_MAKE_DIRECTORY	0x0B	// CTRL-K
+
+#define KEY_SH_SPACE		0xA0
+#define KEY_SH_RETURN		0x8D
+#define KEY_F1				0x85
+#define KEY_F3				0x86
+#define KEY_F5				0x87
+#define KEY_F7				0x88
+#define KEY_F2				0x89
+#define KEY_F4				0x8A
+#define KEY_F6				0x8B
+#define KEY_F8				0x8C
 
 void __fastcall__ readKeyboard(void);
 unsigned char __fastcall__ waitForEnterEsc(void);

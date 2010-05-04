@@ -184,7 +184,7 @@ void __fastcall__ drawMenu(
 {
 	int i=0, j=0;
 	const unsigned char offset = 0x80;
-	unsigned test;
+	//unsigned test;
 
 	currentMenuX = x;
 	//currentMenuLine = 0;

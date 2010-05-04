@@ -102,7 +102,7 @@ int __fastcall__ getDriveStatus(
 {
 	int result;
 	int size;
-	unsigned char buffer[39];
+	//unsigned char buffer[39];
 	unsigned char dr;
 	dr = drive->drive;
 
@@ -335,10 +335,11 @@ int __fastcall__ getDirectory(struct panel_drive *drive)
 void __fastcall__ displayDirectory(
 	struct panel_drive *drive)
 {
-	unsigned char oldReverse, fileType, w = 19, x = 0;
+	unsigned char fileType, w = 19, x = 0;
 	int i;
 	struct dir_node *currentNode;
 	unsigned char size[4];
+
 	currentNode = drive->head;
 
 	if(size_x > 40) w=39;
@@ -347,7 +348,7 @@ void __fastcall__ displayDirectory(
 	writePanel(TRUE, FALSE, COLOR_GRAY3, x, 1, 21, w, 
 		currentNode->dir_entry->name, NULL, NULL);
 	
-	textcolor(COLOR_YELLOW);
+	//textcolor(COLOR_YELLOW);
 	
 	currentNode = currentNode->next;
 
@@ -367,7 +368,17 @@ void __fastcall__ displayDirectory(
 		//writeStatusBar(size, wherex(), wherey());
 
 		textcolor(COLOR_YELLOW);
-		revers(currentNode->isSelected);
+		if(currentNode->isSelected == TRUE)
+		{
+			//writeStatusBar("Reverse On", wherex(), wherey());
+			revers(TRUE);
+		}
+		else
+		{
+			//writeStatusBar("Reverse Off", wherex(), wherey());
+			revers(FALSE);
+		}		
+		//waitForEnterEsc();
 
 		sprintf(drivesBuffer, "%c %s %s", 
 			fileType, 
@@ -394,21 +405,50 @@ void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
 	cputc(character);
 }
 
+void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
+{
+	struct dir_node *currentDirNode;
+	int i;
+
+	if(panel != NULL)
+	{
+		if(panel->drive != NULL)
+		{
+			currentDirNode = panel->head;
+			for(
+				i=0; 
+				i<=panel->currentIndex
+					&& currentDirNode != NULL; 
+				i++)
+			{
+				currentDirNode = currentDirNode->next;
+			}
+
+			if(currentDirNode != NULL)
+			{
+				writeStatusBar(
+					currentDirNode->dir_entry->name,
+					wherex(), wherey());
+			}
+		}
+	}
+}
+
 void __fastcall__ moveSelectorUp(struct panel_drive *panel)
 {
 	unsigned char diff;
 	unsigned firstPage;
-	unsigned char buffer[79];
+	//unsigned char buffer[79];
 
 	writeSelectorPosition(panel, ' ');
 	firstPage = panel->displayStartAt == 0;
 	diff = panel->currentIndex - panel->displayStartAt;
 
-	sprintf(buffer, "fP: %d  diff: %d  dsa: %d  ci: %d  l: %d",
-		firstPage, diff, panel->displayStartAt, 
-		panel->currentIndex, panel->length);
+	//sprintf(buffer, "fP: %d  diff: %d  dsa: %d  ci: %d  l: %d",
+	//	firstPage, diff, panel->displayStartAt, 
+	//	panel->currentIndex, panel->length);
 
-	writeStatusBar(buffer, wherex(), wherey());
+	//writeStatusBar(buffer, wherex(), wherey());
 
 	if(!firstPage && diff == 1)
 	{
@@ -423,6 +463,7 @@ void __fastcall__ moveSelectorUp(struct panel_drive *panel)
 	}
 	
 	writeSelectorPosition(panel, '>');
+	if(size_x <= 40) writeCurrentFilename(panel);
 }
 
 void __fastcall__ moveSelectorDown(struct panel_drive *panel)
@@ -430,18 +471,18 @@ void __fastcall__ moveSelectorDown(struct panel_drive *panel)
 	const unsigned char offset = 19;
 	unsigned char diff;
 	unsigned lastPage;
-	unsigned char buffer[79];
+	//unsigned char buffer[79];
 
 	writeSelectorPosition(panel, ' ');
 
 	lastPage = panel->displayStartAt + offset + 2 >= panel->length;
 	diff = panel->length - panel->displayStartAt;
 
-	sprintf(buffer, "lP: %d  diff: %d  dsa: %d  ci: %d  l: %d",
-		lastPage, diff, panel->displayStartAt, 
-		panel->currentIndex, panel->length);
+	//sprintf(buffer, "lP: %d  diff: %d  dsa: %d  ci: %d  l: %d",
+	//	lastPage, diff, panel->displayStartAt, 
+	//	panel->currentIndex, panel->length);
 
-	writeStatusBar(buffer, wherex(), wherey());
+	//writeStatusBar(buffer, wherex(), wherey());
 
 	if(!lastPage && diff > offset &&
 		((panel->currentIndex - panel->displayStartAt) == offset))
@@ -463,6 +504,7 @@ void __fastcall__ moveSelectorDown(struct panel_drive *panel)
 
 	if(panel->currentIndex < 0) panel->currentIndex=0;
 	writeSelectorPosition(panel, '>');
+	if(size_x <= 40) writeCurrentFilename(panel);
 }
 
 unsigned char __fastcall__ getFileType(unsigned char type)
@@ -518,4 +560,51 @@ unsigned char* __fastcall__ shortenString(unsigned char* source)
 	}
 
 	return buffer;
+}
+
+void __fastcall__ selectCurrentFile(void)
+{
+	int i;
+	struct dir_node *currentDirNode;
+	//unsigned char buffer[39];
+	//unsigned isSelected;
+
+	if(selectedPanel != NULL)
+	{
+		if(selectedPanel->drive != NULL)
+		{
+			currentDirNode = selectedPanel->head;
+			for(
+				i=0; 
+				i<=selectedPanel->currentIndex
+					&& currentDirNode != NULL; 
+				i++)
+			{
+				currentDirNode = currentDirNode->next;
+			}
+
+			if(currentDirNode != NULL)
+			{
+				if(currentDirNode->isSelected == TRUE)
+					currentDirNode->isSelected = FALSE;
+				else 
+					currentDirNode->isSelected = TRUE;
+
+				displayDirectory(selectedPanel);
+				writeSelectorPosition(selectedPanel, '>');
+			}
+			else
+			{
+				writeStatusBar("currentDirNode is null!", wherex(), wherey());
+			}
+		}
+		else
+		{
+			writeStatusBar("No drive selected.", wherex(), wherey());
+		}
+	}
+	else
+	{
+		writeStatusBar("No panel selected.", wherex(), wherey());
+	}
 }

@@ -62,7 +62,7 @@ void setupScreen(void)
 
 void __fastcall__ saveScreen(void)
 {
-	int vicRegister = 53272;
+	unsigned int vicRegister = 53272;
 	int screenMemoryStart;
 	int colorMemoryStart = 0xD800;
 
@@ -86,7 +86,7 @@ void __fastcall__ saveScreen(void)
 
 void __fastcall__ retrieveScreen(void)
 {
-	int vicRegister = 53272;
+	unsigned int vicRegister = 53272;
 	int screenMemoryStart;
 	int colorMemoryStart = 0xD800;
 
@@ -306,7 +306,7 @@ void writePanel(
 void __fastcall__ notImplemented(void)
 {
 	unsigned char x, y, h = 5, w = 23;
-	unsigned char buffer[39];
+	//unsigned char buffer[39];
 
 	saveScreen();
 

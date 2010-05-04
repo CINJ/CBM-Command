@@ -43,6 +43,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "constants.h"
 #include "drives.h"
+#include "globals.h"
 #include "menus.h"
 #include "screen.h"
 
@@ -185,6 +186,8 @@ void __fastcall__ rereadDrivePanel(enum menus menu)
 		writeSelectorPosition(&rightPanelDrive, '>');
 		selectedPanel = &rightPanelDrive;
 	}
+
+	if(size_x <=40) writeCurrentFilename(selectedPanel);
 }
 
 void __fastcall__ writeDriveSelectionPanel(enum menus menu)
@@ -207,4 +210,6 @@ void __fastcall__ writeDriveSelectionPanel(enum menus menu)
 		writeSelectorPosition(&rightPanelDrive, '>');
 		selectedPanel = &rightPanelDrive;
 	}
+
+	if(size_x <=40) writeCurrentFilename(selectedPanel);
 }

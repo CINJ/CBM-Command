@@ -54,12 +54,13 @@ void __fastcall__ readKeyboard(void)
 
 	switch((int)key)
 	{
+	case KEY_SH_SPACE: case KEY_SH_RETURN:
+		selectCurrentFile();
+		break;
 	case CH_CURS_UP:
-		writeStatusBar("Up", wherex(), wherey());
 		moveSelectorUp(selectedPanel);
 		break;
 	case CH_CURS_DOWN:
-		writeStatusBar("Down", wherex(), wherey());
 		moveSelectorDown(selectedPanel);
 		break;
 	case CH_CURS_LEFT:

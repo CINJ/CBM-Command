@@ -75,6 +75,7 @@ extern unsigned areDrivesInitialized;
 extern struct drive_status drives[12];
 extern struct panel_drive leftPanelDrive;
 extern struct panel_drive rightPanelDrive;
+extern struct panel_drive *selectedPanel;
 
 void __fastcall__ initializeDrives(void);
 
@@ -95,4 +96,8 @@ void __fastcall__ displayDirectory(struct panel_drive *drive);
 unsigned char __fastcall__ getFileType(unsigned char type);
 void __fastcall__ shortenSize(unsigned char* buffer, unsigned int value);
 unsigned char* __fastcall__ shortenString(unsigned char* source);
+void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
+	unsigned char character);
+void __fastcall__ moveSelectorUp(struct panel_drive *panel);
+void __fastcall__ moveSelectorDown(struct panel_drive *panel);
 #endif

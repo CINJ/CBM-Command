@@ -38,6 +38,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
+
+#include "drives.h"
+#include "globals.h"
 #include "input.h"
 #include "menus.h"
 #include "screen.h"
@@ -51,6 +54,34 @@ void __fastcall__ readKeyboard(void)
 
 	switch((int)key)
 	{
+	case CH_CURS_UP:
+		writeStatusBar("Up", wherex(), wherey());
+		moveSelectorUp(selectedPanel);
+		break;
+	case CH_CURS_DOWN:
+		writeStatusBar("Down", wherex(), wherey());
+		moveSelectorDown(selectedPanel);
+		break;
+	case CH_CURS_LEFT:
+		if(selectedPanel == &rightPanelDrive
+			&& leftPanelDrive.drive != NULL
+			&& arePanelsOn)
+		{
+			selectedPanel = &leftPanelDrive;
+			writeSelectorPosition(&leftPanelDrive, '>');
+			writeSelectorPosition(&rightPanelDrive, ' ');
+		}
+		break;
+	case CH_CURS_RIGHT:
+		if(selectedPanel == &leftPanelDrive
+			&& rightPanelDrive.drive != NULL
+			&& arePanelsOn)
+		{
+			selectedPanel = &rightPanelDrive;
+			writeSelectorPosition(&leftPanelDrive, ' ');
+			writeSelectorPosition(&rightPanelDrive, '>');
+		}
+		break;
 	case 188: // C= C - Command Menu
 		writeMenu(command);
 		break;

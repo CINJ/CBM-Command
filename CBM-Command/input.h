@@ -48,7 +48,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_ABOUT			0x01	// CTRL-A
 #define HK_HELP_128			0x0D	// HELP
 #define HK_HELP				0x08	// CTRL-H
-#define HK_QUIT				0x11	// CTRL-Q
+#define HK_QUIT				0x15	// CTRL-U
 #define HK_GO64				0x07	// CTRL-G
 #define HK_TOGGLE_4080		0x0F	// CTRL-O
 #define HK_COPY				0x03	// CTRL-C

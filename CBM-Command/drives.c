@@ -70,6 +70,7 @@ struct drive_status drives[12] =
 unsigned areDrivesInitialized = FALSE;
 struct panel_drive leftPanelDrive; 
 struct panel_drive rightPanelDrive;
+struct panel_drive *selectedPanel;
 
 unsigned char currentLeft = 0;
 unsigned char currentRight = 0;
@@ -92,6 +93,7 @@ void __fastcall__ initializeDrives(void)
 		rightPanelDrive.position = right;
 
 		areDrivesInitialized = TRUE;
+		selectedPanel = &leftPanelDrive;
 	}
 }
 
@@ -313,6 +315,7 @@ int __fastcall__ getDirectory(struct panel_drive *drive)
 			drive->tail = newNode;
 			newNode->prev = currentNode;
 			newNode->next = NULL;
+			newNode->isSelected = FALSE;
 			currentNode = newNode;
 			counter++;
 		}
@@ -320,6 +323,10 @@ int __fastcall__ getDirectory(struct panel_drive *drive)
 		drive->length = counter;
 		writeStatusBar("Finished reading directory.", 
 			wherex(), wherey());
+	
+		drive->currentIndex = 0;
+		drive->displayStartAt = 0;
+
 	}
 
 	return counter;
@@ -359,11 +366,9 @@ void __fastcall__ displayDirectory(
 		fileType = getFileType(currentNode->dir_entry->type);
 		//writeStatusBar(size, wherex(), wherey());
 
-#ifdef __C128__
-		// Works around a bug in CC65's CONIO 
-		// library on the VDC.
 		textcolor(COLOR_YELLOW);
-#endif
+		revers(currentNode->isSelected);
+
 		sprintf(drivesBuffer, "%c %s %s", 
 			fileType, 
 			size,
@@ -372,7 +377,92 @@ void __fastcall__ displayDirectory(
 
 		cputs(drivesBuffer);
 		currentNode = currentNode->next;
+
+		revers(FALSE);
 	}
+}
+
+void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
+	unsigned char character)
+{
+	unsigned char x, y;
+	y = (panel->currentIndex - panel->displayStartAt) + 2;
+	x = (panel == &leftPanelDrive ? 1 : size_x / 2 + 1);
+	gotoxy(x, y);
+	textcolor(COLOR_RED);
+	revers(FALSE);
+	cputc(character);
+}
+
+void __fastcall__ moveSelectorUp(struct panel_drive *panel)
+{
+	unsigned char diff;
+	unsigned firstPage;
+	unsigned char buffer[79];
+
+	writeSelectorPosition(panel, ' ');
+	firstPage = panel->displayStartAt == 0;
+	diff = panel->currentIndex - panel->displayStartAt;
+
+	sprintf(buffer, "fP: %d  diff: %d  dsa: %d  ci: %d  l: %d",
+		firstPage, diff, panel->displayStartAt, 
+		panel->currentIndex, panel->length);
+
+	writeStatusBar(buffer, wherex(), wherey());
+
+	if(!firstPage && diff == 1)
+	{
+		panel->displayStartAt--;
+		panel->currentIndex--;
+		displayDirectory(panel);
+	}
+	else if(diff > 0)
+	{
+		panel->currentIndex--;
+		//displayDirectory(panel);
+	}
+	
+	writeSelectorPosition(panel, '>');
+}
+
+void __fastcall__ moveSelectorDown(struct panel_drive *panel)
+{
+	const unsigned char offset = 19;
+	unsigned char diff;
+	unsigned lastPage;
+	unsigned char buffer[79];
+
+	writeSelectorPosition(panel, ' ');
+
+	lastPage = panel->displayStartAt + offset + 2 >= panel->length;
+	diff = panel->length - panel->displayStartAt;
+
+	sprintf(buffer, "lP: %d  diff: %d  dsa: %d  ci: %d  l: %d",
+		lastPage, diff, panel->displayStartAt, 
+		panel->currentIndex, panel->length);
+
+	writeStatusBar(buffer, wherex(), wherey());
+
+	if(!lastPage && diff > offset &&
+		((panel->currentIndex - panel->displayStartAt) == offset))
+	{
+		panel->displayStartAt++;
+		panel->currentIndex++;
+		displayDirectory(panel);
+	}
+	else if(lastPage && 
+		(panel->currentIndex - panel->displayStartAt) < offset &&
+		(panel->currentIndex + 2 + panel->displayStartAt) < panel->length)
+	{
+		panel->currentIndex++;
+	}
+	else if(!lastPage)
+	{
+		panel->currentIndex++;
+	}
+
+	if(panel->currentIndex < 0) panel->currentIndex=0;
+	writeSelectorPosition(panel, '>');
 }
 
 unsigned char __fastcall__ getFileType(unsigned char type)

@@ -173,11 +173,17 @@ void __fastcall__ rereadDrivePanel(enum menus menu)
 	{
 		getDirectory(&leftPanelDrive);
 		displayDirectory(&leftPanelDrive);
+		writeSelectorPosition(&leftPanelDrive, '>');
+		writeSelectorPosition(&rightPanelDrive, ' ');
+		selectedPanel = &leftPanelDrive;
 	}
 	else
 	{
 		getDirectory(&rightPanelDrive);
 		displayDirectory(&rightPanelDrive);
+		writeSelectorPosition(&leftPanelDrive, ' ');
+		writeSelectorPosition(&rightPanelDrive, '>');
+		selectedPanel = &rightPanelDrive;
 	}
 }
 
@@ -189,10 +195,16 @@ void __fastcall__ writeDriveSelectionPanel(enum menus menu)
 	{
 		getDirectory(&leftPanelDrive);
 		displayDirectory(&leftPanelDrive);
+		writeSelectorPosition(&leftPanelDrive, '>');
+		writeSelectorPosition(&rightPanelDrive, ' ');
+		selectedPanel = &leftPanelDrive;
 	}
 	else
 	{
 		getDirectory(&rightPanelDrive);
 		displayDirectory(&rightPanelDrive);
+		writeSelectorPosition(&leftPanelDrive, ' ');
+		writeSelectorPosition(&rightPanelDrive, '>');
+		selectedPanel = &rightPanelDrive;
 	}
 }

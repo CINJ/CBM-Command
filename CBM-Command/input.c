@@ -98,10 +98,10 @@ void __fastcall__ readKeyboard(void)
 	case HK_GO64:
 		go64();
 		break;
-#endif
 	case HK_TOGGLE_4080:
 		toggleScreenWidth();
 		break;
+#endif
 	case HK_COPY:
 		copyFiles();
 		break;

@@ -159,6 +159,7 @@ void __fastcall__ saveOptions(void)
 	notImplemented();
 }
 
+#ifdef __C128__
 void __fastcall__ toggleScreenWidth(void)
 {
 	if(size_x == 40)
@@ -187,6 +188,7 @@ void __fastcall__ toggleScreenWidth(void)
 		displayPanels();
 	}				
 }
+#endif
 
 void __fastcall__ writeOptionsPanel(void)
 {

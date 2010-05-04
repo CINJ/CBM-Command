@@ -136,7 +136,6 @@ void __fastcall__ writeAboutBox(void);
 void __fastcall__ displayPanels(void);
 void __fastcall__ writeMenu(enum menus);
 void __fastcall__ writeOptionsPanel(void);
-void __fastcall__ toggleScreenWidth(void);
 void __fastcall__ saveOptions(void);
 void __fastcall__ swapPanels(void);
 void __fastcall__ togglePanels(void);
@@ -148,6 +147,7 @@ void __fastcall__ deleteFiles(void);
 void __fastcall__ writeFileInfoPanel(void);
 void __fastcall__ quit(void);
 #ifdef __C128__
+void __fastcall__ toggleScreenWidth(void);
 void __fastcall__ go64(void);
 #endif
 

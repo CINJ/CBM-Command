@@ -52,7 +52,10 @@ struct drive_status
 
 struct dir_node
 {
-	struct cbm_dirent *dir_entry;
+	//struct cbm_dirent *dir_entry;
+	unsigned char* name;
+	unsigned char type;
+	unsigned int size;
 	struct dir_node *next;
 	unsigned isSelected;
 	int index;

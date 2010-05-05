@@ -258,7 +258,8 @@ int __fastcall__ getDirectory(
 	struct panel_drive *drive,
 	int slidingWindowStartAt)
 {
-	unsigned char result, dr;
+	unsigned char* name;
+	unsigned char result, dr, nameLength;
 	int counter;
 	int slidingWindowSize = 30;
 	struct cbm_dirent currentDE, *newDE;
@@ -270,7 +271,7 @@ int __fastcall__ getDirectory(
 	while(currentNode != NULL)
 	{
 		nextNode = currentNode->next;
-		free(currentNode->dir_entry);
+		free(currentNode->name);
 		free(currentNode);
 		currentNode = nextNode;
 	}
@@ -288,27 +289,28 @@ int __fastcall__ getDirectory(
 		counter = 0;
 		//currentDE = malloc(sizeof(struct cbm_dirent));
 		currentNode = malloc(sizeof(struct dir_node));
+		currentNode->name = NULL;
 		currentNode->next = NULL;
 		currentNode->index = counter;
 		drive->head = currentNode;
 		while(!cbm_readdir(dr, &currentDE))
 		{
 			counter++;
-			newNode = malloc(sizeof(struct dir_node));
 			if(currentDE.type == 10 ||
 				(counter >= slidingWindowStartAt &&
 				counter < slidingWindowStartAt + slidingWindowSize))
 			{
-				newDE = malloc(sizeof(struct cbm_dirent));
-				strcpy(newDE->name, currentDE.name);
-				newDE->size = currentDE.size;
-				newDE->type = currentDE.type;
-				newDE->access = currentDE.access;
-				currentNode->dir_entry = newDE;
+				nameLength = strlen(currentDE.name) + 1;
+				name = calloc(nameLength, sizeof(unsigned char));
+				strcpy(name, currentDE.name);
+				currentNode->name = name;
+				currentNode->size = currentDE.size;
+				currentNode->type = currentDE.type;
 			}
+			newNode = malloc(sizeof(struct dir_node));
 			currentNode->next = newNode;
 			newNode->index = counter;
-			newNode->dir_entry = NULL;
+			newNode->name = NULL;
 			newNode->next = NULL;
 			newNode->isSelected = FALSE;
 			currentNode = newNode;
@@ -331,7 +333,7 @@ void __fastcall__ displayDirectory(
 
 	currentNode = drive->head;
 
-	if(currentNode->dir_entry == NULL)
+	if(currentNode->name == NULL)
 	{
 		getDirectory(drive, 0);
 	}
@@ -340,7 +342,7 @@ void __fastcall__ displayDirectory(
 	if(drive->position == right) x=w + 1;
 	
 	writePanel(TRUE, FALSE, COLOR_GRAY3, x, 1, 21, w, 
-		currentNode->dir_entry->name, NULL, NULL);
+		currentNode->name, NULL, NULL);
 	
 	currentNode = getSpecificNode(drive, drive->displayStartAt);
 
@@ -348,7 +350,7 @@ void __fastcall__ displayDirectory(
 	{
 		if(i+1 == drive->displayStartAt + 22) break;
 		
-		if(currentNode->dir_entry == NULL
+		if(currentNode->name == NULL
 			&& i < drive->length - 1)
 		{
 			drive->slidingWindowStartAt = i - 5;
@@ -356,7 +358,7 @@ void __fastcall__ displayDirectory(
 			currentNode = getSpecificNode(drive, i);
 		}
 		else if(currentNode->next != NULL
-			&& currentNode->next->dir_entry == NULL
+			&& currentNode->next->name == NULL
 			&& i < drive->length - 1)
 		{
 			drive->slidingWindowStartAt += 5;
@@ -366,8 +368,8 @@ void __fastcall__ displayDirectory(
 
 		gotoxy(x + 2, i - drive->displayStartAt +1);
 		
-		shortenSize(size, currentNode->dir_entry->size);
-		fileType = getFileType(currentNode->dir_entry->type);
+		shortenSize(size, currentNode->size);
+		fileType = getFileType(currentNode->type);
 
 		textcolor(COLOR_YELLOW);
 		if(currentNode->isSelected == TRUE)
@@ -382,7 +384,7 @@ void __fastcall__ displayDirectory(
 		sprintf(drivesBuffer, "%c %s %s", 
 			fileType, 
 			size,
-			shortenString(currentNode->dir_entry->name)
+			shortenString(currentNode->name)
 			);
 
 		cputs(drivesBuffer);
@@ -428,8 +430,8 @@ void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
 			{
 				writeStatusBarf("Idx: %3u Sz: %5u Nm: %s",
 					currentDirNode->index,
-					currentDirNode->dir_entry->size,
-					currentDirNode->dir_entry->name);
+					currentDirNode->size,
+					currentDirNode->name);
 			}
 		}
 	}
@@ -599,7 +601,7 @@ void __fastcall__ enterDirectory(struct panel_drive *panel)
 	if(isDiskImage(panel) || isDirectory(panel))
 	{
 		strcpy(command, "cd:");
-		strcat(command, node->dir_entry->name);
+		strcat(command, node->name);
 		sendCommand(panel, command);
 		panel->currentIndex = 0;
 		panel->displayStartAt = 0;
@@ -632,14 +634,14 @@ unsigned __fastcall__ isDiskImage(struct panel_drive *panel)
 
 	if(currentDirNode != NULL)
 	{
-		if(strstr(currentDirNode->dir_entry->name, ".D64") > 0
-			|| strstr(currentDirNode->dir_entry->name, ".D81") > 0
-			|| strstr(currentDirNode->dir_entry->name, ".D71") > 0
-			|| strstr(currentDirNode->dir_entry->name, ".DNP") > 0
-			|| strstr(currentDirNode->dir_entry->name, ".d64") > 0
-			|| strstr(currentDirNode->dir_entry->name, ".d81") > 0
-			|| strstr(currentDirNode->dir_entry->name, ".d71") > 0
-			|| strstr(currentDirNode->dir_entry->name, ".dnp") > 0
+		if(strstr(currentDirNode->name, ".D64") > 0
+			|| strstr(currentDirNode->name, ".D81") > 0
+			|| strstr(currentDirNode->name, ".D71") > 0
+			|| strstr(currentDirNode->name, ".DNP") > 0
+			|| strstr(currentDirNode->name, ".d64") > 0
+			|| strstr(currentDirNode->name, ".d81") > 0
+			|| strstr(currentDirNode->name, ".d71") > 0
+			|| strstr(currentDirNode->name, ".dnp") > 0
 		)
 		{
 			result = TRUE;
@@ -666,7 +668,7 @@ unsigned __fastcall__ isDirectory(struct panel_drive *panel)
 
 	if(currentDirNode != NULL)
 	{
-		if(currentDirNode->dir_entry->type == 6)
+		if(currentDirNode->type == 6)
 		{
 			result = TRUE;
 		}

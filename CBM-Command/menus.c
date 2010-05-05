@@ -182,7 +182,7 @@ void __fastcall__ drawMenu(
 	char* labels[],
 	unsigned char keys[])
 {
-	int i=0, j=0;
+	unsigned int i=0, j=0;
 	const unsigned char offset = 0x80;
 	//unsigned test;
 
@@ -194,7 +194,7 @@ void __fastcall__ drawMenu(
 	drawBox(x, 1, width + 1, 
 		count + 1, COLOR_GRAY1, FALSE);
 
-	for(i=0; i < count; i++)
+	for(i=0; i < count; ++i)
 	{
 		drawMenuLine(
 			(i==currentMenuLine), 

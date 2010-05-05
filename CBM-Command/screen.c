@@ -48,9 +48,23 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PlatformSpecific.h"
 #include "input.h"
 
+#ifdef __C64__
+unsigned char* SCREEN_BUFFER;
+unsigned char* SCREEN;
+unsigned int vicRegister;
+unsigned int screenMemoryStart;
+#endif
+
 // Prepares the screen 
 void setupScreen(void)
 {
+#ifdef __C64__
+	vicRegister = 53727U;
+	screenMemoryStart = ((PEEK(vicRegister) & 0xF0) >> 4) * 1024;
+	SCREEN = screenMemoryStart;
+	SCREEN_BUFFER = screenMemoryStart + 1000u;
+#endif
+
 	clrscr();
 
 	textcolor(COLOR_YELLOW);
@@ -62,55 +76,44 @@ void setupScreen(void)
 
 void __fastcall__ saveScreen(void)
 {
-	unsigned int vicRegister = 53272;
-	int screenMemoryStart;
-	int colorMemoryStart = 0xD800;
-
 #ifdef __C128__
-	if(size_x > 40)
-	{
-		copyVdcScreen(0x00, 0x10);
-		return;
-	}
-	else
-	{
-		vicRegister = 2604;
-	}
-#endif
+	copyVdcScreen(0x00, 0x10);
+#else
+	unsigned int colorMemoryStart = 0xD800;
+	unsigned int i = 0;
 
-	screenMemoryStart = ((PEEK(vicRegister) & 0xF0) >> 4) * 1024;
-
-	memcpy(SCREEN_BUFFER, screenMemoryStart, 1000);
+	for(i = 0; i<1000; ++i)
+	{
+		SCREEN_BUFFER[i] = SCREEN[i];
+	}
+	
 	memcpy(COLOR_BUFFER, colorMemoryStart, 1000);
+#endif
 }
 
 void __fastcall__ retrieveScreen(void)
 {
-	unsigned int vicRegister = 53272;
-	int screenMemoryStart;
-	int colorMemoryStart = 0xD800;
-
 #ifdef __C128__
-	if(size_x > 40)
+	copyVdcScreen(0x10, 0x00);
+#else
+	unsigned int colorMemoryStart = 0xD800;
+	unsigned int i = 0;
+
+	for(i = 0; i<1000; ++i)
 	{
-		copyVdcScreen(0x10, 0x00);
-		return;
+	 	SCREEN[i] = SCREEN_BUFFER[i];
 	}
-	else
-	{
-		vicRegister = 2604;
-	}
+	
+	memcpy(colorMemoryStart, COLOR_BUFFER, 1000);
 #endif
 
-	screenMemoryStart = ((PEEK(vicRegister) & 0xF0) >> 4) * 1024;
-	memcpy(screenMemoryStart, SCREEN_BUFFER, 1000);
-	memcpy(colorMemoryStart, COLOR_BUFFER, 1000);
 }
 
 void __fastcall__ writeStatusBar(
 	unsigned char message[])
 {
 	unsigned char oldColor, oldX, oldY;
+
 	oldX = wherex();
 	oldY = wherey();
 
@@ -170,12 +173,12 @@ void drawBox(
 	unsigned reverse)
 {
 	unsigned char oldColor;
-	unsigned oldReverse;
 	unsigned char line[39];
 	unsigned char spcs[39];
-	int i;
+	unsigned int i;
+	unsigned oldReverse;
 	
-	for(i=0; i<w-1; i++)
+	for(i=0; i<w-1; ++i)
 	{
 		line[i] = CH_HLINE;
 		spcs[i] = ' ';
@@ -192,7 +195,7 @@ void drawBox(
 	cputcxy(x+w, y, CH_URCORNER);
 
 	// draw body
-	for(i=y+1; i<y+h; i++)
+	for(i=y+1; i<y+h; ++i)
 	{
 		cputcxy(x, i, CH_VLINE);
 		cputsxy(x+1, i, spcs);
@@ -228,7 +231,7 @@ void writePanel(
 	unsigned char *cancel,
 	unsigned char *ok)
 {
-	int i, okLeft, cancelLeft;
+	unsigned int i, okLeft, cancelLeft;
 	unsigned char oldColor;
 	unsigned char oldReverse;
 	unsigned char buffer[80];
@@ -247,7 +250,7 @@ void writePanel(
 		strncpy(buffer, SPACES, w);
 		buffer[w] = '\0';
 
-		for(i=0; i<h; i++)
+		for(i=0; i<h; ++i)
 		{
 			gotoxy(x, y+i);
 			cputs(buffer);
@@ -305,8 +308,8 @@ void writePanel(
 
 void __fastcall__ notImplemented(void)
 {
-	unsigned char x, y, h = 5, w = 23;
-	//unsigned char buffer[39];
+	unsigned char h = 5, w = 23;
+	unsigned char x, y;
 
 	saveScreen();
 
@@ -338,7 +341,7 @@ enum results __fastcall__ drawDialog(
 
 	h = lineCount + 5;
 	w = 20;
-	for(i=0; i<lineCount; i++);
+	for(i=0; i<lineCount; ++i);
 	{
 		if(strlen(message[i]) > w) 
 			w = strlen(message[i]);
@@ -376,7 +379,7 @@ enum results __fastcall__ drawDialog(
 		(button & NO || button & CANCEL ? cancelButton : NULL),
 		(button & OK || button & YES ? okButton : NULL));
 
-	for(i=0; i<lineCount; i++)
+	for(i=0; i<lineCount; ++i)
 	{
 		textcolor(COLOR_GRAY1);
 		gotoxy(x+2, i+2+y);

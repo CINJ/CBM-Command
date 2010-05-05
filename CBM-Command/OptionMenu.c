@@ -48,13 +48,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 unsigned isInitialized = FALSE;
 
-#ifdef __C128__
-char* OPTION_MENU_LABELS[3];
-unsigned char OPTION_MENU_KEYS[3];
-#else
 char* OPTION_MENU_LABELS[2];
 unsigned char OPTION_MENU_KEYS[2];
-#endif
 
 void __fastcall__ initOptionMenu(void)
 {
@@ -62,15 +57,9 @@ void __fastcall__ initOptionMenu(void)
 	{
 		OPTION_MENU_LABELS[0] = OPTION_MENU_OPTIONS;
 		OPTION_MENU_LABELS[1] = OPTION_MENU_SAVE;
-#ifdef __C128__
-		OPTION_MENU_LABELS[2] = OPTION_MENU_TOGGLE;
-#endif
 
 		OPTION_MENU_KEYS[0] = OPTION_MENU_OPTIONS_KEY;
 		OPTION_MENU_KEYS[1] = OPTION_MENU_SAVE_KEY;
-#ifdef __C128__
-		OPTION_MENU_KEYS[2] = OPTION_MENU_TOGGLE_KEY;
-#endif
 
 		isInitialized = TRUE;
 	}
@@ -132,12 +121,6 @@ void __fastcall__ handleOptionMenu(void)
 			{
 				writeOptionsPanel();
 			}
-#ifdef __C128__
-			else if(key == OPTION_MENU_TOGGLE_KEY)
-			{
-				toggleScreenWidth();
-			}
-#endif
 			else if(key == OPTION_MENU_SAVE_KEY)
 			{
 				saveOptions();
@@ -156,37 +139,6 @@ void __fastcall__ saveOptions(void)
 	retrieveScreen();
 	notImplemented();
 }
-
-#ifdef __C128__
-void __fastcall__ toggleScreenWidth(void)
-{
-	if(size_x == 40)
-	{
-		writeStatusBar(
-			"Toggling display.  Please use your 80 columns display."
-			);
-
-		videomode(VIDEOMODE_80COL);
-		fast();
-	}
-	else
-	{
-		writeStatusBar(
-			"Toggling display.  Please use your 40 columns display."
-			);
-
-		slow();
-		videomode(VIDEOMODE_40COL);
-	}
-	initialize();
-	setupScreen();
-	writeMenuBar();
-	if(arePanelsOn)
-	{
-		displayPanels();
-	}				
-}
-#endif
 
 void __fastcall__ writeOptionsPanel(void)
 {

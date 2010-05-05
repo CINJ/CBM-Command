@@ -45,7 +45,7 @@
 .export	_writeVdcRegister
 .export	_readVdcRegister
 .export _clearVdcScreen
-.export _copyVdcScreen		; void __fastcall__ copyScreen(
+.export _copyVdcScreen	; void __fastcall__ copyScreen(
 						;		unsigned char srcHi,
 						;		unsigned char trgHi)
 
@@ -183,4 +183,3 @@ CLRPAG:	JSR WRITE
 		JSR incsp1		; Increment the stack pointer by 1
 		RTS				; as the return value of the function?
 .endproc
-

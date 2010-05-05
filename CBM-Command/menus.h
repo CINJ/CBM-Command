@@ -52,19 +52,10 @@ extern char OPTION_MENU_OPTIONS[];
 extern const unsigned char OPTION_MENU_OPTIONS_KEY;
 extern char OPTION_MENU_SAVE[];
 extern const unsigned char OPTION_MENU_SAVE_KEY;
-#ifdef __C128__
-extern char OPTION_MENU_TOGGLE[];
-extern const unsigned char OPTION_MENU_TOGGLE_KEY;
-#endif
 extern const unsigned char OPTION_MENU_COUNT;
 extern const unsigned char OPTION_MENU_WIDTH;
-#ifdef __C128__
-extern char* OPTION_MENU_LABELS[3];
-extern unsigned char OPTION_MENU_KEYS[3];
-#else
 extern char* OPTION_MENU_LABELS[2];
 extern unsigned char OPTION_MENU_KEYS[2];
-#endif
 
 // File Menu Externals
 extern char FILE_MENU_ABOUT[];
@@ -147,7 +138,6 @@ void __fastcall__ deleteFiles(void);
 void __fastcall__ writeFileInfoPanel(void);
 void __fastcall__ quit(void);
 #ifdef __C128__
-void __fastcall__ toggleScreenWidth(void);
 void __fastcall__ go64(void);
 #endif
 

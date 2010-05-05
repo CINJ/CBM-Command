@@ -38,8 +38,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _SCREEN_H
 #define _SCREEN_H
 
-unsigned char SCREEN_BUFFER[1000];
+#ifdef __C64__
+extern unsigned char* SCREEN_BUFFER;
+extern unsigned char* SCREEN;
 unsigned char COLOR_BUFFER[1000];
+extern unsigned int vicRegister;
+extern unsigned int screenMemoryStart; 
+#endif
 
 enum results { OK_RESULT, CANCEL_RESULT, YES_RESULT, NO_RESULT };
 enum buttons { OK = 1, CANCEL = 2, YES = 4, NO = 8 };

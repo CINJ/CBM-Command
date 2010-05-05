@@ -36,7 +36,7 @@
 ;***************************************************************/
 
 .export _OPTION_MENU_COUNT
-_OPTION_MENU_COUNT: .byte $03
+_OPTION_MENU_COUNT: .byte $02
 
 .export _OPTION_MENU_WIDTH
 _OPTION_MENU_WIDTH: .byte $0C
@@ -46,12 +46,6 @@ _OPTION_MENU_OPTIONS: .asciiz "Options..."
 
 .export _OPTION_MENU_OPTIONS_KEY
 _OPTION_MENU_OPTIONS_KEY: .byte $4F
-
-.export _OPTION_MENU_TOGGLE
-_OPTION_MENU_TOGGLE: .asciiz "Toggle 40/80"
-
-.export _OPTION_MENU_TOGGLE_KEY
-_OPTION_MENU_TOGGLE_KEY: .byte $54
 
 .export _OPTION_MENU_SAVE
 _OPTION_MENU_SAVE: .asciiz "Save"

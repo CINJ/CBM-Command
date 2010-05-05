@@ -58,11 +58,10 @@ unsigned arePanelsOn = TRUE;
 // strings as necessary.
 void initialize(void)
 {
-#if defined(__C128__)
-	getScreenSize(&size_x, &size_y);
-	if(size_x > 40) fast();
-#else
 	screensize(&size_x, &size_y);
+#if defined(__C128__)
+	//getScreenSize(&size_x, &size_y);
+	if(size_x > 40) fast();
 #endif
 
 	strncpy(blank_line, SPACES, size_x);

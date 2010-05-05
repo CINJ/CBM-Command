@@ -39,6 +39,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <string.h>
 #include <conio.h>
+#include <peekpoke.h>
+
 #include "constants.h"
 #include "drives.h"
 #include "AssemblerMethods.h"
@@ -56,34 +58,20 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int main(void)
 {
-	unsigned char message[39];
 
 #if defined(__C128__)
-	// For testing only.  
-	// Will remove for actual release.
-	//videomode(VIDEOMODE_80COL);
-	//fast();
+	videomode(VIDEOMODE_80COL);
+	fast();
 #endif
 
 	initialize();
 	setupScreen();
 	writeMenuBar();
 
-	sprintf(message, 
-			SCREEN_SIZE_FORMAT, 
-			size_x, size_y);
-
-	//writeStatusBar(message, 0, 10);
-	gotoxy(0,1); cputs(message);
-
-		
 	while(TRUE)
 	{
 		readKeyboard();
 	}
-
-#ifdef __C128__
-#endif
 
 	return EXIT_SUCCESS;
 }

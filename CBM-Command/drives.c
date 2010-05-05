@@ -51,7 +51,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 unsigned char drivesBuffer[80];
 
-struct drive_status drives[12] =
+struct drive_status drives[8] =
 {
 	{ 8, "" },	// 0
 	{ 9, "" },	// 1
@@ -60,11 +60,7 @@ struct drive_status drives[12] =
 	{ 12, "" },	// 4
 	{ 13, "" },	// 5
 	{ 14, "" },	// 6
-	{ 15, "" },	// 7
-	{ 16, "" },	// 8
-	{ 17, "" },	// 9
-	{ 18, "" },	// 10
-	{ 19, "" },	// 11
+	{ 15, "" }	// 7
 };
 
 unsigned areDrivesInitialized = FALSE;
@@ -105,7 +101,7 @@ int __fastcall__ getDriveStatus(
 	unsigned char dr;
 	dr = drive->drive;
 
-	if(dr < 8 || dr > 19)
+	if(dr < 8 || dr > 15)
 	{
 		return -1;
 	}
@@ -144,11 +140,12 @@ int __fastcall__ getDriveStatus(
 
 void __fastcall__ listDrives(enum menus menu)
 {
+	unsigned selected = FALSE;
+	const unsigned char h = 13;
+	const unsigned char w = 39;
+
 	unsigned char x, y, i;
 	unsigned char status, current, original, key;
-	unsigned selected = FALSE;
-	const unsigned char h = 17;
-	const unsigned char w = 39;
 	unsigned char message[10];
 
 	x = getCenterX(w);
@@ -163,7 +160,7 @@ void __fastcall__ listDrives(enum menus menu)
 
 	current = 0;
 
-	for(i=0; i<12; i++)
+	for(i=0; i<8; ++i)
 	{
 		if( 
 			(currentLeft > 0 && drives[i].drive == currentLeft && menu == left) ||
@@ -196,7 +193,7 @@ void __fastcall__ listDrives(enum menus menu)
 	}
 
 	textcolor(COLOR_YELLOW);
-	gotoxy(x + 1, y + 15); 
+	gotoxy(x + 1, y + 11); 
 	cputs("Use arrow keys & enter to select drive");
 	textcolor(COLOR_RED);
 
@@ -222,7 +219,7 @@ void __fastcall__ listDrives(enum menus menu)
 			if(current > 0)
 			{
 				gotoxy(x + 1, current + 2 + y); cputc(' ');
-				current--;
+				--current;
 				gotoxy(x + 1, current + 2 + y); cputc('>');
 			}
 			break;
@@ -231,7 +228,7 @@ void __fastcall__ listDrives(enum menus menu)
 			if(current < 11)
 			{
 				gotoxy(x + 1, current + 2 + y); cputc(' ');
-				current++;
+				++current;
 				gotoxy(x + 1, current + 2 + y); cputc('>');
 			}
 			break;
@@ -258,11 +255,11 @@ int __fastcall__ getDirectory(
 	struct panel_drive *drive,
 	int slidingWindowStartAt)
 {
+	unsigned int slidingWindowSize = 30;
 	unsigned char* name;
 	unsigned char result, dr, nameLength;
-	int counter;
-	int slidingWindowSize = 30;
-	struct cbm_dirent currentDE, *newDE;
+	unsigned int counter;
+	struct cbm_dirent currentDE;
 	struct dir_node *currentNode, *newNode, *nextNode;
 
 	drive->slidingWindowStartAt = slidingWindowStartAt;
@@ -287,7 +284,6 @@ int __fastcall__ getDirectory(
 	{
 		writeStatusBar("Reading directory...");
 		counter = 0;
-		//currentDE = malloc(sizeof(struct cbm_dirent));
 		currentNode = malloc(sizeof(struct dir_node));
 		currentNode->name = NULL;
 		currentNode->next = NULL;
@@ -295,7 +291,7 @@ int __fastcall__ getDirectory(
 		drive->head = currentNode;
 		while(!cbm_readdir(dr, &currentDE))
 		{
-			counter++;
+			++counter;
 			if(currentDE.type == 10 ||
 				(counter >= slidingWindowStartAt &&
 				counter < slidingWindowStartAt + slidingWindowSize))
@@ -326,8 +322,9 @@ int __fastcall__ getDirectory(
 void __fastcall__ displayDirectory(
 	struct panel_drive *drive)
 {
-	unsigned char fileType, w = 19, x = 0;
-	int i;
+	unsigned char w = 19, x = 0;
+	unsigned char fileType;
+	unsigned int i;
 	struct dir_node *currentNode;
 	unsigned char size[4];
 
@@ -346,7 +343,7 @@ void __fastcall__ displayDirectory(
 	
 	currentNode = getSpecificNode(drive, drive->displayStartAt);
 
-	for(i = currentNode->index; i < drive->length; i++)
+	for(i = currentNode->index; i < drive->length; ++i)
 	{
 		if(i+1 == drive->displayStartAt + 22) break;
 		
@@ -410,7 +407,7 @@ void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
 void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
 {
 	struct dir_node *currentDirNode;
-	int i;
+	unsigned int i;
 
 	if(panel != NULL)
 	{
@@ -421,7 +418,7 @@ void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
 				i=0; 
 				i<=panel->currentIndex
 					&& currentDirNode != NULL; 
-				i++)
+				++i)
 			{
 				currentDirNode = currentDirNode->next;
 			}
@@ -518,7 +515,7 @@ void __fastcall__ shortenSize(unsigned char* buffer, unsigned int value)
 	}
 	else
 	{
-		sprintf(buffer, "%2dK", value/1024);
+		sprintf(buffer, "%2dK", (value + 512)/1024);
 	}
 }
 
@@ -564,7 +561,7 @@ void __fastcall__ selectCurrentFile(void)
 				i=0; 
 				i<=selectedPanel->currentIndex
 					&& currentDirNode != NULL; 
-				i++)
+				++i)
 			{
 				currentDirNode = currentDirNode->next;
 			}
@@ -580,14 +577,6 @@ void __fastcall__ selectCurrentFile(void)
 				writeSelectorPosition(selectedPanel, '>');
 			}
 		}
-		else
-		{
-			writeStatusBar("No drive selected.");
-		}
-	}
-	else
-	{
-		writeStatusBar("No panel selected.");
 	}
 }
 
@@ -651,10 +640,6 @@ unsigned __fastcall__ isDiskImage(struct panel_drive *panel)
 			result = FALSE;
 		}
 	}
-	else
-	{
-		writeStatusBar("Cannot get dir node, returned null.");
-	}
 
 	return result;
 }
@@ -677,10 +662,6 @@ unsigned __fastcall__ isDirectory(struct panel_drive *panel)
 			result = FALSE;
 		}
 	}
-	else
-	{
-		writeStatusBar("Cannot get dir node, returned null.");
-	}
 
 	return result;
 }
@@ -692,7 +673,7 @@ struct dir_node* __fastcall__ getSelectedNode(struct panel_drive *panel)
 
 struct dir_node* __fastcall__ getSpecificNode(struct panel_drive *panel, int index)
 {
-	int i;
+	unsigned int i;
 	struct dir_node *currentDirNode = NULL;
 
 	if(panel != NULL)
@@ -704,7 +685,7 @@ struct dir_node* __fastcall__ getSpecificNode(struct panel_drive *panel, int ind
 				i=0; 
 				i<=index
 					&& currentDirNode != NULL; 
-				i++)
+				++i)
 			{
 				currentDirNode = currentDirNode->next;
 			}
@@ -728,7 +709,7 @@ unsigned char __fastcall__ sendCommand(
 
 	result = cbm_write(drive, command, strlen(command));
 
-	if(result > -1)
+	if(result > 0)
 	{
 		cbm_read(drive, buffer, 39);
 		writeStatusBarf(buffer);

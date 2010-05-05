@@ -55,6 +55,7 @@ struct dir_node
 	struct cbm_dirent *dir_entry;
 	struct dir_node *next;
 	unsigned isSelected;
+	int index;
 };
 
 struct panel_drive
@@ -64,6 +65,7 @@ struct panel_drive
 	int length;
 	int currentIndex;
 	int displayStartAt;
+	int slidingWindowStartAt;
 	enum menus position;
 };
 
@@ -85,7 +87,8 @@ extern unsigned char __fastcall__ checkDrive(
 	unsigned char* file,
 	unsigned char drive);
 
-int __fastcall__ getDirectory(struct panel_drive *drive);
+int __fastcall__ getDirectory(struct panel_drive *drive,
+	int slidingWindowStartAt);
 
 void __fastcall__ displayDirectory(struct panel_drive *drive);
 
@@ -103,7 +106,7 @@ void __fastcall__ leaveDirectory(struct panel_drive *panel);
 unsigned __fastcall__ isDiskImage(struct panel_drive *panel);
 unsigned __fastcall__ isDirectory(struct panel_drive *panel);
 struct dir_node* __fastcall__ getSelectedNode(struct panel_drive *panel);
-
+struct dir_node* __fastcall__ getSpecificNode(struct panel_drive *panel, int index);
 unsigned char __fastcall__ sendCommand(
 	struct panel_drive *panel,
 	unsigned char *command);

@@ -170,21 +170,28 @@ void __fastcall__ rereadDrivePanel(enum menus menu)
 {
 	if(menu == left)
 	{
-		getDirectory(&leftPanelDrive);
-		displayDirectory(&leftPanelDrive);
-		writeSelectorPosition(&leftPanelDrive, '>');
-		writeSelectorPosition(&rightPanelDrive, ' ');
 		selectedPanel = &leftPanelDrive;
 	}
 	else
 	{
-		getDirectory(&rightPanelDrive);
-		displayDirectory(&rightPanelDrive);
-		writeSelectorPosition(&leftPanelDrive, ' ');
-		writeSelectorPosition(&rightPanelDrive, '>');
 		selectedPanel = &rightPanelDrive;
 	}
 
+	selectedPanel->currentIndex = 0;
+	selectedPanel->displayStartAt = 0;
+	getDirectory(selectedPanel, 0);
+	displayDirectory(selectedPanel);
+
+	if(menu == left)
+	{
+		writeSelectorPosition(&leftPanelDrive, '>');
+		writeSelectorPosition(&rightPanelDrive, ' ');
+	}
+	else
+	{
+		writeSelectorPosition(&leftPanelDrive, ' ');
+		writeSelectorPosition(&rightPanelDrive, '>');
+	}
 	if(size_x <=40) writeCurrentFilename(selectedPanel);
 }
 
@@ -192,22 +199,5 @@ void __fastcall__ writeDriveSelectionPanel(enum menus menu)
 {
 	listDrives(menu);
 	retrieveScreen();
-	if(menu == left)
-	{
-		getDirectory(&leftPanelDrive);
-		displayDirectory(&leftPanelDrive);
-		writeSelectorPosition(&leftPanelDrive, '>');
-		writeSelectorPosition(&rightPanelDrive, ' ');
-		selectedPanel = &leftPanelDrive;
-	}
-	else
-	{
-		getDirectory(&rightPanelDrive);
-		displayDirectory(&rightPanelDrive);
-		writeSelectorPosition(&leftPanelDrive, ' ');
-		writeSelectorPosition(&rightPanelDrive, '>');
-		selectedPanel = &rightPanelDrive;
-	}
-
-	if(size_x <=40) writeCurrentFilename(selectedPanel);
+	rereadDrivePanel(menu);
 }

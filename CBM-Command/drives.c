@@ -313,7 +313,11 @@ int __fastcall__ getDirectory(
 		}
 		cbm_closedir(dr);
 		drive->length = counter;
-		writeStatusBarf("Finished reading %u files.", counter);
+		if(drive->currentIndex >= drive->length)
+		{
+			drive->currentIndex = drive->length - 1;
+		}
+		writeStatusBarf("Finished reading %u files.", counter - 1);
 	}
 
 	return counter;
@@ -713,7 +717,6 @@ unsigned char __fastcall__ sendCommand(
 	{
 		cbm_read(drive, buffer, 39);
 		writeStatusBarf(buffer);
-		waitForEnterEsc();
 	}
 
 	cbm_close(drive);

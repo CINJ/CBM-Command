@@ -49,8 +49,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "input.h"
 
 #ifdef __C64__
-unsigned char* SCREEN_BUFFER;
-unsigned char* SCREEN;
 unsigned int vicRegister;
 unsigned int screenMemoryStart;
 #endif
@@ -58,13 +56,6 @@ unsigned int screenMemoryStart;
 // Prepares the screen 
 void setupScreen(void)
 {
-#ifdef __C64__
-	vicRegister = 53727U;
-	screenMemoryStart = ((PEEK(vicRegister) & 0xF0) >> 4) * 1024;
-	SCREEN = screenMemoryStart;
-	SCREEN_BUFFER = screenMemoryStart + 1000u;
-#endif
-
 	clrscr();
 
 	textcolor(COLOR_YELLOW);
@@ -78,15 +69,15 @@ void __fastcall__ saveScreen(void)
 {
 #ifdef __C128__
 	copyVdcScreen(0x00, 0x10);
+	return;
 #else
-	unsigned int colorMemoryStart = 0xD800;
-	unsigned int i = 0;
+	int vicRegister = 53272;
+	int screenMemoryStart;
+	int colorMemoryStart = 0xD800;
 
-	for(i = 0; i<1000; ++i)
-	{
-		SCREEN_BUFFER[i] = SCREEN[i];
-	}
-	
+	screenMemoryStart = ((PEEK(vicRegister) & 0xF0) >> 4) * 1024;
+
+	memcpy(SCREEN_BUFFER, screenMemoryStart, 1000);
 	memcpy(COLOR_BUFFER, colorMemoryStart, 1000);
 #endif
 }
@@ -95,15 +86,14 @@ void __fastcall__ retrieveScreen(void)
 {
 #ifdef __C128__
 	copyVdcScreen(0x10, 0x00);
+	return;
 #else
-	unsigned int colorMemoryStart = 0xD800;
-	unsigned int i = 0;
+	int vicRegister = 53272;
+	int screenMemoryStart;
+	int colorMemoryStart = 0xD800;
 
-	for(i = 0; i<1000; ++i)
-	{
-	 	SCREEN[i] = SCREEN_BUFFER[i];
-	}
-	
+	screenMemoryStart = ((PEEK(vicRegister) & 0xF0) >> 4) * 1024;
+	memcpy(screenMemoryStart, SCREEN_BUFFER, 1000);
 	memcpy(colorMemoryStart, COLOR_BUFFER, 1000);
 #endif
 
@@ -172,11 +162,9 @@ void drawBox(
 	unsigned char color,
 	unsigned reverse)
 {
-	unsigned char oldColor;
+	unsigned int i = 0;
 	unsigned char line[39];
 	unsigned char spcs[39];
-	unsigned int i;
-	unsigned oldReverse;
 	
 	for(i=0; i<w-1; ++i)
 	{
@@ -186,8 +174,8 @@ void drawBox(
 	line[i] = '\0';
 	spcs[i] = '\0';	
 	
-	oldColor = textcolor(color);
-	oldReverse = revers(reverse);
+	textcolor(color);
+	revers(reverse);
 
 	// draw top line
 	cputcxy(x, y, CH_ULCORNER);
@@ -206,9 +194,6 @@ void drawBox(
 	cputcxy(x, y+h, CH_LLCORNER);
 	cputsxy(x+1, y+h, line);
 	cputcxy(x+w, y+h, CH_LRCORNER);
-	
-	revers(oldReverse);
-	textcolor(oldColor);
 }
 
 unsigned char __fastcall__ getCenterX(unsigned char w)
@@ -231,15 +216,13 @@ void writePanel(
 	unsigned char *cancel,
 	unsigned char *ok)
 {
-	unsigned int i, okLeft, cancelLeft;
-	unsigned char oldColor;
-	unsigned char oldReverse;
+	unsigned int i = 0, okLeft = 0, cancelLeft = 0;
 	unsigned char buffer[80];
 
 	saveScreen();
 
-	oldColor = textcolor(color);
-	oldReverse = revers(reverse);
+	textcolor(color);
+	revers(reverse);
 
 	if(drawBorder)
 	{
@@ -301,9 +284,6 @@ void writePanel(
 		gotoxy(cancelLeft, y + h - 1);
 		cputs(buffer);
 	}
-
-	textcolor(oldColor);
-	revers(oldReverse);
 }
 
 void __fastcall__ notImplemented(void)
@@ -335,7 +315,7 @@ enum results __fastcall__ drawDialog(
 	unsigned char* title,
 	enum buttons button)
 {
-	unsigned char x, y, h, w, i, key;
+	unsigned char x = 0, y = 0, h = 0, w = 0, i = 0, key = 0;
 	unsigned char okButton[4];
 	unsigned char cancelButton[7];
 
@@ -414,6 +394,94 @@ enum results __fastcall__ drawDialog(
 	return CANCEL_RESULT;
 }
 
+enum results __fastcall__ drawInputDialog(
+	unsigned char *message[],
+	unsigned char lineCount,
+	unsigned char *title,
+	unsigned char *resultText)
+{
+	unsigned char x = 0, y = 0, h = 0, w = 0, i = 0, 
+		key = 0, count = 0;
+	unsigned result;
+	unsigned char input[17];
+
+	h = lineCount + 6;
+	w = 20;
+	for(i=0; i<lineCount; ++i);
+	{
+		if(strlen(message[i]) > w) 
+			w = strlen(message[i]);
+	}
+
+	w += 3;
+
+	x = getCenterX(w);
+	y = getCenterY(h);
+
+	writePanel(
+		TRUE, FALSE, COLOR_GRAY2,
+		x, y, h, w,
+		title,
+		"Cancel",
+		"Done");
+
+	for(i=0; i<lineCount; ++i)
+	{
+		textcolor(COLOR_GRAY1);
+		gotoxy(x+2, i+2+y);
+		cputs(message[i]);
+	}	
+	++i;
+	
+	gotoxy(x+2, i+2+y);
+	revers(TRUE);
+	textcolor(COLOR_WHITE);
+	
+	cputs("<                ");
+	count = 0;
+	key = cgetc();
+	while(key != CH_ESC && key != CH_STOP && key != CH_ENTER)
+	{
+		if( count < 16 &&
+			(
+				(key >= 33 && key <= 95) ||
+				(key >= 65 + 0x40 && key <= 90 + 0x40)
+			)
+		)
+		{
+			input[count] = key;
+			input[count+1] = '\0';
+			gotoxy(x+2+count, i+2+y);
+			cputc(key);
+			++count;
+			gotoxy(x+2+count, i+2+y);
+			cputc('<');
+		}
+		else if(key == CH_DEL && count > 0)
+		{
+			input[count] = '\0';
+			gotoxy(x+2+count, i+2+y);
+			cputc(' ');
+			--count;
+			gotoxy(x+2+count, i+2+y);
+			cputc('<');
+		}
+		key = cgetc();
+	}
+
+	strcpy(resultText, input);
+
+	switch((int)key)
+	{
+	case CH_ENTER: result = OK_RESULT; break;
+	default: result = CANCEL_RESULT; break;
+	}
+
+	revers(FALSE);
+
+	return result;
+}
+
 unsigned __fastcall__ writeYesNo(
 	unsigned char *title,
 	unsigned char *message[],
@@ -424,6 +492,7 @@ unsigned __fastcall__ writeYesNo(
 
 	return result == YES_RESULT;
 }
+
 
 void writeStatusBarf(unsigned char format[], ...)
 {

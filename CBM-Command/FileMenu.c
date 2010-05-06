@@ -45,6 +45,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include "constants.h"
+#include "drives.h"
 #include "input.h"
 #include "menus.h"
 #include "screen.h"
@@ -217,17 +218,138 @@ void __fastcall__ copyFiles(void)
 
 void __fastcall__ renameFile(void)
 {
-	notImplemented();
+	enum results dialogResult;
+	struct dir_node *selectedNode = NULL;
+	unsigned char command[40];
+	unsigned char filename[17];
+	unsigned char* dialogMessage[] =
+	{
+		{ "Enter new name" },
+		{ "for file:" }
+	};
+
+	if(selectedPanel != NULL)
+	{
+		selectedNode = getSelectedNode(selectedPanel);
+		if(selectedNode != NULL)
+		{
+			saveScreen();
+
+			writeStatusBarf("Old name: %s", selectedNode->name);
+
+			dialogResult = drawInputDialog(
+				dialogMessage,
+				2,
+				"Rename File",
+				filename);
+
+			retrieveScreen();
+
+			if(dialogResult == OK_RESULT)
+			{
+				writeStatusBarf("Renaming to %s", filename);
+
+				sprintf(command, "r0:%s=%s",
+					filename, selectedNode->name);
+
+				sendCommand(selectedPanel, command);
+
+				getDirectory(selectedPanel, 
+					selectedPanel->slidingWindowStartAt);
+				displayDirectory(selectedPanel);
+
+				writeStatusBarf("Renamed to %s", filename);
+			}
+		}
+	}
 }
 
 void __fastcall__ makeDirectory(void)
 {
-	notImplemented();
+	enum results dialogResult;
+	struct dir_node *selectedNode = NULL;
+	unsigned char command[40];
+	unsigned char filename[17];
+	unsigned char* dialogMessage[] =
+	{
+		{ "Enter name for" },
+		{ "new directory:" }
+	};
+
+	if(selectedPanel != NULL)
+	{
+			saveScreen();
+
+			dialogResult = drawInputDialog(
+				dialogMessage,
+				2,
+				"New Directory",
+				filename);
+
+			retrieveScreen();
+
+			if(dialogResult == OK_RESULT)
+			{
+				sprintf(command, "md:%s",
+					filename);
+
+				sendCommand(selectedPanel, command);
+
+				getDirectory(selectedPanel, 
+					selectedPanel->slidingWindowStartAt);
+				displayDirectory(selectedPanel);
+			}
+	}
 }
 
 void __fastcall__ deleteFiles(void)
 {
-	notImplemented();
+	unsigned dialogResult;
+	struct dir_node *selectedNode = NULL;
+	unsigned char command[40];
+	unsigned char* dialogMessage[] =
+	{
+		{ "Are you sure?" }
+	};
+
+	if(selectedPanel != NULL)
+	{
+		selectedNode = getSelectedNode(selectedPanel);
+		if(selectedNode != NULL)
+		{
+			saveScreen();
+
+			writeStatusBarf("File to delete: %s", selectedNode->name);
+
+			dialogResult = writeYesNo(
+				"Delete File",
+				dialogMessage,
+				1);
+
+			retrieveScreen();
+
+			if(dialogResult == TRUE)
+			{
+				writeStatusBarf("Deleting %s", selectedNode->name);
+
+				if(selectedNode->type != 6)
+				{
+					sprintf(command, "s0:%s", selectedNode->name);
+				}
+				else
+				{
+					sprintf(command, "rd:%s", selectedNode->name);
+				}
+
+				sendCommand(selectedPanel, command);
+
+				getDirectory(selectedPanel, 
+					selectedPanel->slidingWindowStartAt);
+
+				displayDirectory(selectedPanel);
+			}
+		}
+	}
 }
 
 void __fastcall__ writeFileInfoPanel(void)

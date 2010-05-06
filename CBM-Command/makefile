@@ -33,7 +33,7 @@ ASMFILES= \
 
 PROGRAM	=cbmcommand.$(T)
 
-TITLE	=$(PROGRAM:.prg=)
+TITLE	=$(PROGRAM:.$(T)=)
 
 LIBS	=$(T).lib
 
@@ -49,9 +49,11 @@ else
 endif
 
 D64: all
-	cp $(T)\$(PROGRAM) $(PROGRAM)
+	cp c64\$(TITLE).c64 $(TITLE).c64
+	cp c128\$(TITLE).c128 $(TITLE).c128
 	$(C1541) -format $(TITLE),id d64 $(TITLE).d64
-	$(C1541) $(TITLE).d64 -write $(PROGRAM) $(PROGRAM)
+	$(C1541) $(TITLE).d64 -write $(TITLE).c64 $(TITLE).c64
+	$(C1541) $(TITLE).d64 -write $(TITLE).c128 $(TITLE).c128
 	rm $(PROGRAM)
 
 # Build our program

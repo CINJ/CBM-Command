@@ -39,11 +39,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _SCREEN_H
 
 #ifdef __C64__
-extern unsigned char* SCREEN_BUFFER;
-extern unsigned char* SCREEN;
+unsigned char SCREEN_BUFFER[1000];
 unsigned char COLOR_BUFFER[1000];
-extern unsigned int vicRegister;
-extern unsigned int screenMemoryStart; 
 #endif
 
 enum results { OK_RESULT, CANCEL_RESULT, YES_RESULT, NO_RESULT };
@@ -86,6 +83,12 @@ unsigned __fastcall__ writeYesNo(
 	unsigned char *title,
 	unsigned char *message[],
 	unsigned char lineCount);
+
+enum results __fastcall__ drawInputDialog(
+	unsigned char *message[],
+	unsigned char lineCount,
+	unsigned char *title,
+	unsigned char *resultText);
 
 void __fastcall__ saveScreen(void);
 void __fastcall__ retrieveScreen(void);

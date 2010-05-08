@@ -78,15 +78,32 @@ enum menus currentPanel = left;
 
 void __fastcall__ initializeDrives(void)
 {
+	unsigned char i = 0;
 	if(!areDrivesInitialized)
 	{
 		leftPanelDrive.currentIndex = 0;
 		leftPanelDrive.displayStartAt = 0;
 		leftPanelDrive.position = left;
+		leftPanelDrive.header.name = NULL;
+		
+		for(i=0; i<slidingWindowSize; ++i)
+		{
+			leftPanelDrive.slidingWindow[i].name = NULL;
+			leftPanelDrive.slidingWindow[i].size = 0u;
+			leftPanelDrive.slidingWindow[i].type = 0;
+		}
 
 		rightPanelDrive.currentIndex = 0;
 		rightPanelDrive.displayStartAt = 0;
 		rightPanelDrive.position = right;
+		rightPanelDrive.header.name = NULL;
+		
+		for(i=0; i<slidingWindowSize; ++i)
+		{
+			rightPanelDrive.slidingWindow[i].name = NULL;
+			rightPanelDrive.slidingWindow[i].size = 0u;
+			rightPanelDrive.slidingWindow[i].type = 0;
+		}
 
 		areDrivesInitialized = TRUE;
 		selectedPanel = &leftPanelDrive;
@@ -255,61 +272,53 @@ int __fastcall__ getDirectory(
 	struct panel_drive *drive,
 	int slidingWindowStartAt)
 {
-	unsigned int slidingWindowSize = 30;
+	
+	unsigned int counter=0, read=0;
 	unsigned char* name;
-	unsigned char result, dr, nameLength;
-	unsigned int counter;
+	unsigned char result, dr, nameLength, i;
 	struct cbm_dirent currentDE;
-	struct dir_node *currentNode, *newNode, *nextNode;
-
-	drive->slidingWindowStartAt = slidingWindowStartAt;
-
-	currentNode = drive->head;
-	while(currentNode != NULL)
-	{
-		nextNode = currentNode->next;
-		free(currentNode->name);
-		free(currentNode);
-		currentNode = nextNode;
-	}
-
-	drive->head = NULL;
+	
 	drive->length = 0;
 	drive->slidingWindowStartAt = slidingWindowStartAt;
 
 	dr = drive->drive->drive;
+
+	for(i=0; i<slidingWindowSize; ++i)
+	{
+		drive->slidingWindow[i].name = NULL;
+		drive->slidingWindow[i].size = 0u;
+		drive->slidingWindow[i].type = 0;
+	}
 
 	result = cbm_opendir(dr, dr);
 	if(result == 0)
 	{
 		writeStatusBar("Reading directory...");
 		counter = 0;
-		currentNode = malloc(sizeof(struct dir_node));
-		currentNode->name = NULL;
-		currentNode->next = NULL;
-		currentNode->index = counter;
-		drive->head = currentNode;
 		while(!cbm_readdir(dr, &currentDE))
 		{
-			++counter;
-			if(currentDE.type == 10 ||
-				(counter >= slidingWindowStartAt &&
-				counter < slidingWindowStartAt + slidingWindowSize))
+			if(currentDE.type == 10 && counter==0)
 			{
 				nameLength = strlen(currentDE.name) + 1;
-				name = calloc(nameLength, sizeof(unsigned char));
-				strcpy(name, currentDE.name);
-				currentNode->name = name;
-				currentNode->size = currentDE.size;
-				currentNode->type = currentDE.type;
+				drive->header.name = calloc(nameLength, sizeof(unsigned char));
+				strcpy(drive->header.name, currentDE.name);
+				drive->header.size = currentDE.size;
+				drive->header.type = currentDE.type;
+				drive->header.index = 0;
 			}
-			newNode = malloc(sizeof(struct dir_node));
-			currentNode->next = newNode;
-			newNode->index = counter;
-			newNode->name = NULL;
-			newNode->next = NULL;
-			newNode->isSelected = FALSE;
-			currentNode = newNode;
+			else if(counter >= slidingWindowStartAt &&
+				read < slidingWindowSize)
+			{
+				++read;
+				i = counter - 1;
+				nameLength = strlen(currentDE.name) + 1;
+				drive->slidingWindow[i - slidingWindowStartAt].name = calloc(nameLength, sizeof(unsigned char));
+				strcpy(drive->slidingWindow[i - slidingWindowStartAt].name, currentDE.name);
+				drive->slidingWindow[i - slidingWindowStartAt].size = currentDE.size;
+				drive->slidingWindow[i - slidingWindowStartAt].type = currentDE.type;
+				drive->slidingWindow[i - slidingWindowStartAt].index = counter;
+			}
+			++counter;
 		}
 		cbm_closedir(dr);
 		drive->length = counter;
@@ -317,6 +326,18 @@ int __fastcall__ getDirectory(
 		{
 			drive->currentIndex = drive->length - 1;
 		}
+
+		if(drive->slidingWindowStartAt == 0 &&
+			drive->currentIndex == 0 &&
+			drive->displayStartAt == 0)
+		{
+			free(drive->selectedEntries);
+			
+			drive->selectedEntries = 
+				calloc((drive->length)/8 + 1, 
+					sizeof(unsigned char));
+		}
+
 		writeStatusBarf("Finished reading %u files.", counter - 1);
 	}
 
@@ -327,14 +348,12 @@ void __fastcall__ displayDirectory(
 	struct panel_drive *drive)
 {
 	unsigned char w = 19, x = 0;
+	unsigned char i = 0, start=0, ii = 0, mod = 0, bit = 0, r = 0;
 	unsigned char fileType;
-	unsigned int i;
 	struct dir_node *currentNode;
 	unsigned char size[4];
 
-	currentNode = drive->head;
-
-	if(currentNode->name == NULL)
+	if(drive->header.name == NULL)
 	{
 		getDirectory(drive, 0);
 	}
@@ -343,45 +362,58 @@ void __fastcall__ displayDirectory(
 	if(drive->position == right) x=w + 1;
 	
 	writePanel(TRUE, FALSE, COLOR_GRAY3, x, 1, 21, w, 
-		currentNode->name, NULL, NULL);
-	
-	currentNode = getSpecificNode(drive, drive->displayStartAt);
+		drive->header.name, NULL, NULL);
 
-	for(i = currentNode->index; i < drive->length; ++i)
+	start = drive->displayStartAt;
+
+	for(i=start; i<start + 20 && i < drive->length - 1; i++)
 	{
-		if(i+1 == drive->displayStartAt + 22) break;
-		
-		if(currentNode->name == NULL
-			&& i < drive->length - 1)
+		currentNode = getSpecificNode(drive, i);
+		if(currentNode == NULL)
 		{
-			drive->slidingWindowStartAt = i - 5;
-			getDirectory(drive, drive->slidingWindowStartAt);
-			currentNode = getSpecificNode(drive, i);
-		}
-		else if(currentNode->next != NULL
-			&& currentNode->next->name == NULL
-			&& i < drive->length - 1)
-		{
-			drive->slidingWindowStartAt += 5;
-			getDirectory(drive, drive->slidingWindowStartAt);
-			currentNode = getSpecificNode(drive, i - 1);
+			if(i == drive->length - 1) break;
+			if(i > start)
+			{
+				// we are at bottom and scrollable
+				drive->slidingWindowStartAt += 5;
+				getDirectory(drive, drive->slidingWindowStartAt);
+				currentNode = getSpecificNode(drive, i);
+			}
+			else
+			{
+				if(drive->slidingWindowStartAt > 5) drive->slidingWindowStartAt = i - 5;
+				else drive->slidingWindowStartAt = 0;
+				getDirectory(drive, drive->slidingWindowStartAt);
+				currentNode = getSpecificNode(drive, i);
+			}
 		}
 
-		gotoxy(x + 2, i - drive->displayStartAt +1);
-		
 		shortenSize(size, currentNode->size);
 		fileType = getFileType(currentNode->type);
 
 		textcolor(COLOR_YELLOW);
-		if(currentNode->isSelected == TRUE)
+		ii =  (currentNode->index - 1) / 8;
+		mod =  (currentNode->index - 1) % 8;
+		bit = 1 << mod;
+		r = drive->selectedEntries[ii] & bit;
+//writeStatusBarf("i: %d ii:%d mod:%d bit:%X field:%X r: %u",
+//	currentNode->index - 1, ii, mod, bit, 
+//	drive->selectedEntries[ii],
+//	r);
+//waitForEnterEsc();
+		if(r != 0)
 		{
+//writeStatusBar("TRUE!"); waitForEnterEsc();
 			revers(TRUE);
 		}
 		else
 		{
+//writeStatusBar("FALSE!"); waitForEnterEsc();
 			revers(FALSE);
 		}		
 
+		gotoxy(x + 2, i - start + 2);
+		
 		sprintf(drivesBuffer, "%c %s %s", 
 			fileType, 
 			size,
@@ -391,9 +423,9 @@ void __fastcall__ displayDirectory(
 		cputs(drivesBuffer);
 
 		revers(FALSE);
-
-		currentNode = currentNode->next;
+		
 	}
+	
 }
 
 void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
@@ -417,15 +449,7 @@ void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
 	{
 		if(panel->drive != NULL)
 		{
-			currentDirNode = panel->head;
-			for(
-				i=0; 
-				i<=panel->currentIndex
-					&& currentDirNode != NULL; 
-				++i)
-			{
-				currentDirNode = currentDirNode->next;
-			}
+			currentDirNode = getSelectedNode(panel);
 
 			if(currentDirNode != NULL)
 			{
@@ -433,6 +457,10 @@ void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
 					currentDirNode->index,
 					currentDirNode->size,
 					currentDirNode->name);
+			}
+			else
+			{
+				writeStatusBarf("Current node is null.");
 			}
 		}
 	}
@@ -459,7 +487,7 @@ void __fastcall__ moveSelectorUp(struct panel_drive *panel)
 	}
 	
 	writeSelectorPosition(panel, '>');
-	if(size_x <= 40) writeCurrentFilename(panel);
+	writeCurrentFilename(panel);
 }
 
 void __fastcall__ moveSelectorDown(struct panel_drive *panel)
@@ -493,22 +521,24 @@ void __fastcall__ moveSelectorDown(struct panel_drive *panel)
 
 	if(panel->currentIndex < 0) panel->currentIndex=0;
 	writeSelectorPosition(panel, '>');
-	if(size_x <= 40) writeCurrentFilename(panel);
+	writeCurrentFilename(panel);
 }
 
 unsigned char __fastcall__ getFileType(unsigned char type)
 {
-	switch((int)type)
-	{
-	case 0: return 'D';
-	case 1: return 'S';
-	case 2: return 'P';
-	case 3: return 'U';
-	case 4: return 'R';
-	case 5: return 'C';
-	case 6: return 'D';
-	default: return 'O';
-	}
+	if(type < 7) return "DSPURCD"[type];
+	return 'O';
+	//switch((int)type)
+	//{
+	//case 0: return 'D';
+	//case 1: return 'S';
+	//case 2: return 'P';
+	//case 3: return 'U';
+	//case 4: return 'R';
+	//case 5: return 'C';
+	//case 6: return 'D';
+	//default: return 'O';
+	//}
 }
 
 void __fastcall__ shortenSize(unsigned char* buffer, unsigned int value)
@@ -553,32 +583,42 @@ unsigned char* __fastcall__ shortenString(unsigned char* source)
 
 void __fastcall__ selectCurrentFile(void)
 {
-	int i;
+	unsigned char index = 0, bit = 0, mod = 0, 
+		r = 0, nbit = 0, v = 0, o = 0;
+
 	struct dir_node *currentDirNode;
 
 	if(selectedPanel != NULL)
 	{
 		if(selectedPanel->drive != NULL)
 		{
-			currentDirNode = selectedPanel->head;
-			for(
-				i=0; 
-				i<=selectedPanel->currentIndex
-					&& currentDirNode != NULL; 
-				++i)
-			{
-				currentDirNode = currentDirNode->next;
-			}
+			currentDirNode = getSelectedNode(selectedPanel);
 
 			if(currentDirNode != NULL)
-			{
-				if(currentDirNode->isSelected == TRUE)
-					currentDirNode->isSelected = FALSE;
+			{	
+				index = (currentDirNode->index - 1) / 8;
+				mod = (currentDirNode->index - 1) % 8;
+				bit = 1 << mod;
+				nbit = (0xFF ^ bit);
+				o = selectedPanel->selectedEntries[index];
+				r = o & bit;
+				if(r != 0)
+				{
+					v = o & nbit;
+					selectedPanel->selectedEntries[index] = v;
+				}
 				else 
-					currentDirNode->isSelected = TRUE;
+				{
+					selectedPanel->selectedEntries[index] |= bit;
+				}
 
-				displayDirectory(selectedPanel);
 				writeSelectorPosition(selectedPanel, '>');
+				displayDirectory(selectedPanel);
+			}
+			else
+			{
+				writeStatusBar("Current node is null.");
+				waitForEnterEsc();
 			}
 		}
 	}
@@ -675,23 +715,27 @@ struct dir_node* __fastcall__ getSelectedNode(struct panel_drive *panel)
 	return getSpecificNode(panel, panel->currentIndex);
 }
 
-struct dir_node* __fastcall__ getSpecificNode(struct panel_drive *panel, int index)
+struct dir_node* __fastcall__ getSpecificNode(
+	struct panel_drive *panel, int index)
 {
-	unsigned int i;
 	struct dir_node *currentDirNode = NULL;
 
 	if(panel != NULL)
 	{
 		if(panel->drive != NULL)
 		{
-			currentDirNode = panel->head;
-			for(
-				i=0; 
-				i<=index
-					&& currentDirNode != NULL; 
-				++i)
+
+			if(index >= panel->slidingWindowStartAt &&
+				index < panel->slidingWindowStartAt + slidingWindowSize)
 			{
-				currentDirNode = currentDirNode->next;
+				return &(panel->slidingWindow[index - panel->slidingWindowStartAt]);
+			}
+			else
+			{
+				//writeStatusBarf("idx: %u sWSA: %u (return)", index,
+				//	panel->slidingWindowStartAt);
+				//waitForEnterEsc();
+				return NULL;
 			}
 		}
 	}

@@ -44,6 +44,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constants.h"
 #include "drives.h"
 #include "globals.h"
+#include "input.h"
 #include "menus.h"
 #include "screen.h"
 
@@ -165,31 +166,148 @@ void __fastcall__ displayPanels(void)
 
 void __fastcall__ swapPanels(void)
 {
-	struct panel_drive tempPanel;
+	//unsigned char i=0;
+	//struct panel_drive tempPanel;
+	//
+	//for(i=0; i<slidingWindowSize; ++i)
+	//{
+	//	tempPanel.slidingWindow[i].name = NULL;
+	//	tempPanel.slidingWindow[i].size = 0u;
+	//	tempPanel.slidingWindow[i].type = 0;
+	//}
 
-	tempPanel.drive = leftPanelDrive.drive;
-	tempPanel.head = leftPanelDrive.head;
-	tempPanel.length = leftPanelDrive.length;
-//	tempPanel.tail = leftPanelDrive.tail;
-	tempPanel.currentIndex = leftPanelDrive.currentIndex;
-	tempPanel.displayStartAt = leftPanelDrive.displayStartAt;
+	//tempPanel.drive = leftPanelDrive.drive;
+	//tempPanel.header.type = leftPanelDrive.header.type;
+	//tempPanel.header.size = leftPanelDrive.header.size;
+	//tempPanel.header.name = 
+	//	calloc(strlen(tempPanel.header.name), sizeof(unsigned char));
 
-	leftPanelDrive.drive = rightPanelDrive.drive;
-	leftPanelDrive.head = rightPanelDrive.head;
-	leftPanelDrive.length = rightPanelDrive.length;
-//	leftPanelDrive.tail = rightPanelDrive.tail;
-	leftPanelDrive.currentIndex = rightPanelDrive.currentIndex;
-	leftPanelDrive.displayStartAt = rightPanelDrive.displayStartAt;
+	//strcpy(tempPanel.header.name, leftPanelDrive.header.name);
+	//tempPanel.length = leftPanelDrive.length;
+	//tempPanel.currentIndex = leftPanelDrive.currentIndex;
+	//tempPanel.displayStartAt = leftPanelDrive.displayStartAt;
+	//tempPanel.slidingWindowStartAt = leftPanelDrive.slidingWindowStartAt;
+	//for(i=0; i<30; ++i)
+	//{
+	//	if(leftPanelDrive.slidingWindow[i] != NULL)
+	//	{
+	//		tempPanel.slidingWindow[i].type = 
+	//			leftPanelDrive.slidingWindow[i].type;
 
-	rightPanelDrive.drive = tempPanel.drive;
-	rightPanelDrive.head = tempPanel.head;
-	rightPanelDrive.length = tempPanel.length;
-//	rightPanelDrive.tail = tempPanel.tail;
-	rightPanelDrive.currentIndex = tempPanel.currentIndex;
-	rightPanelDrive.displayStartAt = tempPanel.displayStartAt;
-				
-	setupScreen();
-	writeMenuBar();
-	displayPanels();
-	arePanelsOn = TRUE;
+	//		tempPanel.slidingWindow[i].size = 
+	//			leftPanelDrive.slidingWindow[i].size;
+
+	//		if(tempPanel.slidingWindow[i].name != NULL) 
+	//			free(tempPanel.slidingWindow[i].name);
+
+	//		tempPanel.slidingWindow[i].name = 
+	//			calloc(strlen(leftPanelDrive.slidingWindow[i].name), sizeof(unsigned char));
+
+	//		strcpy(tempPanel.slidingWindow[i].name, 
+	//			leftPanelDrive.slidingWindow[i].name);
+	//	}
+	//	else
+	//	{
+	//		tempPanel.slidingWindow[i].name = NULL;
+	//		tempPanel.slidingWindow[i].size = 0u;
+	//		tempPanel.slidingWindow[i].type = 0;
+	//	}
+	//}
+
+	//leftPanelDrive.drive = rightPanelDrive.drive;
+	//leftPanelDrive.header.type = rightPanelDrive.header.type;
+	//leftPanelDrive.header.size = rightPanelDrive.header.size;
+	//if(leftPanelDrive.header.name != NULL)
+	//{
+	//	free(leftPanelDrive.header.name);
+	//}
+
+	//leftPanelDrive.header.name = 
+	//	calloc(strlen(rightPanelDrive.header.name), sizeof(unsigned char));
+
+	//strcpy(leftPanelDrive.header.name, rightPanelDrive.header.name);
+	//leftPanelDrive.length = rightPanelDrive.length;
+	//leftPanelDrive.currentIndex = rightPanelDrive.currentIndex;
+	//leftPanelDrive.displayStartAt = rightPanelDrive.displayStartAt;
+	//leftPanelDrive.slidingWindowStartAt = rightPanelDrive.slidingWindowStartAt;
+	//for(i=0; i<30; ++i)
+	//{
+	//	if(rightPanelDrive.slidingWindow[i] != NULL)
+	//	{
+	//		leftPanelDrive.slidingWindow[i].type = 
+	//			rightPanelDrive.slidingWindow[i].type;
+
+	//		leftPanelDrive.slidingWindow[i].size = 
+	//			rightPanelDrive.slidingWindow[i].size;
+
+	//		if(leftPanelDrive.slidingWindow[i].name != NULL) 
+	//			free(leftPanelDrive.slidingWindow[i].name);
+
+	//		leftPanelDrive.slidingWindow[i].name = 
+	//			calloc(strlen(rightPanelDrive.slidingWindow[i].name), sizeof(unsigned char));
+
+	//		strcpy(leftPanelDrive.slidingWindow[i].name, 
+	//			rightPanelDrive.slidingWindow[i].name);
+	//	}
+	//	else
+	//	{
+	//		leftPanelDrive.slidingWindow[i].name = NULL;
+	//		leftPanelDrive.slidingWindow[i].size = 0u;
+	//		leftPanelDrive.slidingWindow[i].type = 0;
+	//	}
+	//}
+
+	//rightPanelDrive.drive = tempPanel.drive;
+	//rightPanelDrive.header.type = tempPanel.header.type;
+	//rightPanelDrive.header.size = tempPanel.header.size;
+	//if(rightPanelDrive.header.name != NULL)
+	//{
+	//	free(rightPanelDrive.header.name);
+	//}
+
+	//if(tempPanel.header.name != NULL)
+	//{
+	//	rightPanelDrive.header.name = 
+	//		calloc(strlen(tempPanel.header.name), sizeof(unsigned char));
+	//	strcpy(rightPanelDrive.header.name, tempPanel.header.name);
+	//}
+	//else
+	//{
+	//	rightPanelDrive.header.name = NULL;
+	//}
+	//rightPanelDrive.length = tempPanel.length;
+	//rightPanelDrive.currentIndex = tempPanel.currentIndex;
+	//rightPanelDrive.displayStartAt = tempPanel.displayStartAt;
+	//rightPanelDrive.slidingWindowStartAt = tempPanel.slidingWindowStartAt;
+	//for(i=0; i<30; ++i)
+	//{
+	//	if(tempPanel.slidingWindow[i] != NULL)
+	//	{
+	//		rightPanelDrive.slidingWindow[i].type = 
+	//			tempPanel.slidingWindow[i].type;
+
+	//		rightPanelDrive.slidingWindow[i].size = 
+	//			tempPanel.slidingWindow[i].size;
+
+	//		if(rightPanelDrive.slidingWindow[i].name != NULL) 
+	//			free(rightPanelDrive.slidingWindow[i].name);
+
+	//		rightPanelDrive.slidingWindow[i].name = 
+	//			calloc(strlen(tempPanel.slidingWindow[i].name), sizeof(unsigned char));
+	//		strcpy(rightPanelDrive.slidingWindow[i].name, 
+	//			tempPanel.slidingWindow[i].name);
+	//	}
+	//	else
+	//	{
+	//		rightPanelDrive.slidingWindow[i].name = NULL;
+	//		rightPanelDrive.slidingWindow[i].size = 0u;
+	//		rightPanelDrive.slidingWindow[i].type = 0;
+	//	}
+	//}
+	//			
+	//setupScreen();
+	//writeMenuBar();
+	//displayPanels();
+	//arePanelsOn = TRUE;
+	writeStatusBar("Swap Panels is being removed.  Sorry.");
 }

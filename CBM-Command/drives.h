@@ -52,19 +52,18 @@ struct drive_status
 
 struct dir_node
 {
-	//struct cbm_dirent *dir_entry;
 	unsigned char* name;
 	unsigned char type;
 	unsigned int size;
-	struct dir_node *next;
-	unsigned isSelected;
 	int index;
 };
 
 struct panel_drive
 {
+	unsigned char* selectedEntries;
 	struct drive_status *drive;
-	struct dir_node *head;
+	struct dir_node header;
+	struct dir_node slidingWindow[30];
 	int length;
 	int currentIndex;
 	int displayStartAt;

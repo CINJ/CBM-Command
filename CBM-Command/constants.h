@@ -41,6 +41,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TRUE 1
 #define FALSE 0
 
+#define slidingWindowSize 30
+
 extern const char LEFT_MENU[];
 const char LEFT_MENU_X = 0;
 

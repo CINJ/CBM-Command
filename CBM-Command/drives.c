@@ -327,21 +327,19 @@ int __fastcall__ getDirectory(
 			drive->currentIndex = drive->length - 1;
 		}
 
-		if(drive->slidingWindowStartAt == 0 &&
-			drive->currentIndex == 0 &&
-			drive->displayStartAt == 0)
-		{
-			free(drive->selectedEntries);
-			
-			drive->selectedEntries = 
-				calloc((drive->length)/8 + 1, 
-					sizeof(unsigned char));
-		}
-
 		writeStatusBarf("Finished reading %u files.", counter - 1);
 	}
 
 	return counter;
+}
+
+void __fastcall__ resetSelectedFiles(struct panel_drive *panel)
+{
+	free(panel->selectedEntries);
+			
+	panel->selectedEntries = 
+		calloc((panel->length)/8 + 1, 
+			sizeof(unsigned char));
 }
 
 void __fastcall__ displayDirectory(
@@ -396,19 +394,12 @@ void __fastcall__ displayDirectory(
 		mod =  (currentNode->index - 1) % 8;
 		bit = 1 << mod;
 		r = drive->selectedEntries[ii] & bit;
-//writeStatusBarf("i: %d ii:%d mod:%d bit:%X field:%X r: %u",
-//	currentNode->index - 1, ii, mod, bit, 
-//	drive->selectedEntries[ii],
-//	r);
-//waitForEnterEsc();
 		if(r != 0)
 		{
-//writeStatusBar("TRUE!"); waitForEnterEsc();
 			revers(TRUE);
 		}
 		else
 		{
-//writeStatusBar("FALSE!"); waitForEnterEsc();
 			revers(FALSE);
 		}		
 

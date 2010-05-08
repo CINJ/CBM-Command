@@ -180,6 +180,7 @@ void __fastcall__ rereadDrivePanel(enum menus menu)
 	selectedPanel->currentIndex = 0;
 	selectedPanel->displayStartAt = 0;
 	getDirectory(selectedPanel, 0);
+	resetSelectedFiles(selectedPanel);
 	displayDirectory(selectedPanel);
 
 	if(menu == left)
@@ -199,5 +200,6 @@ void __fastcall__ writeDriveSelectionPanel(enum menus menu)
 {
 	listDrives(menu);
 	retrieveScreen();
+
 	rereadDrivePanel(menu);
 }

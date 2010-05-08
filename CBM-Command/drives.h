@@ -112,4 +112,5 @@ struct dir_node* __fastcall__ getSpecificNode(struct panel_drive *panel, int ind
 unsigned char __fastcall__ sendCommand(
 	struct panel_drive *panel,
 	unsigned char *command);
+void __fastcall__ resetSelectedFiles(struct panel_drive *panel);
 #endif

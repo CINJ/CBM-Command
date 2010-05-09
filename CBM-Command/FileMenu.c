@@ -39,6 +39,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <conio.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef __C128__
 #include <c128.h>
@@ -208,12 +209,120 @@ void __fastcall__ handleFileMenu(void)
 
 void __fastcall__ writeHelpPanel(void)
 {
-	notImplemented();
+	//writeStatusBar("See http://cbmcommand.codeplex.com");
+	unsigned char* dialogMessage[] =
+	{
+		{ "Please visit" },
+		{ "http://cbmcommand.codeplex.com/" },
+		{ "    documentation" }
+	};
+
+	saveScreen();
+
+	drawDialog(
+		dialogMessage, 3, "Help",
+		OK);
+
+	retrieveScreen();
 }
 
+unsigned char fileBuffer[256];
+struct panel_drive *targetPanel = NULL;
 void __fastcall__ copyFiles(void)
 {
-	notImplemented();
+	unsigned char i = 0, j = 0, sd = 0, td = 0, bit = 0, r = 0;
+	unsigned int index = 0;
+	unsigned char targetFilename[21];
+	struct dir_node *currentNode;
+
+	if(selectedPanel = &leftPanelDrive)
+	{
+		targetPanel = &rightPanelDrive;
+	}
+	else
+	{
+		targetPanel = &leftPanelDrive;
+	}
+
+	sd = selectedPanel->drive->drive;
+	td = targetPanel->drive->drive;
+
+writeStatusBarf("selectedPanel->length / 8 + 1 = %u",
+	selectedPanel->length / 8 + 1); waitForEnterEsc();
+	for(i=0; i<selectedPanel->length / 8 + 1; ++i)
+	{
+		for(j=0; j<8; ++j)
+		{
+			bit = 1 << j;
+			r = selectedPanel->selectedEntries[i] & bit;
+writeStatusBarf("Copy %u: %d", i*8+j, r); waitForEnterEsc();
+			if(r != 0)
+			{
+				currentNode = getSpecificNode(selectedPanel, i*8+j);
+				if(currentNode->type < 4)
+				{
+writeStatusBarf("Going to copy %s...", currentNode->name); waitForEnterEsc();
+					if(currentNode == NULL)
+					{
+						getDirectory(selectedPanel, i*8+j);
+						currentNode = getSpecificNode(selectedPanel, i*8+j);
+						{
+							if(currentNode == NULL)
+							{
+								writeStatusBarf("Cannot get file %u", i*8+j); waitForEnterEsc();
+								return;
+							}
+						}
+					}
+
+					r = cbm_open(sd, sd, 0, currentNode->name);
+					if(r == 0)
+					{
+						sprintf("%s,%s,w",currentNode->name,
+							getFileType(currentNode->type));
+						r = cbm_open(td, td, 0, currentNode->name);
+						if(r == 0)
+						{
+							for(index=0; index < currentNode->size; ++index)
+							{
+								writeStatusBarf("Copying %d of %d blocks", index, currentNode->size);
+								r = cbm_read(sd, fileBuffer, 256);
+								if(r == -1)
+								{
+									writeStatusBarf("Problem (%d) reading %s", _oserror, currentNode->name); waitForEnterEsc();
+									break;
+								}
+								else if(r == EOF)
+								{
+									break;
+								}
+
+								r = cbm_write(td, fileBuffer, 256);
+								if(r == -1)
+								{
+									writeStatusBarf("Problem (%d) writing %s", _oserror, currentNode->name); waitForEnterEsc();
+									break;
+								}
+
+							}
+						}
+						else
+						{
+							writeStatusBarf("Cannot open %s for write (%d)", currentNode->name, r); waitForEnterEsc();
+						}
+					}
+					else
+					{
+						writeStatusBarf("Cannot open %s for read (%d)", currentNode->name, r); waitForEnterEsc();
+					}
+					cbm_close(td); 
+					cbm_close(sd);
+				}
+			}
+		}
+	}
+	rereadDrivePanel(left);
+	rereadDrivePanel(right);
 }
 
 void __fastcall__ renameFile(void)

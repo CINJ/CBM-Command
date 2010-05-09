@@ -315,16 +315,16 @@ enum results __fastcall__ drawDialog(
 	unsigned char* title,
 	enum buttons button)
 {
-	unsigned char x = 0, y = 0, h = 0, w = 0, i = 0, key = 0;
+	unsigned char x = 0, y = 0, h = 0, w = 0, i = 0, key = 0, l = 0;
 	unsigned char okButton[4];
 	unsigned char cancelButton[7];
 
 	h = lineCount + 5;
-	w = 20;
+	w = 30;
 	for(i=0; i<lineCount; ++i);
 	{
-		if(strlen(message[i]) > w) 
-			w = strlen(message[i]);
+		l = strlen(message[i]);
+		if(l > w) w = l;
 	}
 
 	w += 3;

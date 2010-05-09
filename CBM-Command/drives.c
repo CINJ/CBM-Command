@@ -169,11 +169,11 @@ void __fastcall__ listDrives(enum menus menu)
 	y = getCenterY(h);
 
 	writePanel(TRUE, FALSE,
-		COLOR_GRAY3, 
+		color_text_borders, 
 		x, y, h, w,
 		"Drives", NULL, NULL);
 
-	textcolor(COLOR_WHITE);
+	textcolor(color_text_other);
 
 	current = 0;
 
@@ -209,10 +209,10 @@ void __fastcall__ listDrives(enum menus menu)
 		revers(FALSE);
 	}
 
-	textcolor(COLOR_YELLOW);
+	textcolor(color_text_highlight);
 	gotoxy(x + 1, y + 11); 
 	cputs("Use arrow keys & enter to select drive");
-	textcolor(COLOR_WHITE);
+	textcolor(color_selector);
 
 	gotoxy(x + 1, current + 2 + y); cputc('>');
 
@@ -305,18 +305,23 @@ int __fastcall__ getDirectory(
 				drive->header.size = currentDE.size;
 				drive->header.type = currentDE.type;
 				drive->header.index = 0;
+				//writeStatusBarf("Header: %s", drive->header.name); waitForEnterEsc();
 			}
 			else if(counter >= slidingWindowStartAt &&
 				read < slidingWindowSize)
 			{
 				++read;
 				i = counter - 1;
-				nameLength = strlen(currentDE.name) + 1;
-				drive->slidingWindow[i - slidingWindowStartAt].name = calloc(nameLength, sizeof(unsigned char));
-				strcpy(drive->slidingWindow[i - slidingWindowStartAt].name, currentDE.name);
-				drive->slidingWindow[i - slidingWindowStartAt].size = currentDE.size;
-				drive->slidingWindow[i - slidingWindowStartAt].type = currentDE.type;
-				drive->slidingWindow[i - slidingWindowStartAt].index = counter;
+				if(i - slidingWindowStartAt >= 0 && 
+					i - slidingWindowStartAt < slidingWindowSize)
+				{
+					nameLength = strlen(currentDE.name) + 1;
+					drive->slidingWindow[i - slidingWindowStartAt].name = calloc(nameLength, sizeof(unsigned char));
+					strcpy(drive->slidingWindow[i - slidingWindowStartAt].name, currentDE.name);
+					drive->slidingWindow[i - slidingWindowStartAt].size = currentDE.size;
+					drive->slidingWindow[i - slidingWindowStartAt].type = currentDE.type;
+					drive->slidingWindow[i - slidingWindowStartAt].index = counter;
+				}
 			}
 			++counter;
 		}
@@ -345,7 +350,7 @@ void __fastcall__ resetSelectedFiles(struct panel_drive *panel)
 void __fastcall__ displayDirectory(
 	struct panel_drive *drive)
 {
-	unsigned char w = 19, x = 0;
+	unsigned char w = 19, x = 0, y = 0;
 	unsigned char i = 0, start=0, ii = 0, mod = 0, bit = 0, r = 0;
 	unsigned char fileType;
 	struct dir_node *currentNode;
@@ -359,7 +364,7 @@ void __fastcall__ displayDirectory(
 	if(size_x > 40) w=39;
 	if(drive->position == right) x=w + 1;
 	
-	writePanel(TRUE, FALSE, COLOR_GRAY3, x, 1, 21, w, 
+	writePanel(TRUE, FALSE, color_text_borders, x, 1, 21, w, 
 		drive->header.name, NULL, NULL);
 
 	start = drive->displayStartAt;
@@ -367,7 +372,8 @@ void __fastcall__ displayDirectory(
 	for(i=start; i<start + 20 && i < drive->length - 1; i++)
 	{
 		currentNode = getSpecificNode(drive, i);
-		if(currentNode == NULL)
+		if(currentNode == NULL ||
+			currentNode->name == NULL)
 		{
 			if(i == drive->length - 1) break;
 			if(i > start)
@@ -389,7 +395,7 @@ void __fastcall__ displayDirectory(
 		shortenSize(size, currentNode->size);
 		fileType = getFileType(currentNode->type);
 
-		textcolor(COLOR_YELLOW);
+		textcolor(color_text_files);
 		ii =  (currentNode->index - 1) / 8;
 		mod =  (currentNode->index - 1) % 8;
 		bit = 1 << mod;
@@ -403,15 +409,18 @@ void __fastcall__ displayDirectory(
 			revers(FALSE);
 		}		
 
-		gotoxy(x + 2, i - start + 2);
+		y = i - start + 2;
+		gotoxy(x + 2, y); cputc(fileType);
+		gotoxy(x + 4, y); cputs(size);
+		gotoxy(x + 8, y); cputs(shortenString(currentNode->name));
 		
-		sprintf(drivesBuffer, "%c %s %s", 
-			fileType, 
-			size,
-			shortenString(currentNode->name)
-			);
+		//sprintf(drivesBuffer, "%c %s %s", 
+		//	fileType, 
+		//	size,
+		//	shortenString(currentNode->name)
+		//	);
 
-		cputs(drivesBuffer);
+		//cputs(drivesBuffer);
 
 		revers(FALSE);
 		
@@ -426,7 +435,7 @@ void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
 	y = (panel->currentIndex - panel->displayStartAt) + 2;
 	x = (panel == &leftPanelDrive ? 1 : size_x / 2 + 1);
 	gotoxy(x, y);
-	textcolor(COLOR_WHITE);
+	textcolor(color_selector);
 	revers(FALSE);
 	cputc(character);
 }

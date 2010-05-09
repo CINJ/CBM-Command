@@ -99,7 +99,7 @@ void __fastcall__ drawFileMenu(unsigned char x)
 	initFileMenu();
 	
 	//revers(TRUE);
-	oldColor = textcolor(COLOR_GRAY3);
+	oldColor = textcolor(color_text_menus);
 
 	drawMenu(x,
 		FILE_MENU_WIDTH, 
@@ -120,7 +120,7 @@ void __fastcall__ drawDriveMenu(unsigned char x)
 	initDriveMenu();
 	
 	//revers(TRUE);
-	oldColor = textcolor(COLOR_GRAY3);
+	oldColor = textcolor(color_text_menus);
 
 	drawMenu(x,
 		DRIVE_MENU_WIDTH, 
@@ -142,7 +142,7 @@ void __fastcall__ drawCommandMenu(unsigned char x)
 	initCommandMenu();
 	
 	//revers(TRUE);
-	oldColor = textcolor(COLOR_GRAY3);
+	oldColor = textcolor(color_text_menus);
 
 	drawMenu(x,
 		COMMAND_MENU_WIDTH, 
@@ -163,7 +163,7 @@ void __fastcall__ drawOptionsMenu(unsigned char x)
 	initOptionMenu();
 	
 	//revers(TRUE);
-	oldColor = textcolor(COLOR_GRAY3);
+	oldColor = textcolor(color_text_menus);
 
 	drawMenu(x,
 		OPTION_MENU_WIDTH, 
@@ -192,7 +192,7 @@ void __fastcall__ drawMenu(
 	saveScreen();
 
 	drawBox(x, 1, width + 1, 
-		count + 1, COLOR_GRAY1, FALSE);
+		count + 1, color_text_borders, FALSE);
 
 	for(i=0; i < count; ++i)
 	{
@@ -223,7 +223,7 @@ void __fastcall__ drawMenuLine(
 
 		if(test)
 		{
-			textcolor(COLOR_YELLOW);
+			textcolor(color_text_highlight);
 		}
 
 		gotoxy(x + j, y);
@@ -231,7 +231,7 @@ void __fastcall__ drawMenuLine(
 
 		if(test)
 		{
-			textcolor(COLOR_GRAY3);
+			textcolor(color_text_menus);
 		}
 	}
 

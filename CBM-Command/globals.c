@@ -53,7 +53,27 @@ unsigned char size_y;
 unsigned char blank_line[81];
 unsigned arePanelsOn = TRUE;
 
-
+#ifdef __C128__
+unsigned char color_background	= COLOR_BLACK;
+unsigned char color_border		= COLOR_BLACK;
+unsigned char color_selector	= COLOR_WHITE;
+unsigned char color_text_borders= COLOR_GRAY3;
+unsigned char color_text_menus	= COLOR_WHITE;
+unsigned char color_text_files	= COLOR_YELLOW;
+unsigned char color_text_status = COLOR_GRAY3;
+unsigned char color_text_other	= COLOR_WHITE;
+unsigned char color_text_highlight = COLOR_YELLOW;
+#else
+unsigned char color_background	= COLOR_BLUE;
+unsigned char color_border		= COLOR_BLUE;
+unsigned char color_selector	= COLOR_WHITE;
+unsigned char color_text_borders= COLOR_GRAY2;
+unsigned char color_text_menus	= COLOR_GRAY3;
+unsigned char color_text_files	= COLOR_GRAY3;
+unsigned char color_text_status	= COLOR_GRAY2;
+unsigned char color_text_other	= COLOR_GRAY3;
+unsigned char color_text_highlight = COLOR_WHITE;
+#endif
 // Obtains the screen size and sets up global
 // strings as necessary.
 void initialize(void)

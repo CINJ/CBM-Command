@@ -309,5 +309,6 @@ void __fastcall__ swapPanels(void)
 	//writeMenuBar();
 	//displayPanels();
 	//arePanelsOn = TRUE;
+	retrieveScreen();
 	writeStatusBar("Swap Panels is being removed.  Sorry.");
 }

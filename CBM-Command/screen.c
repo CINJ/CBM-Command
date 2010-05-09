@@ -58,9 +58,9 @@ void setupScreen(void)
 {
 	clrscr();
 
-	textcolor(COLOR_YELLOW);
-	bgcolor(COLOR_BLACK);
-	bordercolor(COLOR_BLACK);
+	textcolor(color_text_other);
+	bgcolor(color_background);
+	bordercolor(color_border);
 
 	return;
 }
@@ -107,7 +107,7 @@ void __fastcall__ writeStatusBar(
 	oldX = wherex();
 	oldY = wherey();
 
-	oldColor = textcolor(COLOR_GRAY3);
+	oldColor = textcolor(color_text_status);
 	revers(TRUE);
 
 	gotoxy(0, size_y - 1);
@@ -128,7 +128,7 @@ void writeMenuBar(void)
 {
 	unsigned char oldColor;
 
-	oldColor = textcolor(COLOR_GRAY3);
+	oldColor = textcolor(color_text_menus);
 	revers(TRUE);
 
 	gotoxy(0, 0);
@@ -163,36 +163,26 @@ void drawBox(
 	unsigned reverse)
 {
 	unsigned int i = 0;
-	unsigned char line[39];
-	unsigned char spcs[39];
-	
-	for(i=0; i<w-1; ++i)
-	{
-		line[i] = CH_HLINE;
-		spcs[i] = ' ';
-	}
-	line[i] = '\0';
-	spcs[i] = '\0';	
 	
 	textcolor(color);
 	revers(reverse);
 
 	// draw top line
 	cputcxy(x, y, CH_ULCORNER);
-	cputsxy(x+1, y, line);
+	chlinexy(x + 1, y, w - 1);
 	cputcxy(x+w, y, CH_URCORNER);
 
 	// draw body
 	for(i=y+1; i<y+h; ++i)
 	{
 		cputcxy(x, i, CH_VLINE);
-		cputsxy(x+1, i, spcs);
+		cclearxy(x + 1, i, w - 1);
 		cputcxy(x+w, i, CH_VLINE);
 	}
 
 	// draw bottom line
 	cputcxy(x, y+h, CH_LLCORNER);
-	cputsxy(x+1, y+h, line);
+	chlinexy(x + 1, y+h, w - 1);
 	cputcxy(x+w, y+h, CH_LRCORNER);
 }
 
@@ -296,10 +286,10 @@ void __fastcall__ notImplemented(void)
 	x = getCenterX(w);
 	y = getCenterY(h);
 
-	writePanel(TRUE, TRUE, COLOR_WHITE, x, y, h, w,
+	writePanel(TRUE, TRUE, color_border, x, y, h, w,
 		"Sorry...", "OK", NULL);
 
-	textcolor(COLOR_WHITE);
+	textcolor(color_text_other);
 	revers(TRUE);
 	gotoxy(x+2, y+2);
 	cputs("Not yet implemented.");
@@ -353,7 +343,7 @@ enum results __fastcall__ drawDialog(
 	}
 
 	writePanel(
-		TRUE, FALSE, COLOR_GRAY2,
+		TRUE, FALSE, color_text_borders,
 		x, y, h, w,
 		title,
 		(button & NO || button & CANCEL ? cancelButton : NULL),
@@ -361,7 +351,7 @@ enum results __fastcall__ drawDialog(
 
 	for(i=0; i<lineCount; ++i)
 	{
-		textcolor(COLOR_GRAY1);
+		textcolor(color_text_other);
 		gotoxy(x+2, i+2+y);
 		cputs(message[i]);
 	}	
@@ -419,7 +409,7 @@ enum results __fastcall__ drawInputDialog(
 	y = getCenterY(h);
 
 	writePanel(
-		TRUE, FALSE, COLOR_GRAY2,
+		TRUE, FALSE, color_text_borders,
 		x, y, h, w,
 		title,
 		"Cancel",
@@ -427,7 +417,7 @@ enum results __fastcall__ drawInputDialog(
 
 	for(i=0; i<lineCount; ++i)
 	{
-		textcolor(COLOR_GRAY1);
+		textcolor(color_text_other);
 		gotoxy(x+2, i+2+y);
 		cputs(message[i]);
 	}	
@@ -435,7 +425,7 @@ enum results __fastcall__ drawInputDialog(
 	
 	gotoxy(x+2, i+2+y);
 	revers(TRUE);
-	textcolor(COLOR_WHITE);
+	textcolor(color_text_other);
 	
 	cputs("<                ");
 	count = 0;

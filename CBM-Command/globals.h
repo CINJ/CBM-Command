@@ -43,6 +43,15 @@ extern unsigned char size_y;
 extern unsigned char blank_line[81];
 extern unsigned arePanelsOn;
 
+extern unsigned char color_background;
+extern unsigned char color_border;
+extern unsigned char color_selector;
+extern unsigned char color_text_borders;
+extern unsigned char color_text_menus;
+extern unsigned char color_text_files;
+extern unsigned char color_text_status;
+extern unsigned char color_text_other;
+extern unsigned char color_text_highlight;
 
 void initialize(void);
 #endif

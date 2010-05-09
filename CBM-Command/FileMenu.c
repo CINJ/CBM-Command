@@ -230,9 +230,10 @@ unsigned char fileBuffer[256];
 struct panel_drive *targetPanel = NULL;
 void __fastcall__ copyFiles(void)
 {
-	unsigned char i = 0, j = 0, sd = 0, td = 0, bit = 0, r = 0;
+	unsigned char i = 0, j = 0, sd = 0, td = 0, bit = 0, r = 0, bytes = 0;
 	unsigned int index = 0;
-	unsigned char targetFilename[21];
+	unsigned RELOAD = FALSE;
+	unsigned char targetFilename[21], type[2], status[40];
 	struct dir_node *currentNode;
 
 	if(selectedPanel = &leftPanelDrive)
@@ -247,21 +248,17 @@ void __fastcall__ copyFiles(void)
 	sd = selectedPanel->drive->drive;
 	td = targetPanel->drive->drive;
 
-writeStatusBarf("selectedPanel->length / 8 + 1 = %u",
-	selectedPanel->length / 8 + 1); waitForEnterEsc();
 	for(i=0; i<selectedPanel->length / 8 + 1; ++i)
 	{
 		for(j=0; j<8; ++j)
 		{
 			bit = 1 << j;
 			r = selectedPanel->selectedEntries[i] & bit;
-writeStatusBarf("Copy %u: %d", i*8+j, r); waitForEnterEsc();
 			if(r != 0)
 			{
 				currentNode = getSpecificNode(selectedPanel, i*8+j);
 				if(currentNode->type < 4)
 				{
-writeStatusBarf("Going to copy %s...", currentNode->name); waitForEnterEsc();
 					if(currentNode == NULL)
 					{
 						getDirectory(selectedPanel, i*8+j);
@@ -269,60 +266,76 @@ writeStatusBarf("Going to copy %s...", currentNode->name); waitForEnterEsc();
 						{
 							if(currentNode == NULL)
 							{
-								writeStatusBarf("Cannot get file %u", i*8+j); waitForEnterEsc();
+writeStatusBarf("Cannot get file %u", i*8+j); waitForEnterEsc();
 								return;
 							}
 						}
 					}
 
-					r = cbm_open(sd, sd, 0, currentNode->name);
+					cbm_open(15, sd, 15, "");
+					r = cbm_open(1, sd, 2, currentNode->name);					
 					if(r == 0)
 					{
-						sprintf("%s,%s,w",currentNode->name,
-							getFileType(currentNode->type));
-						r = cbm_open(td, td, 0, currentNode->name);
+						sprintf(type, "%c", getFileType(currentNode->type));
+						strlower(type);
+						sprintf(targetFilename,"%s,%s,w",currentNode->name,type);
+						cbm_open(14,td,15,"");
+						r = cbm_open(2, td, 3, targetFilename);
 						if(r == 0)
 						{
 							for(index=0; index < currentNode->size; ++index)
 							{
-								writeStatusBarf("Copying %d of %d blocks", index, currentNode->size);
-								r = cbm_read(sd, fileBuffer, 256);
-								if(r == -1)
+								bytes = cbm_read(1, fileBuffer, 254);
+								if(bytes == -1)
 								{
-									writeStatusBarf("Problem (%d) reading %s", _oserror, currentNode->name); waitForEnterEsc();
+writeStatusBarf("Problem (%d) reading %s", _stroserror(_oserror), currentNode->name); waitForEnterEsc();
+									cbm_read(15, status, 40);
+									writeStatusBar(status); waitForEnterEsc();
 									break;
 								}
-								else if(r == EOF)
+								else if(bytes == EOF)
 								{
-									break;
-								}
-
-								r = cbm_write(td, fileBuffer, 256);
-								if(r == -1)
-								{
-									writeStatusBarf("Problem (%d) writing %s", _oserror, currentNode->name); waitForEnterEsc();
 									break;
 								}
 
+								r = cbm_write(2, fileBuffer, bytes);
+								if(r == -1)
+								{
+writeStatusBarf("Problem (%s) writing %s", _stroserror(_oserror), currentNode->name); waitForEnterEsc();
+									cbm_read(14, status, 40);
+									writeStatusBar(status); waitForEnterEsc();
+									break;
+								}
+								writeStatusBarf("%s - %d of %d.", currentNode->name, index, currentNode->size);
 							}
+							RELOAD = TRUE;
 						}
 						else
 						{
-							writeStatusBarf("Cannot open %s for write (%d)", currentNode->name, r); waitForEnterEsc();
+writeStatusBarf("Cannot open %s for write (%d)", currentNode->name, r); waitForEnterEsc();
+							cbm_read(14, status, 40);
+							writeStatusBar(status); waitForEnterEsc();
 						}
 					}
 					else
 					{
-						writeStatusBarf("Cannot open %s for read (%d)", currentNode->name, r); waitForEnterEsc();
+writeStatusBarf("Cannot open %s for read (%d)", currentNode->name, r); waitForEnterEsc();
+						cbm_read(15, status, 40);
+						writeStatusBar(status); waitForEnterEsc();
 					}
-					cbm_close(td); 
-					cbm_close(sd);
+					cbm_close(2); 
+					cbm_close(1);
+					cbm_close(15);
+					cbm_close(14);
 				}
 			}
 		}
 	}
-	rereadDrivePanel(left);
-	rereadDrivePanel(right);
+	if(RELOAD == TRUE)
+	{
+		rereadDrivePanel(left);
+		rereadDrivePanel(right);
+	}
 }
 
 void __fastcall__ renameFile(void)
@@ -529,7 +542,7 @@ void __fastcall__ writeAboutBox(void)
 //	y = getCenterY(h);
 //
 //	writePanel(TRUE, TRUE,
-//		COLOR_RED, 
+//		COLOR_WHITE, 
 //		x, y, h, w,
 //		"About CBM-Command",
 //		NULL, "OK");

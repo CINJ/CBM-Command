@@ -296,10 +296,10 @@ void __fastcall__ notImplemented(void)
 	x = getCenterX(w);
 	y = getCenterY(h);
 
-	writePanel(TRUE, TRUE, COLOR_RED, x, y, h, w,
+	writePanel(TRUE, TRUE, COLOR_WHITE, x, y, h, w,
 		"Sorry...", "OK", NULL);
 
-	textcolor(COLOR_RED);
+	textcolor(COLOR_WHITE);
 	revers(TRUE);
 	gotoxy(x+2, y+2);
 	cputs("Not yet implemented.");

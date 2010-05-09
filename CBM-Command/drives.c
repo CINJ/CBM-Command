@@ -212,7 +212,7 @@ void __fastcall__ listDrives(enum menus menu)
 	textcolor(COLOR_YELLOW);
 	gotoxy(x + 1, y + 11); 
 	cputs("Use arrow keys & enter to select drive");
-	textcolor(COLOR_RED);
+	textcolor(COLOR_WHITE);
 
 	gotoxy(x + 1, current + 2 + y); cputc('>');
 
@@ -426,7 +426,7 @@ void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
 	y = (panel->currentIndex - panel->displayStartAt) + 2;
 	x = (panel == &leftPanelDrive ? 1 : size_x / 2 + 1);
 	gotoxy(x, y);
-	textcolor(COLOR_RED);
+	textcolor(COLOR_WHITE);
 	revers(FALSE);
 	cputc(character);
 }

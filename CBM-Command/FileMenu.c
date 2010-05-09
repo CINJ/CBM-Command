@@ -226,17 +226,17 @@ void __fastcall__ writeHelpPanel(void)
 	retrieveScreen();
 }
 
-unsigned char fileBuffer[256];
-struct panel_drive *targetPanel = NULL;
+unsigned char fileBuffer[COPY_BUFFER_SIZE];
+struct panel_drive *targetPanel = NULL, *tempPanel = NULL;
 void __fastcall__ copyFiles(void)
 {
-	unsigned char i = 0, j = 0, sd = 0, td = 0, bit = 0, r = 0, bytes = 0;
-	unsigned int index = 0;
+	unsigned char i = 0, j = 0, sd = 0, td = 0, bit = 0, r = 0;
+	unsigned int index = 0, bytes = 0;
 	unsigned RELOAD = FALSE;
 	unsigned char targetFilename[21], type[2], status[40];
 	struct dir_node *currentNode;
 
-	if(selectedPanel = &leftPanelDrive)
+	if(selectedPanel == &leftPanelDrive)
 	{
 		targetPanel = &rightPanelDrive;
 	}
@@ -266,7 +266,8 @@ void __fastcall__ copyFiles(void)
 						{
 							if(currentNode == NULL)
 							{
-writeStatusBarf("Cannot get file %u", i*8+j); waitForEnterEsc();
+								writeStatusBarf("Cannot get file %u", i*8+j); 
+								waitForEnterEsc();
 								return;
 							}
 						}
@@ -283,12 +284,15 @@ writeStatusBarf("Cannot get file %u", i*8+j); waitForEnterEsc();
 						r = cbm_open(2, td, 3, targetFilename);
 						if(r == 0)
 						{
-							for(index=0; index < currentNode->size; ++index)
+							for(index=0; index < currentNode->size; index+=(COPY_BUFFER_SIZE/254))
 							{
-								bytes = cbm_read(1, fileBuffer, 254);
+								bytes = cbm_read(1, fileBuffer, COPY_BUFFER_SIZE);
 								if(bytes == -1)
 								{
-writeStatusBarf("Problem (%d) reading %s", _stroserror(_oserror), currentNode->name); waitForEnterEsc();
+									writeStatusBarf("Problem (%d) reading %s", 
+										_stroserror(_oserror), 
+										currentNode->name); 
+									waitForEnterEsc();
 									cbm_read(15, status, 40);
 									writeStatusBar(status); waitForEnterEsc();
 									break;
@@ -298,10 +302,31 @@ writeStatusBarf("Problem (%d) reading %s", _stroserror(_oserror), currentNode->n
 									break;
 								}
 
+								if(kbhit())
+								{
+									r = cgetc();
+									if(r == CH_ESC || r == CH_STOP)
+									{
+										cbm_close(2); 
+										cbm_close(1);
+										cbm_close(15);
+										cbm_close(14);
+
+										reloadPanels();
+
+										writeStatusBar("Aborted copy.");
+										return;
+									}
+
+								}
+
 								r = cbm_write(2, fileBuffer, bytes);
 								if(r == -1)
 								{
-writeStatusBarf("Problem (%s) writing %s", _stroserror(_oserror), currentNode->name); waitForEnterEsc();
+									writeStatusBarf("Problem (%s) writing %s", 
+										_stroserror(_oserror), 
+										currentNode->name); 
+									waitForEnterEsc();
 									cbm_read(14, status, 40);
 									writeStatusBar(status); waitForEnterEsc();
 									break;
@@ -312,14 +337,18 @@ writeStatusBarf("Problem (%s) writing %s", _stroserror(_oserror), currentNode->n
 						}
 						else
 						{
-writeStatusBarf("Cannot open %s for write (%d)", currentNode->name, r); waitForEnterEsc();
+							writeStatusBarf("Cannot open %s for write (%d)", 
+								currentNode->name, r); 
+							waitForEnterEsc();
 							cbm_read(14, status, 40);
 							writeStatusBar(status); waitForEnterEsc();
 						}
 					}
 					else
 					{
-writeStatusBarf("Cannot open %s for read (%d)", currentNode->name, r); waitForEnterEsc();
+						writeStatusBarf("Cannot open %s for read (%d)", 
+							currentNode->name, r); 
+						waitForEnterEsc();
 						cbm_read(15, status, 40);
 						writeStatusBar(status); waitForEnterEsc();
 					}
@@ -333,9 +362,20 @@ writeStatusBarf("Cannot open %s for read (%d)", currentNode->name, r); waitForEn
 	}
 	if(RELOAD == TRUE)
 	{
-		rereadDrivePanel(left);
-		rereadDrivePanel(right);
+		reloadPanels();
 	}
+}
+
+void __fastcall__ reloadPanels(void)
+{
+	tempPanel = selectedPanel;
+	selectedPanel = targetPanel;
+	rereadSelectedPanel();
+	selectedPanel = tempPanel;
+	rereadSelectedPanel();
+	writeSelectorPosition(selectedPanel, '>');
+	writeSelectorPosition(targetPanel, ' ');
+	writeCurrentFilename(selectedPanel);
 }
 
 void __fastcall__ renameFile(void)
@@ -376,9 +416,7 @@ void __fastcall__ renameFile(void)
 
 				sendCommand(selectedPanel, command);
 
-				getDirectory(selectedPanel, 
-					selectedPanel->slidingWindowStartAt);
-				displayDirectory(selectedPanel);
+				rereadSelectedPanel();
 
 				writeStatusBarf("Renamed to %s", filename);
 			}
@@ -465,10 +503,11 @@ void __fastcall__ deleteFiles(void)
 
 				sendCommand(selectedPanel, command);
 
-				getDirectory(selectedPanel, 
-					selectedPanel->slidingWindowStartAt);
+				rereadSelectedPanel();
+				//getDirectory(selectedPanel, 
+				//	selectedPanel->slidingWindowStartAt);
 
-				displayDirectory(selectedPanel);
+				//displayDirectory(selectedPanel);
 			}
 		}
 	}

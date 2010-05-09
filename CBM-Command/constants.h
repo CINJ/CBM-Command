@@ -42,6 +42,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FALSE 0
 
 #define slidingWindowSize 30
+#define COPY_BUFFER_SIZE 1018
 
 extern const char LEFT_MENU[];
 const char LEFT_MENU_X = 0;

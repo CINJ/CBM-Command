@@ -122,6 +122,8 @@ void __fastcall__ handleDriveMenu(enum menus);
 
 // Menu actions
 void __fastcall__ rereadDrivePanel(enum menus menu);
+void __fastcall__ rereadSelectedPanel(void);
+void __fastcall__ reloadPanels(void);
 void __fastcall__ writeDriveSelectionPanel(enum menus menu);
 void __fastcall__ writeAboutBox(void);
 void __fastcall__ displayPanels(void);

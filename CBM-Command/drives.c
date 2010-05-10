@@ -463,7 +463,8 @@ void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
 		{
 			currentDirNode = getSelectedNode(panel);
 
-			if(currentDirNode != NULL)
+			if(currentDirNode != NULL &&
+				currentDirNode->name != NULL)
 			{
 				writeStatusBarf("Idx: %3u Sz: %5u Nm: %s",
 					currentDirNode->index,

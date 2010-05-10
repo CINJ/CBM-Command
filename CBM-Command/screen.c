@@ -152,33 +152,33 @@ void writeMenuBar(void)
 	bottom = size_y - 1;
 	cclearxy(0, bottom, size_x);
 #ifdef __C64__	
-	gotoxy(0, bottom); cputs(" HLP  QUIT  SELECT  CPY  REN  MDIR  DEL");
+	gotoxy(0, bottom); cputs(" HLP  QUIT  SEL  REF  CPY  REN  MDR  DEL");
 
 	revers(TRUE);
 	gotoxy(0, bottom); cputc('1');
 	gotoxy(5, bottom); cputc('2');
 	gotoxy(11, bottom); cputc('3');
-	//gotoxy(15, bottom); cputc('4');
-	gotoxy(19, bottom); cputc('5');
-	gotoxy(24, bottom); cputc('6');
-	gotoxy(29, bottom); cputc('7');
-	gotoxy(35, bottom); cputc('8');
+	gotoxy(16, bottom); cputc('4');
+	gotoxy(21, bottom); cputc('5');
+	gotoxy(26, bottom); cputc('6');
+	gotoxy(31, bottom); cputc('7');
+	gotoxy(36, bottom); cputc('8');
 
 	revers(FALSE);
 #endif
 #ifdef __C128__
 	gotoxy(0, bottom); 
-	cputs("  HELP      QUIT      SELECT    COPY      RENAME    MAKE DIRECTORY      DELETE");
+	cputs("  HELP     QUIT    SELECT   REFRESH   COPY    RENAME    MAKE DIRECTORY    DELETE");
 
 	revers(TRUE);
 	gotoxy(0, bottom); cputc('F'); cputc('1');
-	gotoxy(10, bottom); cputc('F'); cputc('2');
-	gotoxy(20, bottom); cputc('F'); cputc('3');
-	//gotoxy(15, bottom); cputc('F'); cputc('4');
-	gotoxy(30, bottom); cputc('F'); cputc('5');
-	gotoxy(40, bottom); cputc('F'); cputc('6');
-	gotoxy(50, bottom); cputc('F'); cputc('7');
-	gotoxy(70, bottom); cputc('F'); cputc('8');
+	gotoxy(9, bottom); cputc('F'); cputc('2');
+	gotoxy(17, bottom); cputc('F'); cputc('3');
+	gotoxy(26, bottom); cputc('F'); cputc('4');
+	gotoxy(36, bottom); cputc('F'); cputc('5');
+	gotoxy(44, bottom); cputc('F'); cputc('6');
+	gotoxy(54, bottom); cputc('F'); cputc('7');
+	gotoxy(72, bottom); cputc('F'); cputc('8');
 
 	revers(FALSE);
 #endif

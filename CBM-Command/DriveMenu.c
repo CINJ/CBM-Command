@@ -183,6 +183,11 @@ void __fastcall__ rereadDrivePanel(enum menus menu)
 
 void __fastcall__ rereadSelectedPanel(void)
 {
+	if(selectedPanel == NULL)
+	{
+		selectedPanel = &leftPanelDrive;
+	}
+
 	selectedPanel->currentIndex = 0;
 	selectedPanel->displayStartAt = 0;
 	getDirectory(selectedPanel, 0);

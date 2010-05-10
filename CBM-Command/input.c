@@ -55,6 +55,7 @@ void __fastcall__ readKeyboard(void)
 	switch((int)key)
 	{
 	case KEY_SH_SPACE: case KEY_SH_RETURN:
+	case KEY_F3:
 		selectCurrentFile();
 		break;
 	case CH_CURS_UP:
@@ -127,9 +128,11 @@ void __fastcall__ readKeyboard(void)
 		break;
 	case HK_HELP_128:
 	case HK_HELP:
+	case KEY_F1:
 		writeHelpPanel();
 		break;
 	case HK_QUIT:
+	case KEY_F2:
 		quit();
 		break;
 #ifdef __C128__
@@ -138,18 +141,22 @@ void __fastcall__ readKeyboard(void)
 		break;
 #endif
 	case HK_COPY:
+	case KEY_F5:
 		copyFiles();
 		break;
 	case HK_RENAME:
+	case KEY_F6:
 		renameFile();
 		break;
 	case HK_DELETE:
+	case KEY_F8:
 		deleteFiles();
 		break;
 	case HK_FILE_INFO:
 		writeFileInfoPanel();
 		break;
 	case HK_MAKE_DIRECTORY:
+	case KEY_F7:
 		makeDirectory();
 		break;
 	default:

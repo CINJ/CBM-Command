@@ -38,6 +38,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cbm.h>
 #include <conio.h>
 #include <errno.h>
+#include <peekpoke.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -81,6 +82,9 @@ void __fastcall__ initializeDrives(void)
 	unsigned char i = 0;
 	if(!areDrivesInitialized)
 	{
+		startupDevice = PEEK(0x00BA);
+
+		leftPanelDrive.drive = NULL;
 		leftPanelDrive.currentIndex = 0;
 		leftPanelDrive.displayStartAt = 0;
 		leftPanelDrive.position = left;
@@ -93,6 +97,7 @@ void __fastcall__ initializeDrives(void)
 			leftPanelDrive.slidingWindow[i].type = 0;
 		}
 
+		rightPanelDrive.drive = NULL;
 		rightPanelDrive.currentIndex = 0;
 		rightPanelDrive.displayStartAt = 0;
 		rightPanelDrive.position = right;
@@ -355,6 +360,12 @@ void __fastcall__ displayDirectory(
 	unsigned char fileType;
 	struct dir_node *currentNode;
 	unsigned char size[4];
+
+	if(drive->drive == NULL)
+	{
+		drive->drive = &(drives[startupDevice - 8]);
+		getDirectory(drive, 0);
+	}
 
 	if(drive->header.name == NULL)
 	{

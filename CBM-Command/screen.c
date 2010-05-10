@@ -102,33 +102,31 @@ void __fastcall__ retrieveScreen(void)
 void __fastcall__ writeStatusBar(
 	unsigned char message[])
 {
-	unsigned char oldColor, oldX, oldY;
+	unsigned char oldX, oldY;
 
 	oldX = wherex();
 	oldY = wherey();
 
-	oldColor = textcolor(color_text_status);
+	textcolor(color_text_status);
 	revers(TRUE);
 
-	gotoxy(0, size_y - 1);
+	gotoxy(0, size_y - 2);
 	cputs(blank_line);
 
-	gotoxy(0, size_y - 1);
+	gotoxy(0, size_y - 2);
 	cputs(message);
 	
 	revers(FALSE);
 
 	gotoxy(oldY, oldY);
-	textcolor(oldColor);
 }
 
 // Writes the menu bar at the top of the screen
 // which is scaled to the current screen size.
 void writeMenuBar(void)
 {
-	unsigned char oldColor;
-
-	oldColor = textcolor(color_text_menus);
+	unsigned char bottom = 0;
+	textcolor(color_text_menus);
 	revers(TRUE);
 
 	gotoxy(0, 0);
@@ -148,10 +146,42 @@ void writeMenuBar(void)
 
 	gotoxy(RIGHT_MENU_X  *size_x / 100, 0);
 	cputs(RIGHT_MENU);
-
+		
 	revers(FALSE);
 
-	textcolor(oldColor);
+	bottom = size_y - 1;
+	cclearxy(0, bottom, size_x);
+#ifdef __C64__	
+	gotoxy(0, bottom); cputs(" HLP  QUIT  SELECT  CPY  REN  MDIR  DEL");
+
+	revers(TRUE);
+	gotoxy(0, bottom); cputc('1');
+	gotoxy(5, bottom); cputc('2');
+	gotoxy(11, bottom); cputc('3');
+	//gotoxy(15, bottom); cputc('4');
+	gotoxy(19, bottom); cputc('5');
+	gotoxy(24, bottom); cputc('6');
+	gotoxy(29, bottom); cputc('7');
+	gotoxy(35, bottom); cputc('8');
+
+	revers(FALSE);
+#endif
+#ifdef __C128__
+	gotoxy(0, bottom); 
+	cputs("  HELP      QUIT      SELECT    COPY      RENAME    MAKE DIRECTORY      DELETE");
+
+	revers(TRUE);
+	gotoxy(0, bottom); cputc('F'); cputc('1');
+	gotoxy(10, bottom); cputc('F'); cputc('2');
+	gotoxy(20, bottom); cputc('F'); cputc('3');
+	//gotoxy(15, bottom); cputc('F'); cputc('4');
+	gotoxy(30, bottom); cputc('F'); cputc('5');
+	gotoxy(40, bottom); cputc('F'); cputc('6');
+	gotoxy(50, bottom); cputc('F'); cputc('7');
+	gotoxy(70, bottom); cputc('F'); cputc('8');
+
+	revers(FALSE);
+#endif
 }
 
 void drawBox(

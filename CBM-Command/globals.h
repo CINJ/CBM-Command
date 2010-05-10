@@ -43,6 +43,8 @@ extern unsigned char size_y;
 extern unsigned char blank_line[81];
 extern unsigned arePanelsOn;
 
+extern unsigned char startupDevice;
+
 extern unsigned char color_background;
 extern unsigned char color_border;
 extern unsigned char color_selector;

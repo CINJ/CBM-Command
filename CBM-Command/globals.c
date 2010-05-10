@@ -53,6 +53,8 @@ unsigned char size_y;
 unsigned char blank_line[81];
 unsigned arePanelsOn = TRUE;
 
+unsigned char startupDevice = 8;
+
 #ifdef __C128__
 unsigned char color_background	= COLOR_BLACK;
 unsigned char color_border		= COLOR_BLACK;

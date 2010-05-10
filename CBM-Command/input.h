@@ -46,8 +46,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_SWAP_PANELS		0x17	// CTRL-W
 #define HK_TOGGLE_PANELS	0x14	// CTRL-T
 #define HK_ABOUT			0x01	// CTRL-A
-#define HK_HELP_128			0x0D	// HELP
-#define HK_HELP				0x84	// CTRL-H
+#define HK_HELP_128			0x84	// HELP
 #define HK_QUIT				0x15	// CTRL-U
 #define HK_GO64				0x07	// CTRL-G
 #define HK_TOGGLE_4080		0x0F	// CTRL-O

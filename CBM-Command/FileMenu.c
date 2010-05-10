@@ -40,7 +40,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <conio.h>
 #include <string.h>
 #include <errno.h>
-
+#include <peekpoke.h>
 #ifdef __C128__
 #include <c128.h>
 #endif
@@ -605,4 +605,49 @@ void __fastcall__ writeAboutBox(void)
 //
 //	writeStatusBar("Thank you for using CBM Command.", 0, 10);
 	writeStatusBarf("Thank You for using CBM-Command Alpa");
+}
+
+void __fastcall__ executeSelectedFile(void)
+{
+	struct dir_node *currentNode;
+	unsigned result;
+
+	if(selectedPanel != NULL)
+	{
+		currentNode = getSelectedNode(selectedPanel);
+
+		if(currentNode != NULL)
+		{
+			saveScreen();
+
+			result = writeYesNo("Confirm", quit_message, 1);
+	
+			if(result == TRUE)
+			{
+				if(currentNode->type == 2)
+				{
+					clrscr();
+#ifdef __C64__
+					POKE(631,'r');
+					POKE(632,'U');
+					POKE(633,13);
+					POKE(198,3);
+#endif
+#ifdef __C128__
+					POKE(0x034A,'r');
+					POKE(0x034B,'U');
+					POKE(0x034C,13);
+					POKE(0x00D0,3);
+#endif
+					writeStatusBarf("Loading %s", currentNode->name);
+					cbm_load(currentNode->name, selectedPanel->drive->drive, NULL);
+					exit(EXIT_SUCCESS);
+				}
+				else
+				{
+					writeStatusBar("Can only execute PRG files.");
+				}
+			}
+		}
+	}
 }

@@ -54,6 +54,8 @@ void __fastcall__ readKeyboard(void)
 
 	switch((int)key)
 	{
+	case CH_ENTER:
+		executeSelectedFile();
 	case KEY_SH_SPACE: case KEY_SH_RETURN:
 	case KEY_F3:
 		selectCurrentFile();
@@ -127,7 +129,6 @@ void __fastcall__ readKeyboard(void)
 		writeAboutBox();
 		break;
 	case HK_HELP_128:
-	case HK_HELP:
 	case KEY_F1:
 		writeHelpPanel();
 		break;

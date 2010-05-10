@@ -365,6 +365,7 @@ void __fastcall__ displayDirectory(
 	{
 		drive->drive = &(drives[startupDevice - 8]);
 		getDirectory(drive, 0);
+		resetSelectedFiles(drive);
 	}
 
 	if(drive->header.name == NULL)

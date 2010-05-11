@@ -218,12 +218,12 @@ void drawBox(
 
 unsigned char __fastcall__ getCenterX(unsigned char w)
 {
-	return size_x / 2 - w / 2 - 1;
+	return (size_x / 2) - (w / 2) - 1;
 }
 
 unsigned char __fastcall__ getCenterY(unsigned char h)
 {
-	return size_y / 2 - h / 2 - 1;
+	return (size_y / 2) - (h / 2) - 1;
 }
 
 void writePanel(
@@ -415,11 +415,11 @@ enum results __fastcall__ drawDialog(
 }
 
 enum results __fastcall__ drawInputDialog(
-	unsigned char *message[],
 	unsigned char lineCount,
+	unsigned char length,
+	unsigned char *message[],
 	unsigned char *title,
-	unsigned char *resultText,
-	unsigned char length)
+	unsigned char *resultText)
 {
 	unsigned char x = 0, y = 0, h = 0, w = 0, i = 0, 
 		key = 0, count = 0;
@@ -427,14 +427,12 @@ enum results __fastcall__ drawInputDialog(
 	unsigned char *input;
 	input = calloc(length+1, sizeof(unsigned char));
 	h = lineCount + 6;
-	w = length + 0;
-	for(i=0; i<lineCount; ++i);
-	{
-		if(strlen(message[i]) > w) 
-			w = strlen(message[i]);
-	}
-
-	w += 3;
+	w = length + 3;
+	//for(i=0; i<lineCount; ++i);
+	//{
+	//	if(strlen(message[i]) > w) 
+	//		w = strlen(message[i]);
+	//}
 
 	x = getCenterX(w);
 	y = getCenterY(h);

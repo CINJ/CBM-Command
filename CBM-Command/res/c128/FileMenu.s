@@ -77,11 +77,11 @@ _FILE_MENU_DELETE: .asciiz "Delete"
 .export _FILE_MENU_DELETE_KEY
 _FILE_MENU_DELETE_KEY: .byte $44
 
-.export _FILE_MENU_FILE_INFO
-_FILE_MENU_FILE_INFO: .asciiz "File Information"
+.export _FILE_MENU_SEND_COMMAND
+_FILE_MENU_SEND_COMMAND: .asciiz "Send command"
 
-.export _FILE_MENU_FILE_INFO_KEY
-_FILE_MENU_FILE_INFO_KEY: .byte $46
+.export _FILE_MENU_SEND_COMMAND_KEY
+_FILE_MENU_SEND_COMMAND_KEY: .byte $53
 
 .export _FILE_MENU_QUIT
 _FILE_MENU_QUIT: .asciiz "Quit"

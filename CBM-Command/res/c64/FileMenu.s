@@ -42,7 +42,7 @@ _FILE_MENU_COUNT: .byte $08
 _FILE_MENU_WIDTH: .byte $11
 
 .export _FILE_MENU_ABOUT
-_FILE_MENU_ABOUT: .asciiz "About CBM-Command"
+_FILE_MENU_ABOUT: .asciiz "About"
 
 .export _FILE_MENU_ABOUT_KEY
 _FILE_MENU_ABOUT_KEY: .byte $41
@@ -66,7 +66,7 @@ _FILE_MENU_RENAME: .asciiz "Rename"
 _FILE_MENU_RENAME_KEY: .byte $52
 
 .export _FILE_MENU_MAKE_DIR
-_FILE_MENU_MAKE_DIR: .asciiz "Make Directory"
+_FILE_MENU_MAKE_DIR: .asciiz "Make directory"
 
 .export _FILE_MENU_MAKE_DIR_KEY
 _FILE_MENU_MAKE_DIR_KEY: .byte $4D
@@ -77,11 +77,11 @@ _FILE_MENU_DELETE: .asciiz "Delete"
 .export _FILE_MENU_DELETE_KEY
 _FILE_MENU_DELETE_KEY: .byte $44
 
-.export _FILE_MENU_FILE_INFO
-_FILE_MENU_FILE_INFO: .asciiz "File Information"
+.export _FILE_MENU_SEND_COMMAND
+_FILE_MENU_SEND_COMMAND: .asciiz "Send command"
 
-.export _FILE_MENU_FILE_INFO_KEY
-_FILE_MENU_FILE_INFO_KEY: .byte $46
+.export _FILE_MENU_SEND_COMMAND_KEY
+_FILE_MENU_SEND_COMMAND_KEY: .byte $53
 
 .export _FILE_MENU_QUIT
 _FILE_MENU_QUIT: .asciiz "Quit"

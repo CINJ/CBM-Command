@@ -85,11 +85,11 @@ unsigned __fastcall__ writeYesNo(
 	unsigned char lineCount);
 
 enum results __fastcall__ drawInputDialog(
-	unsigned char *message[],
 	unsigned char lineCount,
+	unsigned char length,
+	unsigned char *message[],
 	unsigned char *title,
-	unsigned char *resultText,
-	unsigned char length);
+	unsigned char *resultText);
 
 void __fastcall__ saveScreen(void);
 void __fastcall__ retrieveScreen(void);

@@ -96,9 +96,6 @@ void __fastcall__ readKeyboard(void)
 	case KEY_SH_MINUS:
 		leaveDirectory(selectedPanel);
 		break;
-	case KEY_AT:
-		inputCommand();
-		break;
 	case 188: // C= C - Command Menu
 		writeMenu(command);
 		break;
@@ -160,8 +157,8 @@ void __fastcall__ readKeyboard(void)
 	case KEY_F8:
 		deleteFiles();
 		break;
-	case HK_FILE_INFO:
-		writeFileInfoPanel();
+	case KEY_AT:
+		inputCommand();
 		break;
 	case HK_MAKE_DIRECTORY:
 	case KEY_F7:
@@ -178,7 +175,7 @@ unsigned char __fastcall__ waitForEnterEsc(void)
 
 	revers(TRUE); 
 	textcolor(color_text_other); 
-	cputsxy(size_x - 6, size_y - 2, "(RET)"); 
+	cputsxy(size_x - 5, size_y - 2, "(RET)"); 
 	revers(FALSE);
 
 	while(key != CH_ESC

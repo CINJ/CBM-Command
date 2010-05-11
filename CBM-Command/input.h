@@ -53,7 +53,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_COPY				0x03	// CTRL-C
 #define HK_RENAME			0x12	// CTRL-R
 #define HK_DELETE			0x1E	// CTRL-^
-#define HK_FILE_INFO		0x09	// CTRL-I
 #define HK_MAKE_DIRECTORY	0x0B	// CTRL-K
 
 #define KEY_AT				0x40	// @

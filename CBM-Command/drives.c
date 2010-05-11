@@ -643,11 +643,11 @@ void __fastcall__ selectCurrentFile(void)
 				writeSelectorPosition(selectedPanel, '>');
 				displayDirectory(selectedPanel);
 			}
-			else
-			{
-				writeStatusBar("Current node is null.");
-				waitForEnterEsc();
-			}
+			//else
+			//{
+			//	writeStatusBar("Current node is null.");
+			//	waitForEnterEsc();
+			//}
 		}
 	}
 }

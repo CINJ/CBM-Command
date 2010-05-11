@@ -78,7 +78,7 @@ void __fastcall__ initFileMenu(void)
 		FILE_MENU_LABELS[3] = FILE_MENU_RENAME;
 		FILE_MENU_LABELS[4] = FILE_MENU_MAKE_DIR;
 		FILE_MENU_LABELS[5] = FILE_MENU_DELETE;
-		FILE_MENU_LABELS[6] = FILE_MENU_FILE_INFO;
+		FILE_MENU_LABELS[6] = FILE_MENU_SEND_COMMAND;
 		FILE_MENU_LABELS[7] = FILE_MENU_QUIT;
 
 #ifdef __C128__
@@ -91,7 +91,7 @@ void __fastcall__ initFileMenu(void)
 		FILE_MENU_KEYS[3] = FILE_MENU_RENAME_KEY;
 		FILE_MENU_KEYS[4] = FILE_MENU_MAKE_DIR_KEY;
 		FILE_MENU_KEYS[5] = FILE_MENU_DELETE_KEY;
-		FILE_MENU_KEYS[6] = FILE_MENU_FILE_INFO_KEY;
+		FILE_MENU_KEYS[6] = FILE_MENU_SEND_COMMAND_KEY;
 		FILE_MENU_KEYS[7] = FILE_MENU_QUIT_KEY;
 
 #ifdef __C128__
@@ -182,10 +182,10 @@ void __fastcall__ handleFileMenu(void)
 				retrieveScreen();
 				deleteFiles();
 			}
-			else if(key == FILE_MENU_FILE_INFO_KEY)
+			else if(key == FILE_MENU_SEND_COMMAND_KEY)
 			{
 				retrieveScreen();
-				writeFileInfoPanel();
+				inputCommand();
 			}
 			else if(key == FILE_MENU_QUIT_KEY)
 			{
@@ -401,10 +401,10 @@ void __fastcall__ renameFile(void)
 			writeStatusBarf("Old name: %s", selectedNode->name);
 
 			dialogResult = drawInputDialog(
+				2, 16,
 				dialogMessage,
-				2,
 				"Rename File",
-				filename, 16);
+				filename);
 
 			retrieveScreen();
 
@@ -442,10 +442,10 @@ void __fastcall__ makeDirectory(void)
 			saveScreen();
 
 			dialogResult = drawInputDialog(
+				2, 16,
 				dialogMessage,
-				2,
 				"New Directory",
-				filename, 16);
+				filename);
 
 			retrieveScreen();
 
@@ -512,11 +512,6 @@ void __fastcall__ deleteFiles(void)
 			}
 		}
 	}
-}
-
-void __fastcall__ writeFileInfoPanel(void)
-{
-	notImplemented();
 }
 
 #ifdef __C128__
@@ -673,16 +668,16 @@ void __fastcall__ inputCommand(void)
 			saveScreen();
 
 			dialogResult = drawInputDialog(
-				dialogMessage,
-				1,
-				"Command",
-				command, 
+				1, 
 #ifdef __C64__
-				36
+				36,
 #endif
 #ifdef __C128__
-				76
+				76,
 #endif
+				dialogMessage,
+				"Command",
+				command
 				);
 
 			retrieveScreen();

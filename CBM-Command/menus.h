@@ -70,8 +70,8 @@ extern char FILE_MENU_MAKE_DIR[];
 extern const unsigned char FILE_MENU_MAKE_DIR_KEY;
 extern char FILE_MENU_DELETE[];
 extern const unsigned char FILE_MENU_DELETE_KEY;
-extern char FILE_MENU_FILE_INFO[];
-extern const unsigned char FILE_MENU_FILE_INFO_KEY;
+extern char FILE_MENU_SEND_COMMAND[];
+extern const unsigned char FILE_MENU_SEND_COMMAND_KEY;
 extern char FILE_MENU_QUIT[];
 extern const unsigned char FILE_MENU_QUIT_KEY;
 #ifdef __C128__
@@ -139,7 +139,6 @@ void __fastcall__ copyFiles(void);
 void __fastcall__ renameFile(void);
 void __fastcall__ makeDirectory(void);
 void __fastcall__ deleteFiles(void);
-void __fastcall__ writeFileInfoPanel(void);
 void __fastcall__ quit(void);
 #ifdef __C128__
 void __fastcall__ go64(void);

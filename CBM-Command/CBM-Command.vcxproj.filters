@@ -95,6 +95,12 @@
     <ClCompile Include="drives.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Configuration.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="globalInput.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="constants.h">

@@ -8,6 +8,12 @@ X64 := c:\winvice\x64.exe -autostart
 X128 := c:\winvice\x128.exe -autostart
 T := c128
 
+CONFIG_SOURCES = \
+	Configuration.c \
+	globals.c \
+	screen.c \
+	globalInput.c
+
 SOURCES	= \
 	AssemblerMethods.c \
 	CBM-Command.c \
@@ -19,7 +25,8 @@ SOURCES	= \
 	input.c \
 	menus.c \
 	OptionMenu.c \
-	screen.c 
+	screen.c  \
+	globalInput.c
 
 ASMFILES= \
 	res\$(T)\Text.s \
@@ -32,8 +39,10 @@ ASMFILES= \
 	res\$(T)\PlatformSpecific.s
 
 PROGRAM	=cbmcommand.$(T)
+CONFIG_PROGRAM =cbmcmdcfg.$(T)
 
 TITLE	=$(PROGRAM:.$(T)=)
+CONFIG_TITLE =$(CONFIG_PROGRAM:.$(T)=)
 
 LIBS	=$(T).lib
 
@@ -62,6 +71,7 @@ D64: all
 
 $(PROGRAM): $(SOURCES) $(ASMFILES)
 		$(CL) -O -t $(T) -o $(T)\$(PROGRAM) $(SOURCES) $(ASMFILES) $(LIBS)
+		$(CL) -O -t $(T) -o $(T)\$(CONFIG_PROGRAM) $(CONFIG_SOURCES) $(ASMFILES) $(LIBS)
 
 # Assemble 
 $(SOURCES:.c=.o): $(SOURCES:.c=.s)

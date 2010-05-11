@@ -1,8 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="C128_Config|Win32">
+      <Configuration>C128_Config</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="C128|Win32">
       <Configuration>C128</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="C64_Config|Win32">
+      <Configuration>C64_Config</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="C64|Win32">
@@ -23,7 +31,15 @@
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C128_Config|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64_Config|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
   </PropertyGroup>
@@ -39,7 +55,13 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='C128|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='C128_Config|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='C64_Config|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -53,7 +75,25 @@
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
     <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C128_Config|Win32'">
+    <NMakeBuildCommandLine>make T:=c128</NMakeBuildCommandLine>
+    <NMakeOutput />
+    <NMakeCleanCommandLine>make clean T:=c128</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make T:=c128</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>__C128__ __CBM__</NMakePreprocessorDefinitions>
+    <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
+    <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'">
+    <NMakeBuildCommandLine>make T:=c64</NMakeBuildCommandLine>
+    <NMakeOutput />
+    <NMakeCleanCommandLine>make clean T:=c64</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make T:=c64</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>__C64__ __CBM__ __fastcall__=__fastcall</NMakePreprocessorDefinitions>
+    <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
+    <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64_Config|Win32'">
     <NMakeBuildCommandLine>make T:=c64</NMakeBuildCommandLine>
     <NMakeOutput />
     <NMakeCleanCommandLine>make clean T:=c64</NMakeCleanCommandLine>
@@ -85,7 +125,17 @@
       <Path>$(Configuration).log</Path>
     </BuildLog>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='C128_Config|Win32'">
+    <BuildLog>
+      <Path>$(Configuration).log</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'">
+    <BuildLog>
+      <Path>$(Configuration).log</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='C64_Config|Win32'">
     <BuildLog>
       <Path>$(Configuration).log</Path>
     </BuildLog>
@@ -113,9 +163,11 @@
     <ClCompile Include="AssemblerMethods.c" />
     <ClCompile Include="CBM-Command.c" />
     <ClCompile Include="CommandMenu.c" />
+    <ClCompile Include="Configuration.c" />
     <ClCompile Include="DriveMenu.c" />
     <ClCompile Include="drives.c" />
     <ClCompile Include="FileMenu.c" />
+    <ClCompile Include="globalInput.c" />
     <ClCompile Include="globals.c" />
     <ClCompile Include="input.c" />
     <ClCompile Include="makefile" />

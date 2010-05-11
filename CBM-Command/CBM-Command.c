@@ -65,6 +65,7 @@ int main(void)
 #endif
 
 	initialize();
+	initializeDrives();
 	setupScreen();
 	writeMenuBar();
 

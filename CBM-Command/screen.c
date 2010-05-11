@@ -418,15 +418,16 @@ enum results __fastcall__ drawInputDialog(
 	unsigned char *message[],
 	unsigned char lineCount,
 	unsigned char *title,
-	unsigned char *resultText)
+	unsigned char *resultText,
+	unsigned char length)
 {
 	unsigned char x = 0, y = 0, h = 0, w = 0, i = 0, 
 		key = 0, count = 0;
 	unsigned result;
-	unsigned char input[17];
-
+	unsigned char *input;
+	input = calloc(length+1, sizeof(unsigned char));
 	h = lineCount + 6;
-	w = 20;
+	w = length + 0;
 	for(i=0; i<lineCount; ++i);
 	{
 		if(strlen(message[i]) > w) 
@@ -457,15 +458,16 @@ enum results __fastcall__ drawInputDialog(
 	revers(TRUE);
 	textcolor(color_text_other);
 	
-	cputs("<                ");
+	cclearxy(x+2, i+2+y, length + 1);
+	cputcxy(x+2, i+2+y, '<');
 	count = 0;
 	key = cgetc();
 	while(key != CH_ESC && key != CH_STOP && key != CH_ENTER)
 	{
-		if( count < 16 &&
+		if( count < length &&
 			(
 				(key >= 33 && key <= 95) ||
-				(key >= 65 + 0x40 && key <= 90 + 0x40)
+				(key >= 65 + 0x80 && key <= 90 + 0x80)
 			)
 		)
 		{
@@ -486,6 +488,7 @@ enum results __fastcall__ drawInputDialog(
 			gotoxy(x+2+count, i+2+y);
 			cputc('<');
 		}
+
 		key = cgetc();
 	}
 
@@ -498,7 +501,7 @@ enum results __fastcall__ drawInputDialog(
 	}
 
 	revers(FALSE);
-
+	free(input);
 	return result;
 }
 

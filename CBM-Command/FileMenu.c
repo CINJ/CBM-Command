@@ -46,6 +46,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include "constants.h"
+#include "globals.h"
 #include "drives.h"
 #include "input.h"
 #include "menus.h"
@@ -403,7 +404,7 @@ void __fastcall__ renameFile(void)
 				dialogMessage,
 				2,
 				"Rename File",
-				filename);
+				filename, 16);
 
 			retrieveScreen();
 
@@ -444,7 +445,7 @@ void __fastcall__ makeDirectory(void)
 				dialogMessage,
 				2,
 				"New Directory",
-				filename);
+				filename, 16);
 
 			retrieveScreen();
 
@@ -621,6 +622,8 @@ void __fastcall__ executeSelectedFile(void)
 			saveScreen();
 
 			result = writeYesNo("Confirm", quit_message, 1);
+
+			retrieveScreen();
 	
 			if(result == TRUE)
 			{
@@ -647,6 +650,50 @@ void __fastcall__ executeSelectedFile(void)
 				{
 					writeStatusBar("Can only execute PRG files.");
 				}
+			}
+		}
+	}
+}
+
+void __fastcall__ inputCommand(void)
+{
+	enum results dialogResult;
+	struct dir_node *selectedNode = NULL;
+	unsigned char command[77];
+	unsigned char* dialogMessage[] =
+	{
+		{ "Enter Command for drive:" }
+	};
+
+	if(selectedPanel != NULL)
+	{
+		selectedNode = getSelectedNode(selectedPanel);
+		if(selectedNode != NULL)
+		{
+			saveScreen();
+
+			dialogResult = drawInputDialog(
+				dialogMessage,
+				1,
+				"Command",
+				command, 
+#ifdef __C64__
+				36
+#endif
+#ifdef __C128__
+				76
+#endif
+				);
+
+			retrieveScreen();
+
+			if(dialogResult == OK_RESULT)
+			{
+				sendCommand(selectedPanel, command);
+
+				waitForEnterEsc();
+
+				rereadSelectedPanel();				
 			}
 		}
 	}

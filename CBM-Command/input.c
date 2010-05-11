@@ -39,6 +39,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <conio.h>
 
+#include "constants.h"
 #include "drives.h"
 #include "globals.h"
 #include "input.h"
@@ -94,6 +95,9 @@ void __fastcall__ readKeyboard(void)
 		break;
 	case KEY_SH_MINUS:
 		leaveDirectory(selectedPanel);
+		break;
+	case KEY_AT:
+		inputCommand();
 		break;
 	case 188: // C= C - Command Menu
 		writeMenu(command);
@@ -171,6 +175,11 @@ void __fastcall__ readKeyboard(void)
 unsigned char __fastcall__ waitForEnterEsc(void)
 {
 	unsigned char key = 0;
+
+	revers(TRUE); 
+	textcolor(color_text_other); 
+	cputsxy(size_x - 6, size_y - 2, "(RET)"); 
+	revers(FALSE);
 
 	while(key != CH_ESC
 		&& key != CH_STOP

@@ -279,6 +279,7 @@ int __fastcall__ getDirectory(
 {
 	
 	unsigned int counter=0, read=0;
+	unsigned char buffer[41];
 	unsigned char* name;
 	unsigned char result, dr, nameLength, i;
 	struct cbm_dirent currentDE;
@@ -337,6 +338,17 @@ int __fastcall__ getDirectory(
 			drive->currentIndex = drive->length - 1;
 		}
 
+		cbm_open(2,drive->drive->drive,0,"$:'y/%&");
+		cbm_read(2,buffer,34); // skip unwanted data
+		cbm_read(2,buffer,2);
+		drive->header.size = buffer[1]*256 + buffer[0];
+		//writeStatusBarf("%u: %s", counter, buffer); waitForEnterEsc();
+		//cbm_read(2,buffer,34); // Let's see what we got
+		//writeStatusBarf("2: %s", buffer); waitForEnterEsc();
+		cbm_close(2);
+
+		//writeStatusBar(buffer); waitForEnterEsc();
+
 		writeStatusBarf("Finished reading %u files.", counter - 1);
 	}
 
@@ -378,6 +390,9 @@ void __fastcall__ displayDirectory(
 	
 	writePanel(TRUE, FALSE, color_text_borders, x, 1, 21, w, 
 		drive->header.name, NULL, NULL);
+
+	gotoxy(x+1, 22); cprintf("[%2d]", drive->drive->drive);
+	gotoxy(x + w - 7, 22); cprintf("[%5u]", drive->header.size);
 
 	start = drive->displayStartAt;
 
@@ -651,8 +666,9 @@ void __fastcall__ enterDirectory(struct panel_drive *panel)
 		sendCommand(panel, command);
 		panel->currentIndex = 0;
 		panel->displayStartAt = 0;
-		getDirectory(panel, 0);
-		displayDirectory(panel);
+		/*getDirectory(panel, 0);
+		displayDirectory(panel);*/
+		rereadSelectedPanel();
 	}
 }
 
@@ -667,27 +683,28 @@ void __fastcall__ leaveDirectory(struct panel_drive *panel)
 	sendCommand(panel, buffer);
 	panel->currentIndex = 0;
 	panel->displayStartAt = 0;
-	getDirectory(panel, 0);
-	displayDirectory(panel);
+	/*getDirectory(panel, 0);
+	displayDirectory(panel);*/
+	rereadSelectedPanel();
 }
 
 unsigned __fastcall__ isDiskImage(struct panel_drive *panel)
 {
 	unsigned result = FALSE;
+	unsigned char name[17];
 	struct dir_node *currentDirNode = NULL;
 
 	currentDirNode = getSelectedNode(panel);
 
+	strcpy(name, currentDirNode->name);
+	strlower(name);
+
 	if(currentDirNode != NULL)
 	{
-		if(strstr(currentDirNode->name, ".D64") > 0
-			|| strstr(currentDirNode->name, ".D81") > 0
-			|| strstr(currentDirNode->name, ".D71") > 0
-			|| strstr(currentDirNode->name, ".DNP") > 0
-			|| strstr(currentDirNode->name, ".d64") > 0
-			|| strstr(currentDirNode->name, ".d81") > 0
-			|| strstr(currentDirNode->name, ".d71") > 0
-			|| strstr(currentDirNode->name, ".dnp") > 0
+		if(strstr(name, ".d64") > 0
+			|| strstr(name, ".d81") > 0
+			|| strstr(name, ".d71") > 0
+			|| strstr(name, ".dnp") > 0
 		)
 		{
 			result = TRUE;
@@ -766,7 +783,7 @@ unsigned char __fastcall__ sendCommand(
 
 	drive = panel->drive->drive;
 
-	result = cbm_open(drive, drive, 15, "");
+	result = cbm_open(drive, drive, 15, NULL);
 
 	result = cbm_write(drive, command, strlen(command));
 

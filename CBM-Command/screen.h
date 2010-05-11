@@ -88,7 +88,8 @@ enum results __fastcall__ drawInputDialog(
 	unsigned char *message[],
 	unsigned char lineCount,
 	unsigned char *title,
-	unsigned char *resultText);
+	unsigned char *resultText,
+	unsigned char length);
 
 void __fastcall__ saveScreen(void);
 void __fastcall__ retrieveScreen(void);

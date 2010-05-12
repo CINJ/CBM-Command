@@ -39,7 +39,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "Configuration.h"
+#include "ConfigurationManager.h"
 #include "constants.h"
 #include "globals.h"
 #include "screen.h"
@@ -73,8 +73,13 @@ void __fastcall__ readKeyboard(void)
 
 	switch((int)result)
 	{
+	case KEY_F1:
+		help();
 	case KEY_F2:
 		quit();
+		break;
+	case KEY_F3:
+		save();
 		break;
 	}
 }
@@ -100,17 +105,6 @@ void __fastcall__ quit(void)
 	retrieveScreen();
 }
 
-/*
-void writePanel(
-	unsigned drawBorder,
-	unsigned reverse,
-	unsigned char color,
-	unsigned char x, unsigned char y,
-	unsigned char h, unsigned char w,
-	unsigned char *title,
-	unsigned char *cancel,
-	unsigned char *ok);
-*/
 void __fastcall__ writeMenu(void)
 {
 	writePanel(TRUE, FALSE, color_text_borders,

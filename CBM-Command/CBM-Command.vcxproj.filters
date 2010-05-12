@@ -95,10 +95,10 @@
     <ClCompile Include="drives.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Configuration.c">
+    <ClCompile Include="globalInput.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="globalInput.c">
+    <ClCompile Include="ConfigurationManager.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -127,7 +127,7 @@
     <ClInclude Include="drives.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Configuration.h">
+    <ClInclude Include="ConfigurationManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -63,4 +63,17 @@ extern const char SPACES[];
 
 extern const char SCREEN_SIZE_FORMAT[];
 
+#define KEY_AT				0x40	// @
+#define KEY_SH_SPACE		0xA0
+#define KEY_SH_RETURN		0x8D
+#define KEY_F1				0x85
+#define KEY_F3				0x86
+#define KEY_F5				0x87
+#define KEY_F7				0x88
+#define KEY_F2				0x89
+#define KEY_F4				0x8A
+#define KEY_F6				0x8B
+#define KEY_F8				0x8C
+#define KEY_SH_PLUS			0xDB
+#define KEY_SH_MINUS		0xDD
 #endif

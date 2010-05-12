@@ -151,4 +151,5 @@ void __fastcall__ drawCommandMenu(unsigned char);
 void __fastcall__ drawOptionsMenu(unsigned char);
 void __fastcall__ drawMenu(unsigned char, unsigned char, unsigned char, char*[], unsigned char[]);
 void __fastcall__ drawMenuLine(unsigned, unsigned char, char*, unsigned char, unsigned char);
+void writeMenuBar(void);
 #endif

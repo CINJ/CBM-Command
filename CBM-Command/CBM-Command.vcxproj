@@ -177,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssemblerMethods.h" />
+    <ClInclude Include="Configuration.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="drives.h" />
     <ClInclude Include="globals.h" />

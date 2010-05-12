@@ -35,66 +35,12 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
-#ifndef _SCREEN_H
-#define _SCREEN_H
+#ifndef _CONFIGURATION_H
+#define _CONFIGURATION_H
 
-#ifdef __C64__
-unsigned char SCREEN_BUFFER[1000];
-unsigned char COLOR_BUFFER[1000];
-#endif
-
-enum results { OK_RESULT, CANCEL_RESULT, YES_RESULT, NO_RESULT };
-enum buttons { OK = 1, CANCEL = 2, YES = 4, NO = 8 };
-
-//enum buttonTypes { cancel, ok, other };
-//typedef void *ButtonCallback(enum buttonTypes buttonType);
-
-void setupScreen(void);
-void __fastcall__ writeStatusBar(unsigned char[]);
-
-void writeStatusBarf(
-	unsigned char[], ...);
-	
-
-void writePanel(
-	unsigned drawBorder,
-	unsigned reverse,
-	unsigned char color,
-	unsigned char x, unsigned char y,
-	unsigned char h, unsigned char w,
-	unsigned char *title,
-	unsigned char *cancel,
-	unsigned char *ok);
-
-
-void drawBox(
-	unsigned char, unsigned char,
-	unsigned char, unsigned char,
-	unsigned char, unsigned);
-
-enum results __fastcall__ drawDialog(
-	unsigned char* message[],
-	unsigned char lineCount,
-	unsigned char* title,
-	enum buttons button);
-
-unsigned __fastcall__ writeYesNo(
-	unsigned char *title,
-	unsigned char *message[],
-	unsigned char lineCount);
-
-enum results __fastcall__ drawInputDialog(
-	unsigned char lineCount,
-	unsigned char length,
-	unsigned char *message[],
-	unsigned char *title,
-	unsigned char *resultText);
-
-void __fastcall__ saveScreen(void);
-void __fastcall__ retrieveScreen(void);
-
-void __fastcall__ notImplemented(void);
-
-unsigned char __fastcall__ getCenterX(unsigned char w);
-unsigned char __fastcall__ getCenterY(unsigned char h);
+void __fastcall__ readKeyboard(void);
+unsigned char __fastcall__ waitForEnterEsc(void);
+void __fastcall__ quit(void);
+void __fastcall__ writeFunctionKeys(void);
+void __fastcall__ writeMenu(void);
 #endif

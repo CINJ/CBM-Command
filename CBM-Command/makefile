@@ -60,10 +60,17 @@ endif
 D64: all
 	cp c64\$(TITLE).c64 $(TITLE).c64
 	cp c128\$(TITLE).c128 $(TITLE).c128
+	cp c64\$(CONFIG_TITLE).c64 $(CONFIG_TITLE).c64
+	cp c128\$(CONFIG_TITLE).c128 $(CONFIG_TITLE).c128
 	$(C1541) -format $(TITLE),id d64 $(TITLE).d64
 	$(C1541) $(TITLE).d64 -write $(TITLE).c64 $(TITLE).c64
 	$(C1541) $(TITLE).d64 -write $(TITLE).c128 $(TITLE).c128
-	rm $(PROGRAM)
+	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).c64 $(CONFIG_TITLE).c64
+	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).c128 $(CONFIG_TITLE).c128
+	rm $(TITLE).c64
+	rm $(TITLE).c128
+	rm $(CONFIG_TITLE).c64
+	rm $(CONFIG_TITLE).c128
 
 # Build our program
 #$(PROGRAM): $(SOURCES:.c=.o) $(ASMFILES:.s=.o)
@@ -94,6 +101,8 @@ $(ASMFILES:.s=.o): $(ASMFILES)
 #.PHONY: clean
 clean: 
 		$(RM) $(SOURCES:.c=.o) $(SOURCES:.c=.s)
+		$(RM) $(CONFIG_SOURCES:.c=.o) $(CONFIG_SOURCES:.c=.s)
 		$(RM) $(ASMFILES:.s=.o)
 		$(RM) $(T)/$(PROGRAM)
+		$(RM) $(T)/$(CONFIG_PROGRAM)
 

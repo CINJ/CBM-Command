@@ -31,14 +31,15 @@ SOURCES	= \
 	globalInput.c
 
 ASMFILES= \
-	res\$(T)\Text.s \
-	res\common\Common.s \
-	res\common\CommandMenu.s \
-	res\common\DriveMenu.s \
 	res\common\driveRoutines.s \
-	res\$(T)\FileMenu.s \
-	res\$(T)\OptionsMenu.s \
 	res\$(T)\PlatformSpecific.s
+
+#	res\common\Common.s \
+#	res\$(T)\Text.s \
+#	res\common\CommandMenu.s \
+#	res\common\DriveMenu.s \
+#	res\$(T)\FileMenu.s \
+#	res\$(T)\OptionsMenu.s \
 
 PROGRAM	=cbmcommand.$(T)
 CONFIG_PROGRAM =cbmcmdcfg.$(T)

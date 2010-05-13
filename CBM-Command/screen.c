@@ -53,8 +53,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef __C64__
 unsigned int vicRegister;
 unsigned int screenMemoryStart;
+unsigned char SCREEN_BUFFER[1000];
+unsigned char COLOR_BUFFER[1000];
 #endif
-
 // Prepares the screen 
 void setupScreen(void)
 {
@@ -112,9 +113,9 @@ void __fastcall__ writeStatusBar(
 	textcolor(color_text_status);
 	revers(TRUE);
 
-	cclearxy(0, size_y - 2, size_x);
+	cclearxy(0, 0, size_x);
 
-	cputsxy(0, size_y - 2, message);
+	cputsxy(0, 0, message);
 	
 	revers(FALSE);
 
@@ -187,12 +188,13 @@ void writePanel(
 	}
 	else
 	{
-		strncpy(buffer, SPACES, w);
-		buffer[w] = '\0';
+		//strncpy(buffer, SPACES, w);
+		//buffer[w] = '\0';
 
 		for(i=0; i<h; ++i)
 		{
-			cputsxy(x, y+i,buffer);
+			//cputsxy(x, y+i,buffer);
+			cclearxy(x,y+i,w);
 		}
 	}
 

@@ -38,10 +38,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _SCREEN_H
 #define _SCREEN_H
 
-#ifdef __C64__
-unsigned char SCREEN_BUFFER[1000];
-unsigned char COLOR_BUFFER[1000];
-#endif
+
 
 enum results { OK_RESULT, CANCEL_RESULT, YES_RESULT, NO_RESULT };
 enum buttons { OK = 1, CANCEL = 2, YES = 4, NO = 8 };

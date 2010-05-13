@@ -53,161 +53,159 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "menus.h"
 #include "screen.h"
 
-unsigned isInitialized = FALSE;
-
 unsigned char *quit_message[1] =
 {
 	"Quit CBM-Command?"
 };
 	
 
-#ifdef __C128__
-char* FILE_MENU_LABELS[9];
-unsigned char FILE_MENU_KEYS[9];
-#else
-char* FILE_MENU_LABELS[8];
-unsigned char FILE_MENU_KEYS[8];
-#endif
-
-void __fastcall__ initFileMenu(void)
-{
-	if(!isInitialized)
-	{
-		FILE_MENU_LABELS[0] = FILE_MENU_ABOUT;
-		FILE_MENU_LABELS[1] = FILE_MENU_HELP;
-		FILE_MENU_LABELS[2] = FILE_MENU_COPY;
-		FILE_MENU_LABELS[3] = FILE_MENU_RENAME;
-		FILE_MENU_LABELS[4] = FILE_MENU_MAKE_DIR;
-		FILE_MENU_LABELS[5] = FILE_MENU_DELETE;
-		FILE_MENU_LABELS[6] = FILE_MENU_SEND_COMMAND;
-		FILE_MENU_LABELS[7] = FILE_MENU_QUIT;
-
-#ifdef __C128__
-		FILE_MENU_LABELS[8] = FILE_MENU_GO64;
-#endif
-
-		FILE_MENU_KEYS[0] = FILE_MENU_ABOUT_KEY;
-		FILE_MENU_KEYS[1] = FILE_MENU_HELP_KEY;
-		FILE_MENU_KEYS[2] = FILE_MENU_COPY_KEY;
-		FILE_MENU_KEYS[3] = FILE_MENU_RENAME_KEY;
-		FILE_MENU_KEYS[4] = FILE_MENU_MAKE_DIR_KEY;
-		FILE_MENU_KEYS[5] = FILE_MENU_DELETE_KEY;
-		FILE_MENU_KEYS[6] = FILE_MENU_SEND_COMMAND_KEY;
-		FILE_MENU_KEYS[7] = FILE_MENU_QUIT_KEY;
-
-#ifdef __C128__
-		FILE_MENU_KEYS[8] = FILE_MENU_GO64_KEY;
-#endif
-
-		isInitialized = TRUE;
-	}
-}
-
-void __fastcall__ handleFileMenu(void)
-{
-	unsigned char key;
-	unsigned handleKeys = TRUE;
-
-	while(handleKeys)
-	{
-		key = cgetc();
-		handleKeys = FALSE;
-		switch((int)key)
-		{
-#ifdef __C128__
-		case CH_ESC:
-#endif
-		case CH_STOP:
-			retrieveScreen();
-			writeStatusBar("Escaping menu...");
-			return;
-			break;
-
-		case CH_CURS_UP:
-			if(currentMenuLine == 0) currentMenuLine = FILE_MENU_COUNT - 1;
-			else currentMenuLine--;
-			retrieveScreen();
-			drawFileMenu(currentMenuX);
-			handleKeys = TRUE;
-			break;
-
-		case CH_CURS_DOWN:
-			if(currentMenuLine == FILE_MENU_COUNT - 1) currentMenuLine = 0;
-			else currentMenuLine++;
-			retrieveScreen();
-			drawFileMenu(currentMenuX);
-			handleKeys = TRUE;
-			break;
-
-		case CH_CURS_LEFT:
-			retrieveScreen();
-			writeMenu(left);
-			return;
-
-		case CH_CURS_RIGHT:
-			retrieveScreen();
-			writeMenu(options);
-			return;
-
-		case CH_ENTER:
-			key = FILE_MENU_KEYS[currentMenuLine];
-
-		default:
-			if(key == FILE_MENU_ABOUT_KEY)
-			{
-				retrieveScreen();
-				writeAboutBox();
-			}
-			else if(key == FILE_MENU_HELP_KEY)
-			{
-				retrieveScreen();
-				writeHelpPanel();
-			}
-			else if(key == FILE_MENU_COPY_KEY)
-			{
-				retrieveScreen();
-				copyFiles();
-			}
-			else if(key == FILE_MENU_RENAME_KEY)
-			{
-				retrieveScreen();
-				renameFile();
-			}
-			else if(key == FILE_MENU_MAKE_DIR_KEY)
-			{
-				retrieveScreen();
-				makeDirectory();
-			}
-			else if(key == FILE_MENU_DELETE_KEY)
-			{
-				retrieveScreen();
-				deleteFiles();
-			}
-			else if(key == FILE_MENU_SEND_COMMAND_KEY)
-			{
-				retrieveScreen();
-				inputCommand();
-			}
-			else if(key == FILE_MENU_QUIT_KEY)
-			{
-				retrieveScreen();
-				quit();
-			}
-#ifdef __C128__
-			else if(key == FILE_MENU_GO64_KEY)
-			{
-				retrieveScreen();
-				go64();
-			}
-#endif
-			else
-			{
-				handleKeys = TRUE;
-			}
-			break;
-		}
-	}
-}
+//#ifdef __C128__
+//char* FILE_MENU_LABELS[9];
+//unsigned char FILE_MENU_KEYS[9];
+//#else
+//char* FILE_MENU_LABELS[8];
+//unsigned char FILE_MENU_KEYS[8];
+//#endif
+//
+//void __fastcall__ initFileMenu(void)
+//{
+//	if(!isInitialized)
+//	{
+//		FILE_MENU_LABELS[0] = FILE_MENU_ABOUT;
+//		FILE_MENU_LABELS[1] = FILE_MENU_HELP;
+//		FILE_MENU_LABELS[2] = FILE_MENU_COPY;
+//		FILE_MENU_LABELS[3] = FILE_MENU_RENAME;
+//		FILE_MENU_LABELS[4] = FILE_MENU_MAKE_DIR;
+//		FILE_MENU_LABELS[5] = FILE_MENU_DELETE;
+//		FILE_MENU_LABELS[6] = FILE_MENU_SEND_COMMAND;
+//		FILE_MENU_LABELS[7] = FILE_MENU_QUIT;
+//
+//#ifdef __C128__
+//		FILE_MENU_LABELS[8] = FILE_MENU_GO64;
+//#endif
+//
+//		FILE_MENU_KEYS[0] = FILE_MENU_ABOUT_KEY;
+//		FILE_MENU_KEYS[1] = FILE_MENU_HELP_KEY;
+//		FILE_MENU_KEYS[2] = FILE_MENU_COPY_KEY;
+//		FILE_MENU_KEYS[3] = FILE_MENU_RENAME_KEY;
+//		FILE_MENU_KEYS[4] = FILE_MENU_MAKE_DIR_KEY;
+//		FILE_MENU_KEYS[5] = FILE_MENU_DELETE_KEY;
+//		FILE_MENU_KEYS[6] = FILE_MENU_SEND_COMMAND_KEY;
+//		FILE_MENU_KEYS[7] = FILE_MENU_QUIT_KEY;
+//
+//#ifdef __C128__
+//		FILE_MENU_KEYS[8] = FILE_MENU_GO64_KEY;
+//#endif
+//
+//		isInitialized = TRUE;
+//	}
+//}
+//
+//void __fastcall__ handleFileMenu(void)
+//{
+//	unsigned char key;
+//	unsigned handleKeys = TRUE;
+//
+//	while(handleKeys)
+//	{
+//		key = cgetc();
+//		handleKeys = FALSE;
+//		switch((int)key)
+//		{
+//#ifdef __C128__
+//		case CH_ESC:
+//#endif
+//		case CH_STOP:
+//			retrieveScreen();
+//			writeStatusBar("Escaping menu...");
+//			return;
+//			break;
+//
+//		case CH_CURS_UP:
+//			if(currentMenuLine == 0) currentMenuLine = FILE_MENU_COUNT - 1;
+//			else currentMenuLine--;
+//			retrieveScreen();
+//			drawFileMenu(currentMenuX);
+//			handleKeys = TRUE;
+//			break;
+//
+//		case CH_CURS_DOWN:
+//			if(currentMenuLine == FILE_MENU_COUNT - 1) currentMenuLine = 0;
+//			else currentMenuLine++;
+//			retrieveScreen();
+//			drawFileMenu(currentMenuX);
+//			handleKeys = TRUE;
+//			break;
+//
+//		case CH_CURS_LEFT:
+//			retrieveScreen();
+//			writeMenu(left);
+//			return;
+//
+//		case CH_CURS_RIGHT:
+//			retrieveScreen();
+//			writeMenu(options);
+//			return;
+//
+//		case CH_ENTER:
+//			key = FILE_MENU_KEYS[currentMenuLine];
+//
+//		default:
+//			if(key == FILE_MENU_ABOUT_KEY)
+//			{
+//				retrieveScreen();
+//				writeAboutBox();
+//			}
+//			else if(key == FILE_MENU_HELP_KEY)
+//			{
+//				retrieveScreen();
+//				writeHelpPanel();
+//			}
+//			else if(key == FILE_MENU_COPY_KEY)
+//			{
+//				retrieveScreen();
+//				copyFiles();
+//			}
+//			else if(key == FILE_MENU_RENAME_KEY)
+//			{
+//				retrieveScreen();
+//				renameFile();
+//			}
+//			else if(key == FILE_MENU_MAKE_DIR_KEY)
+//			{
+//				retrieveScreen();
+//				makeDirectory();
+//			}
+//			else if(key == FILE_MENU_DELETE_KEY)
+//			{
+//				retrieveScreen();
+//				deleteFiles();
+//			}
+//			else if(key == FILE_MENU_SEND_COMMAND_KEY)
+//			{
+//				retrieveScreen();
+//				inputCommand();
+//			}
+//			else if(key == FILE_MENU_QUIT_KEY)
+//			{
+//				retrieveScreen();
+//				quit();
+//			}
+//#ifdef __C128__
+//			else if(key == FILE_MENU_GO64_KEY)
+//			{
+//				retrieveScreen();
+//				go64();
+//			}
+//#endif
+//			else
+//			{
+//				handleKeys = TRUE;
+//			}
+//			break;
+//		}
+//	}
+//}
 
 void __fastcall__ writeHelpPanel(void)
 {
@@ -281,7 +279,7 @@ void __fastcall__ copyFiles(void)
 					{
 						sprintf(type, "%c", getFileType(currentNode->type));
 						strlower(type);
-						sprintf(targetFilename,"%s,%s,w",currentNode->name,type);
+						sprintf(targetFilename,"@0:%s,%s,w",currentNode->name,type);
 						cbm_open(14,td,15,"");
 						r = cbm_open(2, td, 3, targetFilename);
 						if(r == 0)

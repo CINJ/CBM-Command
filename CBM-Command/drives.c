@@ -284,7 +284,7 @@ int __fastcall__ getDirectory(
 	unsigned int counter=0, read=0;
 	//unsigned char *buffer;
 	//unsigned char* name;
-	unsigned char result, dr, nameLength, i;
+	unsigned char result, dr, i;
 	struct cbm_dirent currentDE;
 	
 

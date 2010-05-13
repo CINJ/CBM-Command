@@ -48,93 +48,92 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "menus.h"
 #include "screen.h"
 
-unsigned isInitialized = FALSE;
 
-char* COMMAND_MENU_LABELS[2];
-unsigned char COMMAND_MENU_KEYS[2];
-
-void __fastcall__ initCommandMenu(void)
-{
-	if(!isInitialized)
-	{
-		COMMAND_MENU_LABELS[0] = COMMAND_MENU_SWAP_PANELS;
-		COMMAND_MENU_LABELS[1] = COMMAND_MENU_PANELS_ON_OFF;
-
-		COMMAND_MENU_KEYS[0] = COMMAND_MENU_SWAP_PANELS_KEY;
-		COMMAND_MENU_KEYS[1] = COMMAND_MENU_PANELS_ON_OFF_KEY;
-
-		isInitialized = TRUE;
-	}
-}
-
-void __fastcall__ handleCommandMenu(void)
-{
-	unsigned char key;
-	unsigned handleKeys = TRUE;
-	
-	while(handleKeys)
-	{
-		key = cgetc();
-		handleKeys = FALSE;
-		switch((int)key)
-		{
-#ifdef __C128__
-		case CH_ESC:
-#endif
-		case CH_STOP:
-			retrieveScreen();
-			writeStatusBarf("Escaping menu...");
-			return;
-			break;
-
-		case CH_CURS_UP:
-			if(currentMenuLine == 0) currentMenuLine = COMMAND_MENU_COUNT - 1;
-			else currentMenuLine--;
-			retrieveScreen();
-			drawCommandMenu(currentMenuX);
-			handleKeys = TRUE;
-			break;
-
-		case CH_CURS_DOWN:
-			if(currentMenuLine == COMMAND_MENU_COUNT - 1) currentMenuLine = 0;
-			else currentMenuLine++;
-			retrieveScreen();
-			drawCommandMenu(currentMenuX);
-			handleKeys = TRUE;
-			break;
-
-		case CH_CURS_LEFT:
-			retrieveScreen();
-			writeMenu(options);
-			return;
-			break;
-
-		case CH_CURS_RIGHT:
-			retrieveScreen();
-			writeMenu(right);
-			return;
-			break;
-
-		case CH_ENTER:
-			key = COMMAND_MENU_KEYS[currentMenuLine];
-
-		default:
-			if(key == COMMAND_MENU_SWAP_PANELS_KEY)
-			{
-				swapPanels();
-			}
-			else if(key == COMMAND_MENU_PANELS_ON_OFF_KEY)
-			{
-				togglePanels();
-			}
-			else
-			{
-				handleKeys = TRUE;
-			}
-			break;
-		}
-	}
-}
+//char* COMMAND_MENU_LABELS[2];
+//unsigned char COMMAND_MENU_KEYS[2];
+//
+//void __fastcall__ initCommandMenu(void)
+//{
+//	if(!isInitialized)
+//	{
+//		COMMAND_MENU_LABELS[0] = COMMAND_MENU_SWAP_PANELS;
+//		COMMAND_MENU_LABELS[1] = COMMAND_MENU_PANELS_ON_OFF;
+//
+//		COMMAND_MENU_KEYS[0] = COMMAND_MENU_SWAP_PANELS_KEY;
+//		COMMAND_MENU_KEYS[1] = COMMAND_MENU_PANELS_ON_OFF_KEY;
+//
+//		isInitialized = TRUE;
+//	}
+//}
+//
+//void __fastcall__ handleCommandMenu(void)
+//{
+//	unsigned char key;
+//	unsigned handleKeys = TRUE;
+//	
+//	while(handleKeys)
+//	{
+//		key = cgetc();
+//		handleKeys = FALSE;
+//		switch((int)key)
+//		{
+//#ifdef __C128__
+//		case CH_ESC:
+//#endif
+//		case CH_STOP:
+//			retrieveScreen();
+//			writeStatusBarf("Escaping menu...");
+//			return;
+//			break;
+//
+//		case CH_CURS_UP:
+//			if(currentMenuLine == 0) currentMenuLine = COMMAND_MENU_COUNT - 1;
+//			else currentMenuLine--;
+//			retrieveScreen();
+//			drawCommandMenu(currentMenuX);
+//			handleKeys = TRUE;
+//			break;
+//
+//		case CH_CURS_DOWN:
+//			if(currentMenuLine == COMMAND_MENU_COUNT - 1) currentMenuLine = 0;
+//			else currentMenuLine++;
+//			retrieveScreen();
+//			drawCommandMenu(currentMenuX);
+//			handleKeys = TRUE;
+//			break;
+//
+//		case CH_CURS_LEFT:
+//			retrieveScreen();
+//			writeMenu(options);
+//			return;
+//			break;
+//
+//		case CH_CURS_RIGHT:
+//			retrieveScreen();
+//			writeMenu(right);
+//			return;
+//			break;
+//
+//		case CH_ENTER:
+//			key = COMMAND_MENU_KEYS[currentMenuLine];
+//
+//		default:
+//			if(key == COMMAND_MENU_SWAP_PANELS_KEY)
+//			{
+//				swapPanels();
+//			}
+//			else if(key == COMMAND_MENU_PANELS_ON_OFF_KEY)
+//			{
+//				togglePanels();
+//			}
+//			else
+//			{
+//				handleKeys = TRUE;
+//			}
+//			break;
+//		}
+//	}
+//}
 
 void __fastcall__ togglePanels(void)
 {

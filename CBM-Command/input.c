@@ -96,21 +96,21 @@ void __fastcall__ readKeyboard(void)
 	case KEY_SH_MINUS:
 		leaveDirectory(selectedPanel);
 		break;
-	case 188: // C= C - Command Menu
-		writeMenu(command);
-		break;
-	case 182: // C= L - Left Menu
-		writeMenu(left);
-		break;
-	case 178: // C= R - Right Menu
-		writeMenu(right);
-		break;
-	case 187: // C= F - File Menu
-		writeMenu(file);
-		break;
-	case 185: // C= O - Options Menu
-		writeMenu(options);
-		break;
+	//case 188: // C= C - Command Menu
+	//	writeMenu(command);
+	//	break;
+	//case 182: // C= L - Left Menu
+	//	writeMenu(left);
+	//	break;
+	//case 178: // C= R - Right Menu
+	//	writeMenu(right);
+	//	break;
+	//case 187: // C= F - File Menu
+	//	writeMenu(file);
+	//	break;
+	//case 185: // C= O - Options Menu
+	//	writeMenu(options);
+	//	break;
 	case HK_REREAD_LEFT:
 		rereadDrivePanel(left);
 		break;

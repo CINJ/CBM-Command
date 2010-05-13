@@ -300,10 +300,10 @@ void __fastcall__ save(void)
 	d = PEEK(0x00BA);
 	cbm_open(15,d,15,"");
 #ifdef __C64__
-	r = cbm_open(1,d,2,"cbmcmd-cfg.c64,s,w");
+	r = cbm_open(1,d,2,"@0:cbmcmd-cfg.c64,s,w");
 #endif
 #ifdef __C128__
-	r = cbm_open(1,d,2,"cbmcmd-cfg.c128,s,w");
+	r = cbm_open(1,d,2,"@0:cbmcmd-cfg.c128,s,w");
 #endif
 
 	if(r == 0)

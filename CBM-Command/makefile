@@ -9,6 +9,7 @@ X128 := c:\winvice\x128.exe -autostart
 T := c128
 
 CONFIG_SOURCES = \
+	ConfigurationManager.c \
 	Configuration.c \
 	globals.c \
 	screen.c \
@@ -18,6 +19,7 @@ SOURCES	= \
 	AssemblerMethods.c \
 	CBM-Command.c \
 	CommandMenu.c \
+	Configuration.c \
 	DriveMenu.c \
 	drives.c \
 	FileMenu.c \

@@ -43,8 +43,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <string.h>
 
+#include "Configuration.h"
 #include "constants.h"
 #include "drives.h"
+#include "globalInput.h"
 #include "globals.h"
 #include "input.h"
 #include "screen.h"
@@ -84,28 +86,28 @@ void __fastcall__ initializeDrives(void)
 	{
 		startupDevice = PEEK(0x00BA);
 
-		leftPanelDrive.drive = NULL;
+		leftPanelDrive.drive = &(drives[defaultLeftDrive - 8]);
 		leftPanelDrive.currentIndex = 0;
 		leftPanelDrive.displayStartAt = 0;
 		leftPanelDrive.position = left;
-		leftPanelDrive.header.name = NULL;
+//		leftPanelDrive.header.name = NULL;
 		
 		for(i=0; i<slidingWindowSize; ++i)
 		{
-			leftPanelDrive.slidingWindow[i].name = NULL;
+			//leftPanelDrive.slidingWindow[i].name = NULL;
 			leftPanelDrive.slidingWindow[i].size = 0u;
 			leftPanelDrive.slidingWindow[i].type = 0;
 		}
 
-		rightPanelDrive.drive = NULL;
+		rightPanelDrive.drive = &(drives[defaultRightDrive - 8]);
 		rightPanelDrive.currentIndex = 0;
 		rightPanelDrive.displayStartAt = 0;
 		rightPanelDrive.position = right;
-		rightPanelDrive.header.name = NULL;
+		//rightPanelDrive.header.name = NULL;
 		
 		for(i=0; i<slidingWindowSize; ++i)
 		{
-			rightPanelDrive.slidingWindow[i].name = NULL;
+			//rightPanelDrive.slidingWindow[i].name = NULL;
 			rightPanelDrive.slidingWindow[i].size = 0u;
 			rightPanelDrive.slidingWindow[i].type = 0;
 		}
@@ -121,6 +123,7 @@ int __fastcall__ getDriveStatus(
 	int result;
 	int size;
 	unsigned char dr;
+	//unsigned char temp[40];
 	dr = drive->drive;
 
 	if(dr < 8 || dr > 15)
@@ -168,7 +171,7 @@ void __fastcall__ listDrives(enum menus menu)
 
 	unsigned char x, y, i;
 	unsigned char status, current, original, key;
-	unsigned char message[10];
+	//unsigned char message[10];
 
 	x = getCenterX(w);
 	y = getCenterY(h);
@@ -194,8 +197,8 @@ void __fastcall__ listDrives(enum menus menu)
 		}
 
 		gotoxy(x + 2, i + 2 + y);
-		sprintf(message, "%d", i + 8);
-		cputs(message);
+		//sprintf(message, "%d", i + 8);
+		cprintf("%d", i + 8);
 
 		status = checkDrive(2, "UI", i + 8);
 
@@ -215,8 +218,8 @@ void __fastcall__ listDrives(enum menus menu)
 	}
 
 	textcolor(color_text_highlight);
-	gotoxy(x + 1, y + 11); 
-	cputs("Use arrow keys & enter to select drive");
+	cputsxy(x + 1, y + 11, 
+		"Use arrow keys & enter to select drive");
 	textcolor(color_selector);
 
 	gotoxy(x + 1, current + 2 + y); cputc('>');
@@ -279,11 +282,12 @@ int __fastcall__ getDirectory(
 {
 	
 	unsigned int counter=0, read=0;
-	unsigned char buffer[41];
-	unsigned char* name;
+	//unsigned char *buffer;
+	//unsigned char* name;
 	unsigned char result, dr, nameLength, i;
 	struct cbm_dirent currentDE;
 	
+
 	drive->length = 0;
 	drive->slidingWindowStartAt = slidingWindowStartAt;
 
@@ -291,7 +295,7 @@ int __fastcall__ getDirectory(
 
 	for(i=0; i<slidingWindowSize; ++i)
 	{
-		drive->slidingWindow[i].name = NULL;
+		//drive->slidingWindow[i].name = NULL;
 		drive->slidingWindow[i].size = 0u;
 		drive->slidingWindow[i].type = 0;
 	}
@@ -303,10 +307,12 @@ int __fastcall__ getDirectory(
 		counter = 0;
 		while(!cbm_readdir(dr, &currentDE))
 		{
+//writeStatusBar("D1"); waitForEnterEsc();
 			if(currentDE.type == 10 && counter==0)
 			{
-				nameLength = strlen(currentDE.name) + 1;
-				drive->header.name = calloc(nameLength, sizeof(unsigned char));
+//writeStatusBar("D2"); waitForEnterEsc();
+				//nameLength = strlen(currentDE.name) + 1;
+				//drive->header.name = calloc(nameLength, sizeof(unsigned char));
 				strcpy(drive->header.name, currentDE.name);
 				drive->header.size = currentDE.size;
 				drive->header.type = currentDE.type;
@@ -316,14 +322,19 @@ int __fastcall__ getDirectory(
 			else if(counter >= slidingWindowStartAt &&
 				read < slidingWindowSize)
 			{
+//writeStatusBar("D3"); waitForEnterEsc();
 				++read;
 				i = counter - 1;
 				if(i - slidingWindowStartAt >= 0 && 
 					i - slidingWindowStartAt < slidingWindowSize)
 				{
-					nameLength = strlen(currentDE.name) + 1;
-					drive->slidingWindow[i - slidingWindowStartAt].name = calloc(nameLength, sizeof(unsigned char));
+//writeStatusBar("D4"); waitForEnterEsc();
+					//nameLength = strlen(currentDE.name) + 1;
+//writeStatusBarf("D2a %s %d", currentDE.name, nameLength); waitForEnterEsc();
+					//drive->slidingWindow[i - slidingWindowStartAt].name = calloc(nameLength, sizeof(unsigned char));
+//writeStatusBarf("D2b %s", drive->slidingWindow[i - slidingWindowStartAt].name); waitForEnterEsc();
 					strcpy(drive->slidingWindow[i - slidingWindowStartAt].name, currentDE.name);
+//writeStatusBarf("D2c %s", drive->slidingWindow[i - slidingWindowStartAt].name); waitForEnterEsc();
 					drive->slidingWindow[i - slidingWindowStartAt].size = currentDE.size;
 					drive->slidingWindow[i - slidingWindowStartAt].type = currentDE.type;
 					drive->slidingWindow[i - slidingWindowStartAt].index = counter;
@@ -331,26 +342,31 @@ int __fastcall__ getDirectory(
 			}
 			++counter;
 		}
+//writeStatusBar("E"); waitForEnterEsc();
 		cbm_closedir(dr);
+
+//writeStatusBar("Closed directory."); waitForEnterEsc();
+
 		drive->length = counter;
 		if(drive->currentIndex >= drive->length)
 		{
 			drive->currentIndex = drive->length - 1;
 		}
 
+		//buffer = calloc(35, sizeof(unsigned char));
+		
 		cbm_open(2,drive->drive->drive,0,"$:'y/%&");
 		cbm_read(2,buffer,34); // skip unwanted data
 		cbm_read(2,buffer,2);
 		drive->header.size = buffer[1]*256 + buffer[0];
-		//writeStatusBarf("%u: %s", counter, buffer); waitForEnterEsc();
-		//cbm_read(2,buffer,34); // Let's see what we got
-		//writeStatusBarf("2: %s", buffer); waitForEnterEsc();
-		cbm_close(2);
 
-		//writeStatusBar(buffer); waitForEnterEsc();
+		//free(buffer);
+
+		cbm_close(2);
 
 		writeStatusBarf("Finished reading %u files.", counter - 1);
 	}
+
 
 	return counter;
 }
@@ -437,18 +453,10 @@ void __fastcall__ displayDirectory(
 		}		
 
 		y = i - start + 2;
-		gotoxy(x + 2, y); cputc(fileType);
-		gotoxy(x + 4, y); cputs(size);
-		gotoxy(x + 8, y); cputs(shortenString(currentNode->name));
+		cputcxy(x + 2, y, fileType);
+		cputsxy(x + 4, y, size);
+		cputsxy(x + 8, y, shortenString(currentNode->name));
 		
-		//sprintf(drivesBuffer, "%c %s %s", 
-		//	fileType, 
-		//	size,
-		//	shortenString(currentNode->name)
-		//	);
-
-		//cputs(drivesBuffer);
-
 		revers(FALSE);
 		
 	}
@@ -470,7 +478,6 @@ void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
 void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
 {
 	struct dir_node *currentDirNode;
-	unsigned int i;
 
 	if(panel != NULL)
 	{
@@ -486,10 +493,10 @@ void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
 					currentDirNode->size,
 					currentDirNode->name);
 			}
-			else
-			{
-				writeStatusBarf("Current node is null.");
-			}
+			//else
+			//{
+			//	writeStatusBarf("Current node is null.");
+			//}
 		}
 	}
 }
@@ -556,17 +563,6 @@ unsigned char __fastcall__ getFileType(unsigned char type)
 {
 	if(type < 7) return "DSPURCD"[type];
 	return 'O';
-	//switch((int)type)
-	//{
-	//case 0: return 'D';
-	//case 1: return 'S';
-	//case 2: return 'P';
-	//case 3: return 'U';
-	//case 4: return 'R';
-	//case 5: return 'C';
-	//case 6: return 'D';
-	//default: return 'O';
-	//}
 }
 
 void __fastcall__ shortenSize(unsigned char* buffer, unsigned int value)
@@ -643,11 +639,6 @@ void __fastcall__ selectCurrentFile(void)
 				writeSelectorPosition(selectedPanel, '>');
 				displayDirectory(selectedPanel);
 			}
-			//else
-			//{
-			//	writeStatusBar("Current node is null.");
-			//	waitForEnterEsc();
-			//}
 		}
 	}
 }
@@ -666,8 +657,6 @@ void __fastcall__ enterDirectory(struct panel_drive *panel)
 		sendCommand(panel, command);
 		panel->currentIndex = 0;
 		panel->displayStartAt = 0;
-		/*getDirectory(panel, 0);
-		displayDirectory(panel);*/
 		rereadSelectedPanel();
 	}
 }
@@ -683,8 +672,6 @@ void __fastcall__ leaveDirectory(struct panel_drive *panel)
 	sendCommand(panel, buffer);
 	panel->currentIndex = 0;
 	panel->displayStartAt = 0;
-	/*getDirectory(panel, 0);
-	displayDirectory(panel);*/
 	rereadSelectedPanel();
 }
 
@@ -762,9 +749,6 @@ struct dir_node* __fastcall__ getSpecificNode(
 			}
 			else
 			{
-				//writeStatusBarf("idx: %u sWSA: %u (return)", index,
-				//	panel->slidingWindowStartAt);
-				//waitForEnterEsc();
 				return NULL;
 			}
 		}
@@ -779,7 +763,9 @@ unsigned char __fastcall__ sendCommand(
 {
 	char result;
 	unsigned char drive;
-	unsigned char buffer[40];
+	//unsigned char *buffer;
+
+	//buffer = calloc(40, sizeof(unsigned char));
 
 	drive = panel->drive->drive;
 
@@ -787,13 +773,12 @@ unsigned char __fastcall__ sendCommand(
 
 	result = cbm_write(drive, command, strlen(command));
 
-	if(result > 0)
-	{
-		cbm_read(drive, buffer, 39);
-		writeStatusBarf(buffer);
-	}
+	cbm_read(drive, buffer, 39);
+	writeStatusBarf(buffer);
 
 	cbm_close(drive);
-
+	
+	//free(buffer);
+	
 	return result;
 }

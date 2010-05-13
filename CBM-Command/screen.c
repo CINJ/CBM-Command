@@ -43,7 +43,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 
 #include "screen.h"
+#include "Configuration.h"
 #include "constants.h"
+#include "globalInput.h"
 #include "globals.h"
 #include "PlatformSpecific.h"
 #include "input.h"
@@ -71,7 +73,7 @@ void __fastcall__ saveScreen(void)
 	copyVdcScreen(0x00, 0x10);
 	return;
 #else
-	int vicRegister = 53272;
+	int vicRegister = 53272u;
 	int screenMemoryStart;
 	int colorMemoryStart = 0xD800;
 
@@ -88,7 +90,7 @@ void __fastcall__ retrieveScreen(void)
 	copyVdcScreen(0x10, 0x00);
 	return;
 #else
-	int vicRegister = 53272;
+	int vicRegister = 53272u;
 	int screenMemoryStart;
 	int colorMemoryStart = 0xD800;
 
@@ -110,11 +112,9 @@ void __fastcall__ writeStatusBar(
 	textcolor(color_text_status);
 	revers(TRUE);
 
-	gotoxy(0, size_y - 2);
-	cputs(blank_line);
+	cclearxy(0, size_y - 2, size_x);
 
-	gotoxy(0, size_y - 2);
-	cputs(message);
+	cputsxy(0, size_y - 2, message);
 	
 	revers(FALSE);
 
@@ -192,8 +192,7 @@ void writePanel(
 
 		for(i=0; i<h; ++i)
 		{
-			gotoxy(x, y+i);
-			cputs(buffer);
+			cputsxy(x, y+i,buffer);
 		}
 	}
 
@@ -206,8 +205,7 @@ void writePanel(
 		revers(reverse);
 #endif
 		sprintf(buffer, "[%s]", title);
-		gotoxy(x+1, y);
-		cputs(buffer);
+		cputsxy(x+1, y,buffer);
 	}
 
 	revers(FALSE);
@@ -223,8 +221,7 @@ void writePanel(
 #endif
 		sprintf(buffer, "[%s]", ok);
 		okLeft -= strlen(buffer);
-		gotoxy(okLeft, y + h - 1);
-		cputs(buffer);
+		cputsxy(okLeft, y + h - 1, buffer);
 	}
 
 	cancelLeft = okLeft - 2;
@@ -238,31 +235,33 @@ void writePanel(
 #endif
 		sprintf(buffer, "[%s]", cancel);
 		cancelLeft -= strlen(buffer);
-		gotoxy(cancelLeft, y + h - 1);
-		cputs(buffer);
+		cputsxy(cancelLeft, y + h - 1,buffer);
 	}
 }
 
 void __fastcall__ notImplemented(void)
 {
-	unsigned char h = 5, w = 23;
-	unsigned char x, y;
+	//unsigned char h = 5, w = 23;
+	//unsigned char x, y;
 
+	//saveScreen();
+
+	//x = getCenterX(w);
+	//y = getCenterY(h);
+
+	//writePanel(TRUE, TRUE, color_border, x, y, h, w,
+	//	"Sorry...", "OK", NULL);
+
+	//textcolor(color_text_other);
+	//revers(TRUE);
+	//cputsxy(x+2, y+2, "Not yet implemented.");
+
+	//waitForEnterEsc();
+
+	//retrieveScreen();
 	saveScreen();
-
-	x = getCenterX(w);
-	y = getCenterY(h);
-
-	writePanel(TRUE, TRUE, color_border, x, y, h, w,
-		"Sorry...", "OK", NULL);
-
-	textcolor(color_text_other);
-	revers(TRUE);
-	gotoxy(x+2, y+2);
-	cputs("Not yet implemented.");
-
+	writeStatusBar("Not implemented...");
 	waitForEnterEsc();
-
 	retrieveScreen();
 }
 
@@ -312,8 +311,7 @@ enum results __fastcall__ drawDialog(
 	for(i=0; i<lineCount; ++i)
 	{
 		textcolor(color_text_other);
-		gotoxy(x+2, i+2+y);
-		cputs(message[i]);
+		cputsxy(x+2, i+2+y,message[i]);
 	}	
 
 	while(TRUE)
@@ -377,8 +375,7 @@ enum results __fastcall__ drawInputDialog(
 	for(i=0; i<lineCount; ++i)
 	{
 		textcolor(color_text_other);
-		gotoxy(x+2, i+2+y);
-		cputs(message[i]);
+		cputsxy(x+2, i+2+y,message[i]);
 	}	
 	++i;
 	

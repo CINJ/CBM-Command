@@ -1,5 +1,6 @@
 #include <conio.h>
 
+#include "Configuration.h"
 #include "constants.h"
 #include "globals.h"
 #include "screen.h"

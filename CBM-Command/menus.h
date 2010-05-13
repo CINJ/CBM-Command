@@ -50,12 +50,11 @@ enum menus
 // Option Menu Externals
 extern char OPTION_MENU_OPTIONS[];
 extern const unsigned char OPTION_MENU_OPTIONS_KEY;
-extern char OPTION_MENU_SAVE[];
-extern const unsigned char OPTION_MENU_SAVE_KEY;
+
 extern const unsigned char OPTION_MENU_COUNT;
 extern const unsigned char OPTION_MENU_WIDTH;
-extern char* OPTION_MENU_LABELS[2];
-extern unsigned char OPTION_MENU_KEYS[2];
+extern char* OPTION_MENU_LABELS[1];
+extern unsigned char OPTION_MENU_KEYS[1];
 
 // File Menu Externals
 extern char FILE_MENU_ABOUT[];

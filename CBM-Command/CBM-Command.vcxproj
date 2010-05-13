@@ -163,6 +163,7 @@
     <ClCompile Include="AssemblerMethods.c" />
     <ClCompile Include="CBM-Command.c" />
     <ClCompile Include="CommandMenu.c" />
+    <ClCompile Include="Configuration.c" />
     <ClCompile Include="ConfigurationManager.c" />
     <ClCompile Include="DriveMenu.c" />
     <ClCompile Include="drives.c" />
@@ -177,9 +178,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssemblerMethods.h" />
+    <ClInclude Include="Configuration.h" />
     <ClInclude Include="ConfigurationManager.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="drives.h" />
+    <ClInclude Include="globalInput.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="menus.h" />

@@ -35,17 +35,9 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
-#ifndef _GLOBALS_H
-#define _GLOBALS_H
+#ifndef _GLOBALINPUT_H
+#define _GLOBALINPUT_H
 
-extern unsigned char size_x;
-extern unsigned char size_y;
-//extern unsigned char blank_line[81];
-extern unsigned arePanelsOn;
-extern unsigned char buffer[41];
+unsigned char __fastcall__ waitForEnterEsc(void);
 
-extern unsigned char startupDevice;
-
-
-void initialize(void);
 #endif

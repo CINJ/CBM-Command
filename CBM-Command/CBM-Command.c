@@ -41,6 +41,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <conio.h>
 #include <peekpoke.h>
 
+#include "Configuration.h"
 #include "constants.h"
 #include "drives.h"
 #include "AssemblerMethods.h"
@@ -65,9 +66,12 @@ int main(void)
 #endif
 
 	initialize();
+	load();
 	initializeDrives();
 	setupScreen();
 	writeMenuBar();
+
+	rereadSelectedPanel();
 
 	while(TRUE)
 	{

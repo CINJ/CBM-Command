@@ -52,7 +52,7 @@ struct drive_status
 
 struct dir_node
 {
-	unsigned char* name;
+	unsigned char name[17];
 	unsigned char type;
 	unsigned int size;
 	int index;

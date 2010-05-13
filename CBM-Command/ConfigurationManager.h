@@ -35,12 +35,22 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
-#ifndef _CONFIGURATION_H
-#define _CONFIGURATION_H
+#ifndef _CONFIGURATIONMANAGER_H
+#define _CONFIGURATIONMANAGER_H
+
+unsigned char *colors[];
 
 void __fastcall__ readKeyboard(void);
-unsigned char __fastcall__ waitForEnterEsc(void);
+
 void __fastcall__ quit(void);
 void __fastcall__ writeFunctionKeys(void);
 void __fastcall__ writeMenu(void);
+void __fastcall__ help(void);
+void __fastcall__ changeColor(unsigned char key);
+void __fastcall__ incrementColor(unsigned char *color);
+
+void __fastcall__ displayColor(
+	unsigned char x,
+	unsigned char y,
+	unsigned char color);
 #endif

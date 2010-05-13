@@ -57,5 +57,5 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 void __fastcall__ readKeyboard(void);
-unsigned char __fastcall__ waitForEnterEsc(void);
+
 #endif

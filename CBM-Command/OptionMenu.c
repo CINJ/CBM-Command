@@ -48,18 +48,18 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 unsigned isInitialized = FALSE;
 
-char* OPTION_MENU_LABELS[2];
-unsigned char OPTION_MENU_KEYS[2];
+char* OPTION_MENU_LABELS[1];
+unsigned char OPTION_MENU_KEYS[1];
 
 void __fastcall__ initOptionMenu(void)
 {
 	if(!isInitialized)
 	{
 		OPTION_MENU_LABELS[0] = OPTION_MENU_OPTIONS;
-		OPTION_MENU_LABELS[1] = OPTION_MENU_SAVE;
+		//OPTION_MENU_LABELS[1] = OPTION_MENU_SAVE;
 
 		OPTION_MENU_KEYS[0] = OPTION_MENU_OPTIONS_KEY;
-		OPTION_MENU_KEYS[1] = OPTION_MENU_SAVE_KEY;
+		//OPTION_MENU_KEYS[1] = OPTION_MENU_SAVE_KEY;
 
 		isInitialized = TRUE;
 	}
@@ -121,10 +121,10 @@ void __fastcall__ handleOptionMenu(void)
 			{
 				writeOptionsPanel();
 			}
-			else if(key == OPTION_MENU_SAVE_KEY)
-			{
-				saveOptions();
-			}
+			//else if(key == OPTION_MENU_SAVE_KEY)
+			//{
+			//	saveOptions();
+			//}
 			else
 			{
 				handleKeys = TRUE;
@@ -133,12 +133,12 @@ void __fastcall__ handleOptionMenu(void)
 		}
 	}
 }
-
-void __fastcall__ saveOptions(void)
-{
-	retrieveScreen();
-	notImplemented();
-}
+//
+//void __fastcall__ saveOptions(void)
+//{
+//	retrieveScreen();
+//	notImplemented();
+//}
 
 void __fastcall__ writeOptionsPanel(void)
 {

@@ -35,17 +35,23 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
-#ifndef _GLOBALS_H
-#define _GLOBALS_H
+#ifndef _CONFIGURATION_H
+#define _CONFIGURATION_H
 
-extern unsigned char size_x;
-extern unsigned char size_y;
-//extern unsigned char blank_line[81];
-extern unsigned arePanelsOn;
-extern unsigned char buffer[41];
+extern unsigned char defaultLeftDrive;
+extern unsigned char defaultRightDrive;
 
-extern unsigned char startupDevice;
+extern unsigned char color_background;
+extern unsigned char color_border;
+extern unsigned char color_selector;
+extern unsigned char color_text_borders;
+extern unsigned char color_text_menus;
+extern unsigned char color_text_files;
+extern unsigned char color_text_status;
+extern unsigned char color_text_other;
+extern unsigned char color_text_highlight;
 
+void __fastcall__ load(void);
+void __fastcall__ save(void);
 
-void initialize(void);
 #endif

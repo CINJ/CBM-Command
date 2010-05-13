@@ -40,6 +40,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <conio.h>
 #include <string.h>
 
+#include "Configuration.h"
 #include "constants.h"
 #include "globals.h"
 #include "input.h"
@@ -244,30 +245,24 @@ void writeMenuBar(void)
 	textcolor(color_text_menus);
 	revers(TRUE);
 
-	gotoxy(0, 0);
-	cputs(blank_line);
+	cclearxy(0, 0, size_x);
 
-	gotoxy(LEFT_MENU_X * size_x / 100, 0);
-	cputs(LEFT_MENU);
+	cputsxy(LEFT_MENU_X * size_x / 100, 0, LEFT_MENU);
 
-	gotoxy(FILE_MENU_X  *size_x / 100, 0);
-	cputs(FILE_MENU);
+	cputsxy(FILE_MENU_X  *size_x / 100, 0, FILE_MENU);
 
-	gotoxy(COMMAND_MENU_X * size_x / 100, 0);
-	cputs(COMMAND_MENU);
+	cputsxy(COMMAND_MENU_X * size_x / 100, 0, COMMAND_MENU);
 
-	gotoxy(OPTIONS_MENU_X * size_x / 100, 0);
-	cputs(OPTIONS_MENU);
+	cputsxy(OPTIONS_MENU_X * size_x / 100, 0, OPTIONS_MENU);
 
-	gotoxy(RIGHT_MENU_X  *size_x / 100, 0);
-	cputs(RIGHT_MENU);
+	cputsxy(RIGHT_MENU_X  *size_x / 100, 0, RIGHT_MENU);
 		
 	revers(FALSE);
 
 	bottom = size_y - 1;
 	cclearxy(0, bottom, size_x);
 #ifdef __C64__	
-	gotoxy(0, bottom); cputs(" HLP  QUIT  SEL  REF  CPY  REN  MDR  DEL");
+	cputsxy(0, bottom, " HLP  QUIT  SEL  REF  CPY  REN  MDR  DEL");
 
 	revers(TRUE);
 	gotoxy(0, bottom); cputc('1');
@@ -282,8 +277,7 @@ void writeMenuBar(void)
 	revers(FALSE);
 #endif
 #ifdef __C128__
-	gotoxy(0, bottom); 
-	cputs("  HELP     QUIT    SELECT   REFRESH   COPY    RENAME    MAKE DIRECTORY    DELETE");
+	cputsxy(0, bottom, "  HELP     QUIT    SELECT   REFRESH   COPY    RENAME    MAKE DIRECTORY    DELETE");
 
 	revers(TRUE);
 	gotoxy(0, bottom); cputc('F'); cputc('1');

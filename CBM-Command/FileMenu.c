@@ -46,6 +46,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include "constants.h"
+#include "globalInput.h"
 #include "globals.h"
 #include "drives.h"
 #include "input.h"
@@ -210,21 +211,21 @@ void __fastcall__ handleFileMenu(void)
 
 void __fastcall__ writeHelpPanel(void)
 {
-	//writeStatusBar("See http://cbmcommand.codeplex.com");
-	unsigned char* dialogMessage[] =
-	{
-		{ "Please visit" },
-		{ "http://cbmcommand.codeplex.com/" },
-		{ "    documentation" }
-	};
+	writeStatusBar("cbmcommand.codeplex.com/documentation");
+	//unsigned char* dialogMessage[] =
+	//{
+	//	{ "Please visit" },
+	//	{ "http://cbmcommand.codeplex.com/" },
+	//	{ "    documentation" }
+	//};
 
-	saveScreen();
+	//saveScreen();
 
-	drawDialog(
-		dialogMessage, 3, "Help",
-		OK);
+	//drawDialog(
+	//	dialogMessage, 3, "Help",
+	//	OK);
 
-	retrieveScreen();
+	//retrieveScreen();
 }
 
 unsigned char fileBuffer[COPY_BUFFER_SIZE];
@@ -291,7 +292,7 @@ void __fastcall__ copyFiles(void)
 								if(bytes == -1)
 								{
 									writeStatusBarf("Problem (%d) reading %s", 
-										_stroserror(_oserror), 
+										_oserror, 
 										currentNode->name); 
 									waitForEnterEsc();
 									cbm_read(15, status, 40);
@@ -324,8 +325,8 @@ void __fastcall__ copyFiles(void)
 								r = cbm_write(2, fileBuffer, bytes);
 								if(r == -1)
 								{
-									writeStatusBarf("Problem (%s) writing %s", 
-										_stroserror(_oserror), 
+									writeStatusBarf("Problem (%d) writing %s", 
+										_oserror, 
 										currentNode->name); 
 									waitForEnterEsc();
 									cbm_read(14, status, 40);

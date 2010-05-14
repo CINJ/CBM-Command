@@ -72,7 +72,7 @@ struct panel_drive
 };
 
 extern unsigned areDrivesInitialized;
-extern struct drive_status drives[8];
+extern struct drive_status drives[9];
 extern struct panel_drive leftPanelDrive;
 extern struct panel_drive rightPanelDrive;
 extern struct panel_drive *selectedPanel;

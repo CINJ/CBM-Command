@@ -57,6 +57,7 @@
     <None Include="res\common\driveRoutines.s">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="loadcbmcmd" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="makefile">

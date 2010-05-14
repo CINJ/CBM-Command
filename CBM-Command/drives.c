@@ -54,7 +54,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 unsigned char drivesBuffer[80];
 
-struct drive_status drives[8] =
+struct drive_status drives[9] =
 {
 	{ 8, "" },	// 0
 	{ 9, "" },	// 1
@@ -63,7 +63,8 @@ struct drive_status drives[8] =
 	{ 12, "" },	// 4
 	{ 13, "" },	// 5
 	{ 14, "" },	// 6
-	{ 15, "" }	// 7
+	{ 15, "" },	// 7
+	{ 16, "" }	// 8
 };
 
 unsigned areDrivesInitialized = FALSE;
@@ -166,7 +167,7 @@ int __fastcall__ getDriveStatus(
 void __fastcall__ listDrives(enum menus menu)
 {
 	unsigned selected = FALSE;
-	const unsigned char h = 13;
+	const unsigned char h = 14;
 	const unsigned char w = 39;
 
 	unsigned char x, y, i;
@@ -185,7 +186,7 @@ void __fastcall__ listDrives(enum menus menu)
 
 	current = 0;
 
-	for(i=0; i<8; ++i)
+	for(i=0; i<9; ++i)
 	{
 		if( 
 			(currentLeft > 0 && drives[i].drive == currentLeft && menu == left) ||
@@ -218,7 +219,7 @@ void __fastcall__ listDrives(enum menus menu)
 	}
 
 	textcolor(color_text_highlight);
-	cputsxy(x + 1, y + 11, 
+	cputsxy(x + 1, y + 12, 
 		"Use arrow keys & enter to select drive");
 	textcolor(color_selector);
 

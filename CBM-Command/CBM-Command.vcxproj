@@ -146,6 +146,7 @@
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="loadcbmcmd" />
     <None Include="res\common\CommandMenu.s" />
     <None Include="res\c128\PlatformSpecific.s" />
     <None Include="res\c64\FileMenu.s" />

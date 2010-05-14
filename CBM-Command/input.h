@@ -45,7 +45,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_DRIVE_RIGHT		0xAC	// C=-D
 #define HK_SWAP_PANELS		0x17	// CTRL-W
 #define HK_TOGGLE_PANELS	0x14	// CTRL-T
-#define HK_ABOUT			0x01	// CTRL-A
+#define HK_SELECT_ALL		0x01	// CTRL-A
+#define HK_DESELECT_ALL		0x13	// CTRL-S
 #define HK_HELP_128			0x84	// HELP
 #define HK_QUIT				0x15	// CTRL-U
 #define HK_GO64				0x07	// CTRL-G
@@ -54,7 +55,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_RENAME			0x12	// CTRL-R
 #define HK_DELETE			0x1E	// CTRL-^
 #define HK_MAKE_DIRECTORY	0x0B	// CTRL-K
-
+#define HK_TO_TOP			0x5E	// ^
+#define HK_TO_BOTTOM		0xDE	// SHIFT-^
 
 void __fastcall__ readKeyboard(void);
 

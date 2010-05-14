@@ -783,3 +783,46 @@ unsigned char __fastcall__ sendCommand(
 	
 	return result;
 }
+
+void __fastcall__ selectAllFiles(struct panel_drive *panel, 
+	unsigned select)
+{
+	unsigned int i = 0;
+	if(panel != NULL)
+	{
+		for(;i< panel->length / 8 + 1; ++i)
+		{
+			panel->selectedEntries[i] = 
+				(select == TRUE ? 0xFF : 0x00);
+		}
+	}
+
+	displayDirectory(panel);
+	writeSelectorPosition(panel, '>');
+}
+
+void __fastcall__ moveTop(struct panel_drive *panel)
+{
+	if(panel != NULL)
+	{
+		panel->slidingWindowStartAt = 0;
+		panel->currentIndex = 0;
+		panel->displayStartAt = 0;
+
+		displayDirectory(panel);
+		writeSelectorPosition(panel, '>');
+	}
+}
+
+void __fastcall__ moveBottom(struct panel_drive *panel)
+{
+	if(panel != NULL)
+	{
+		panel->slidingWindowStartAt = panel->length - 30;
+		panel->currentIndex = panel->length - 2;
+		panel->displayStartAt = panel->length - 21;
+
+		displayDirectory(panel);
+		writeSelectorPosition(panel, '>');
+	}
+}

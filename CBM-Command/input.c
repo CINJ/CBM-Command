@@ -129,8 +129,11 @@ void __fastcall__ readKeyboard(void)
 	case HK_TOGGLE_PANELS:
 		togglePanels();
 		break;
-	case HK_ABOUT:
-		writeAboutBox();
+	case HK_SELECT_ALL:
+		selectAllFiles(selectedPanel, TRUE);
+		break;
+	case HK_DESELECT_ALL:
+		selectAllFiles(selectedPanel, FALSE);
 		break;
 	case HK_HELP_128:
 	case KEY_F1:
@@ -163,6 +166,12 @@ void __fastcall__ readKeyboard(void)
 	case HK_MAKE_DIRECTORY:
 	case KEY_F7:
 		makeDirectory();
+		break;
+	case HK_TO_TOP:
+		moveTop(selectedPanel);
+		break;
+	case HK_TO_BOTTOM:
+		moveBottom(selectedPanel);
 		break;
 	default:
 		writeStatusBarf("%c", key);

@@ -113,4 +113,8 @@ unsigned char __fastcall__ sendCommand(
 	struct panel_drive *panel,
 	unsigned char *command);
 void __fastcall__ resetSelectedFiles(struct panel_drive *panel);
+void __fastcall__ selectAllFiles(struct panel_drive *panel, 
+	unsigned select);
+void __fastcall__ moveTop(struct panel_drive *panel);
+void __fastcall__ moveBottom(struct panel_drive *panel);
 #endif

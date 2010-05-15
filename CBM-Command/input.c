@@ -173,7 +173,14 @@ void __fastcall__ readKeyboard(void)
 	case HK_TO_BOTTOM:
 		moveBottom(selectedPanel);
 		break;
+	case HK_PAGE_UP:
+		movePageUp(selectedPanel);
+		break;
+	case HK_PAGE_DOWN:
+		movePageDown(selectedPanel);
+		break;
 	default:
-		writeStatusBarf("%c", key);
+		//writeStatusBarf("%c", key);
+		break;
 	}
 }

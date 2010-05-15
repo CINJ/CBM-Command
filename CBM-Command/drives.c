@@ -799,6 +799,7 @@ void __fastcall__ selectAllFiles(struct panel_drive *panel,
 
 	displayDirectory(panel);
 	writeSelectorPosition(panel, '>');
+	writeCurrentFilename(panel);
 }
 
 void __fastcall__ moveTop(struct panel_drive *panel)
@@ -809,8 +810,56 @@ void __fastcall__ moveTop(struct panel_drive *panel)
 		panel->currentIndex = 0;
 		panel->displayStartAt = 0;
 
+		getDirectory(panel, panel->slidingWindowStartAt);
 		displayDirectory(panel);
 		writeSelectorPosition(panel, '>');
+		writeCurrentFilename(panel);
+	}
+}
+
+void __fastcall__ movePageUp(struct panel_drive *panel)
+{
+	if(panel != NULL)
+	{
+		if(panel->currentIndex < 20) 
+		{
+			moveTop(panel);
+			return;
+		}
+		else
+		{
+			panel->currentIndex -= 19;
+			panel->displayStartAt = panel->currentIndex;
+			panel->slidingWindowStartAt = panel->currentIndex;
+
+			getDirectory(panel, panel->slidingWindowStartAt);
+			displayDirectory(panel);
+			writeSelectorPosition(panel, '>');
+			writeCurrentFilename(panel);
+		}
+	}
+}
+
+void __fastcall__ movePageDown(struct panel_drive *panel)
+{
+	if(panel != NULL)
+	{
+		panel->currentIndex += 19;
+		if(panel->currentIndex > panel->length - 2) 
+		{
+			moveBottom(panel);
+			return;
+		}
+		else
+		{
+			panel->displayStartAt = panel->currentIndex - 19;
+			panel->slidingWindowStartAt = panel->currentIndex - 19;
+
+			getDirectory(panel, panel->slidingWindowStartAt);
+			displayDirectory(panel);
+			writeSelectorPosition(panel, '>');
+			writeCurrentFilename(panel);
+		}
 	}
 }
 
@@ -818,11 +867,29 @@ void __fastcall__ moveBottom(struct panel_drive *panel)
 {
 	if(panel != NULL)
 	{
-		panel->slidingWindowStartAt = panel->length - 30;
 		panel->currentIndex = panel->length - 2;
-		panel->displayStartAt = panel->length - 21;
 
+		if(panel->length > 30)
+		{
+			panel->slidingWindowStartAt = panel->length - 30;
+		}
+		else
+		{
+			panel->slidingWindowStartAt = 0;
+		}
+
+		if(panel->length > 21)
+		{
+			panel->displayStartAt = panel->length - 21;
+		}
+		else
+		{
+			panel->displayStartAt = 0;
+		}
+
+		getDirectory(panel, panel->slidingWindowStartAt);
 		displayDirectory(panel);
 		writeSelectorPosition(panel, '>');
+		writeCurrentFilename(panel);
 	}
 }

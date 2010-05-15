@@ -57,6 +57,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_MAKE_DIRECTORY	0x0B	// CTRL-K
 #define HK_TO_TOP			0x5E	// ^
 #define HK_TO_BOTTOM		0xDE	// SHIFT-^
+#define HK_PAGE_UP			43
+#define HK_PAGE_DOWN		45
 
 void __fastcall__ readKeyboard(void);
 

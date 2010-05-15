@@ -58,10 +58,12 @@ void __fastcall__ readKeyboard(void)
 	case KEY_F4:
 		rereadSelectedPanel();
 		break;
-	case CH_ENTER:
+	case KEY_SH_RETURN:
 		executeSelectedFile();
-	case KEY_SH_SPACE: case KEY_SH_RETURN:
+		break;
+	//case KEY_SH_SPACE: case KEY_SH_RETURN:
 	case KEY_F3:
+	case HK_SELECT:
 		selectCurrentFile();
 		break;
 	case CH_CURS_UP:

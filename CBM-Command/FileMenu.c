@@ -611,7 +611,7 @@ void __fastcall__ executeSelectedFile(void)
 	{
 		currentNode = getSelectedNode(selectedPanel);
 
-		if(currentNode != NULL)
+		if(currentNode != NULL && currentNode->type == 2)
 		{
 			saveScreen();
 
@@ -621,29 +621,22 @@ void __fastcall__ executeSelectedFile(void)
 	
 			if(result == TRUE)
 			{
-				if(currentNode->type == 2)
-				{
-					clrscr();
+				clrscr();
 #ifdef __C64__
-					POKE(631,'r');
-					POKE(632,'U');
-					POKE(633,13);
-					POKE(198,3);
+				POKE(631,'r');
+				POKE(632,'U');
+				POKE(633,13);
+				POKE(198,3);
 #endif
 #ifdef __C128__
-					POKE(0x034A,'r');
-					POKE(0x034B,'U');
-					POKE(0x034C,13);
-					POKE(0x00D0,3);
+				POKE(0x034A,'r');
+				POKE(0x034B,'U');
+				POKE(0x034C,13);
+				POKE(0x00D0,3);
 #endif
-					writeStatusBarf("Loading %s", currentNode->name);
-					cbm_load(currentNode->name, selectedPanel->drive->drive, NULL);
-					exit(EXIT_SUCCESS);
-				}
-				else
-				{
-					writeStatusBar("Can only execute PRG files.");
-				}
+				writeStatusBarf("Loading %s", currentNode->name);
+				cbm_load(currentNode->name, selectedPanel->drive->drive, NULL);
+				exit(EXIT_SUCCESS);
 			}
 		}
 	}

@@ -59,6 +59,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_TO_BOTTOM		0xDE	// SHIFT-^
 #define HK_PAGE_UP			43
 #define HK_PAGE_DOWN		45
+#define HK_SELECT			32
 
 void __fastcall__ readKeyboard(void);
 

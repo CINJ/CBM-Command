@@ -167,11 +167,11 @@ int __fastcall__ getDriveStatus(
 void __fastcall__ listDrives(enum menus menu)
 {
 	unsigned selected = FALSE;
-	const unsigned char h = 14;
-	const unsigned char w = 39;
+	const unsigned char h = 14, w = 39;
+	unsigned char original=0;
 
 	unsigned char x, y, i;
-	unsigned char status, current, original, key;
+	unsigned char status, current, key;
 	//unsigned char message[10];
 
 	x = getCenterX(w);
@@ -198,7 +198,6 @@ void __fastcall__ listDrives(enum menus menu)
 		}
 
 		gotoxy(x + 2, i + 2 + y);
-		//sprintf(message, "%d", i + 8);
 		cprintf("%d", i + 8);
 
 		status = checkDrive(2, "UI", i + 8);
@@ -268,15 +267,11 @@ void __fastcall__ listDrives(enum menus menu)
 	{
 		leftPanelDrive.drive = &(drives[current]);
 		currentLeft = leftPanelDrive.drive->drive;
-
-		writeStatusBarf("Left is now drive %d", currentLeft);
 	}
 	else
 	{
 		rightPanelDrive.drive = &(drives[current]);
 		currentRight = rightPanelDrive.drive->drive;
-
-		writeStatusBarf("Right is now drive %d", currentRight);
 	}
 }
 
@@ -286,8 +281,6 @@ int __fastcall__ getDirectory(
 {
 	
 	unsigned int counter=0, read=0;
-	//unsigned char *buffer;
-	//unsigned char* name;
 	unsigned char result, dr, i;
 	struct cbm_dirent currentDE;
 	

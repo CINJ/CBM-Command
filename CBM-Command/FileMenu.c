@@ -45,6 +45,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <c128.h>
 #endif
 
+#include "Configuration.h"
 #include "constants.h"
 #include "globalInput.h"
 #include "globals.h"
@@ -247,6 +248,15 @@ void __fastcall__ copyFiles(void)
 
 	sd = selectedPanel->drive->drive;
 	td = targetPanel->drive->drive;
+
+	if(sd == td)
+	{
+		saveScreen();
+		writeStatusBar("Cannot copy to the same drive.");
+		waitForEnterEsc();
+		retrieveScreen();
+		return;
+	}
 
 	for(i=0; i<selectedPanel->length / 8 + 1; ++i)
 	{
@@ -681,6 +691,159 @@ void __fastcall__ inputCommand(void)
 				waitForEnterEsc();
 
 				rereadSelectedPanel();				
+			}
+		}
+	}
+}
+
+unsigned char temp[256];
+void __fastcall__ writeD64(void)
+{
+	unsigned confirmed = FALSE;
+	unsigned char *message[] =
+	{
+		{ "Is a formatted, blank disk" },
+		{ "in the target drive?" }
+	};
+	unsigned char sd, td,  i, j, t;
+	int r,p;
+	struct dir_node *currentNode;
+	unsigned char l[] =
+	{	21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+		19,19,19,19,19,19,19,
+		18,18,18,18,18,18,
+		17,17,17,17,17
+	};
+
+	if(selectedPanel != NULL && selectedPanel->drive != NULL)
+	{
+		if(selectedPanel == &leftPanelDrive)
+		{
+			targetPanel = &rightPanelDrive;
+		}
+		else
+		{
+			targetPanel = &leftPanelDrive;
+		}
+
+		if(targetPanel->drive != NULL &&
+			targetPanel->drive->drive != 
+				selectedPanel->drive->drive)
+		{
+			currentNode = getSelectedNode(selectedPanel);
+
+			if(currentNode->size != 689)
+			{
+				saveScreen();
+				writeStatusBarf("%s is not a valid D64.",
+					currentNode->name);
+				waitForEnterEsc();
+				retrieveScreen();
+				return;
+			}
+
+			saveScreen();
+			confirmed = writeYesNo("Write D64", message, 2);
+			retrieveScreen();
+
+			if(confirmed == TRUE)
+			{
+				
+
+				sd = selectedPanel->drive->drive;
+				td = targetPanel->drive->drive;
+
+				cbm_open(15, sd, 15, "");
+				r = cbm_open(2, sd, 2, currentNode->name);
+				if(r == 0)
+				{
+					/*
+
+					100 OPEN 1,8,15
+					110 OPEN 2,8,2, "#"
+					120 PRINT#2, "TEST DATA"
+					130 PRINT#1, "U2 2 0 10"
+					140 CLOSE 2 : CLOSE 1
+
+					*/
+					cbm_open(14, td, 15, "");
+					cbm_write(14,"n0:temp,00",10);
+					writeStatusBar("Formatting disk...");
+					cbm_open(3,td,3,"#");
+					writeStatusBarf("Writing %s", currentNode->name);
+					writePanel(TRUE, FALSE, color_text_borders,
+						0, 1, 20, size_x - 1 
+						,
+						"Writing D64........", NULL, NULL);
+					for(i=0;i<35;++i)
+					{
+						for(j=0;j<l[i];++j)
+						{
+							if(kbhit())
+							{
+								t = cgetc();
+								if(t == CH_STOP || t == CH_ESC)
+								{
+									i=41;
+									break;
+								}
+							}
+							gotoxy(2,1); cprintf("Writing %2d,%2d", i+1, j);// waitForEnterEsc();
+
+							r = cbm_read(2,fileBuffer,256);
+
+							memcpy(temp, (fileBuffer + 1), r-1);
+							temp[r-1] = fileBuffer[0];
+
+							//textcolor(color_text_other);
+							//for(p=0; p<r; ++p)
+							//{
+							//	/*if(p == 0) temp[r - 1] = fileBuffer[0];
+							//	else temp[p-1] = fileBuffer[p];*/
+
+							//	gotoxy(p%16*3+2, p/16+3); 
+							//	cprintf("%2X ", fileBuffer[p]);
+							//}
+
+							//textcolor(color_text_menus);
+							//for(p=0; p<r; ++p)
+							//{
+							//	gotoxy(p%16*3+2, p/16+3); 
+							//	cprintf("%2X ", temp[p]);
+							//}
+
+							cbm_write(3,temp,256);
+
+							sprintf(buffer, "u2 3 0 %d %d", i+1, j);
+							cbm_write(14,buffer,strlen(buffer));
+//waitForEnterEsc();
+
+							sprintf(buffer, "u1 3 0 %d %d", i+1, j);
+							cbm_write(14,buffer,strlen(buffer));
+							cbm_read(3,fileBuffer,256);
+
+							//textcolor(color_text_highlight);
+							//for(p=0; p<256; ++p)
+							//{
+
+							//	gotoxy(p%16*3+2, p/16+3); 
+							//	cprintf("%2X ", fileBuffer[p]);
+							//}
+//waitForEnterEsc();
+						}
+					}
+					cbm_close(2);
+					cbm_close(3);
+					cbm_close(14);
+					cbm_close(15);
+					reloadPanels();
+					writeStatusBarf("Done writing %s.", currentNode->name); //waitForEnterEsc();
+				}
+				else
+				{
+					cbm_read(15, buffer, 40);
+					writeStatusBar(buffer); waitForEnterEsc();
+				}
 			}
 		}
 	}

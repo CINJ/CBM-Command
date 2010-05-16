@@ -46,7 +46,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "screen.h"
 
 unsigned char defaultLeftDrive = 8;
-unsigned char defaultRightDrive = 9;
+unsigned char defaultRightDrive = 8;
 
 #ifdef __C128__
 unsigned char color_background	= COLOR_BLACK;

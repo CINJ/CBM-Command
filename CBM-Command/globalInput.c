@@ -11,7 +11,7 @@ unsigned char __fastcall__ waitForEnterEsc(void)
 
 	revers(TRUE); 
 	textcolor(color_text_other); 
-	cputsxy(size_x - 5, size_y - 2, "(RET)"); 
+	cputsxy(size_x - 5, 0, "(RET)"); 
 	revers(FALSE);
 
 	while(key != CH_ESC

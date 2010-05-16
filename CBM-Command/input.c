@@ -181,6 +181,8 @@ void __fastcall__ readKeyboard(void)
 	case HK_PAGE_DOWN:
 		movePageDown(selectedPanel);
 		break;
+	case KEY_SH_SPACE:
+		writeD64();
 	default:
 		//writeStatusBarf("%c", key);
 		break;

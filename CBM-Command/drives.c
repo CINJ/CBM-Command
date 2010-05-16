@@ -238,7 +238,10 @@ void __fastcall__ listDrives(enum menus menu)
 			break;
 
 		case CH_ENTER:
-			selected = TRUE;
+			if(strlen(drives[current].message) != 0)
+			{
+				selected = TRUE;
+			}
 			break;
 
 		case CH_CURS_UP:

@@ -138,6 +138,7 @@ void __fastcall__ copyFiles(void);
 void __fastcall__ renameFile(void);
 void __fastcall__ makeDirectory(void);
 void __fastcall__ deleteFiles(void);
+void __fastcall__ writeD64(void);
 void __fastcall__ quit(void);
 #ifdef __C128__
 void __fastcall__ go64(void);

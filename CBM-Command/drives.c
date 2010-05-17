@@ -633,8 +633,9 @@ void __fastcall__ selectCurrentFile(void)
 					selectedPanel->selectedEntries[index] |= bit;
 				}
 
-				writeSelectorPosition(selectedPanel, '>');
+//				writeSelectorPosition(selectedPanel, '>');
 				displayDirectory(selectedPanel);
+				moveSelectorDown(selectedPanel);
 			}
 		}
 	}

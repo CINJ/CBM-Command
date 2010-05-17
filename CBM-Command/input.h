@@ -60,6 +60,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_PAGE_UP			43
 #define HK_PAGE_DOWN		45
 #define HK_SELECT			32
+#define HK_CREATE_D64		0x18	// CTRL-X
 
 void __fastcall__ readKeyboard(void);
 

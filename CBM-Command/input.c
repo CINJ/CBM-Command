@@ -183,6 +183,8 @@ void __fastcall__ readKeyboard(void)
 		break;
 	case KEY_SH_SPACE:
 		writeD64();
+	case HK_CREATE_D64:
+		createD64();
 	default:
 		//writeStatusBarf("%c", key);
 		break;

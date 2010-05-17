@@ -697,8 +697,174 @@ void __fastcall__ inputCommand(void)
 }
 
 unsigned char temp[256];
+unsigned char l[] =
+{	21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+	19,19,19,19,19,19,19,
+	18,18,18,18,18,18,
+	17,17,17,17,17
+};
+
+void __fastcall__ createD64(void)
+{
+	unsigned int r = 0, p = 0, pp = 0;
+	unsigned confirmed = FALSE;
+	unsigned char name[17];
+	unsigned char *message[] =
+	{
+		{ "Enter a name for the" },
+		{ "new D64 file." }
+	};
+	unsigned char sd, td,  i, j, t;
+	struct dir_node *currentNode;
+	enum results result;
+
+	if(selectedPanel != NULL && selectedPanel->drive != NULL)
+	{
+		if(selectedPanel == &leftPanelDrive)
+		{
+			targetPanel = &rightPanelDrive;
+		}
+		else
+		{
+			targetPanel = &leftPanelDrive;
+		}
+
+		if(targetPanel->drive != NULL &&
+			targetPanel->drive->drive != 
+				selectedPanel->drive->drive)
+		{
+			currentNode = getSelectedNode(selectedPanel);
+
+			saveScreen();
+			result = drawInputDialog(
+				2, 30,
+				message, "Create D64",
+				name);
+			retrieveScreen();
+
+			if(result == OK_RESULT)
+			{
+				strlower(name);
+				if(strstr(name,".d64") == 0)
+				{
+					strcat(name, ".d64");
+				}
+				writeStatusBarf("Creating %s", name);
+
+				sd = selectedPanel->drive->drive;
+				td = targetPanel->drive->drive;
+
+				cbm_open(15, sd, 15, "U");
+				r = cbm_read(15, buffer, 41);
+				if(r > 0)
+				{
+					if(strstr(buffer,"1541") != 0 ||
+						strstr(buffer,"1571") != 0)
+					{
+						writeStatusBar("Must be a 1541 or 1571 drive.");
+						return;
+					}
+				}
+				else
+				{
+					writeStatusBar("Error opening drive.");
+					return;
+				}
+				strcat(name,",p,w");
+				r=cbm_open(2, sd, 2, "#");
+				if(r == 0)
+				{
+					saveScreen();
+					writePanel(FALSE, FALSE, color_text_borders,
+						0, 1, size_y-3, size_x 
+						,
+						NULL, NULL, NULL);
+
+					textcolor(color_text_highlight);
+					revers(TRUE);
+					for(i=1;i<36;++i)
+					{
+						gotoxy(1+i, 1); cprintf("%d",i/10);
+						gotoxy(1+i, 2); cprintf("%d",i%10);
+					}
+					for(j=0;j<21;++j)
+					{
+						gotoxy(0,3+j); cprintf("%2d",j);
+					}
+					revers(FALSE);
+
+					textcolor(color_text_other);
+
+					cbm_open(14,td,15,"");
+					r = cbm_open(3,td,3,name);
+					if(r == 0)
+					{
+						p = 0;
+						for(i=0;i<35;++i)
+						{
+							for(j=0;j<l[i];++j)
+							{
+								if(kbhit())
+								{
+									t = cgetc();
+									if(t == CH_STOP || t == CH_ESC)
+									{
+										i=41;
+										break;
+									}
+								}
+								++p; 
+								pp = (100u * p) / 689u;
+								gotoxy(size_x-4, size_y-2);
+								cprintf("%3d%%", pp);
+
+								cputcxy(i+2,j+3,'R');
+								sprintf(buffer,"u1:2,0,%d,%d\n", i+1, j);
+								cbm_write(15, buffer, strlen(buffer));
+
+								r = cbm_read(2,fileBuffer, 256);
+
+								cputcxy(i+2,j+3,'W');
+								cbm_write(3, fileBuffer, r);
+								cputcxy(i+2,j+3,166);
+							}
+						}
+						cbm_close(15); cbm_close(14); cbm_close(2); cbm_close(3);
+						retrieveScreen();
+						reloadPanels();
+						writeStatusBar("Finished writing D64.");
+					}
+					else
+					{
+						cbm_read(14, buffer, 41);
+						writeStatusBarf("Target: %s", buffer);
+						cbm_close(15); cbm_close(14); cbm_close(2); cbm_close(3);
+						retrieveScreen();
+						return;
+					}
+				}
+				else
+				{
+					cbm_read(15, buffer, 41);
+					writeStatusBarf("Source: %s", buffer);
+					cbm_close(15); cbm_close(14); cbm_close(2); cbm_close(3);
+					retrieveScreen();
+					return;
+				}
+			}
+			else
+			{
+				writeStatusBar("Cancelled.");
+				retrieveScreen();
+			}
+		}
+	}
+	
+}
+
 void __fastcall__ writeD64(void)
 {
+	unsigned int r = 0, p = 0, pp = 0;
 	unsigned confirmed = FALSE;
 	unsigned char *message[] =
 	{
@@ -706,14 +872,8 @@ void __fastcall__ writeD64(void)
 		{ "in the target drive?" }
 	};
 	unsigned char sd, td,  i, j, t;
-	int r,p;
 	struct dir_node *currentNode;
-	unsigned char l[] =
-	{	21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
-		19,19,19,19,19,19,19,
-		18,18,18,18,18,18,
-		17,17,17,17,17
-	};
+
 
 	if(selectedPanel != NULL && selectedPanel->drive != NULL)
 	{
@@ -770,11 +930,26 @@ void __fastcall__ writeD64(void)
 					cbm_write(14,"n0:temp,00",10);
 					writeStatusBar("Formatting disk...");
 					cbm_open(3,td,3,"#");
-					writeStatusBarf("Writing %s", currentNode->name);
-					writePanel(TRUE, FALSE, color_text_borders,
-						0, 1, 20, size_x - 1 
+					
+					writePanel(FALSE, FALSE, color_text_borders,
+						0, 1, size_y-3, size_x 
 						,
-						"Writing D64........", NULL, NULL);
+						NULL, NULL, NULL);
+					writeStatusBarf("Writing %s", currentNode->name);
+					textcolor(color_text_highlight);
+					revers(TRUE);
+					for(i=1;i<36;++i)
+					{
+						gotoxy(1+i, 1); cprintf("%d",i/10);
+						gotoxy(1+i, 2); cprintf("%d",i%10);
+					}
+					for(j=0;j<21;++j)
+					{
+						gotoxy(0,3+j); cprintf("%2d",j);
+					}
+					revers(FALSE);
+
+					textcolor(color_text_other);
 					for(i=0;i<35;++i)
 					{
 						for(j=0;j<l[i];++j)
@@ -788,63 +963,45 @@ void __fastcall__ writeD64(void)
 									break;
 								}
 							}
-							gotoxy(2,1); cprintf("Writing %2d,%2d", i+1, j);// waitForEnterEsc();
+							++p; 
+							pp = (100 * p) / 689;
+							gotoxy(size_x-4, size_y-2);
+							cprintf("%3d%%", pp);
+							
+							cputcxy(i+2,j+3,'R');
 
 							r = cbm_read(2,fileBuffer,256);
 
 							memcpy(temp, (fileBuffer + 1), r-1);
 							temp[r-1] = fileBuffer[0];
 
-							//textcolor(color_text_other);
-							//for(p=0; p<r; ++p)
-							//{
-							//	/*if(p == 0) temp[r - 1] = fileBuffer[0];
-							//	else temp[p-1] = fileBuffer[p];*/
-
-							//	gotoxy(p%16*3+2, p/16+3); 
-							//	cprintf("%2X ", fileBuffer[p]);
-							//}
-
-							//textcolor(color_text_menus);
-							//for(p=0; p<r; ++p)
-							//{
-							//	gotoxy(p%16*3+2, p/16+3); 
-							//	cprintf("%2X ", temp[p]);
-							//}
-
 							cbm_write(3,temp,256);
 
+							cputcxy(i+2,j+3,'W');
 							sprintf(buffer, "u2 3 0 %d %d", i+1, j);
 							cbm_write(14,buffer,strlen(buffer));
-//waitForEnterEsc();
 
 							sprintf(buffer, "u1 3 0 %d %d", i+1, j);
 							cbm_write(14,buffer,strlen(buffer));
 							cbm_read(3,fileBuffer,256);
-
-							//textcolor(color_text_highlight);
-							//for(p=0; p<256; ++p)
-							//{
-
-							//	gotoxy(p%16*3+2, p/16+3); 
-							//	cprintf("%2X ", fileBuffer[p]);
-							//}
-//waitForEnterEsc();
+							cputcxy(i+2,j+3,166);
 						}
 					}
 					cbm_close(2);
 					cbm_close(3);
 					cbm_close(14);
 					cbm_close(15);
+					retrieveScreen();
 					reloadPanels();
 					writeStatusBarf("Done writing %s.", currentNode->name); //waitForEnterEsc();
 				}
 				else
 				{
 					cbm_read(15, buffer, 40);
+					retrieveScreen();
 					writeStatusBar(buffer); waitForEnterEsc();
 				}
 			}
 		}
-	}
+	}	
 }

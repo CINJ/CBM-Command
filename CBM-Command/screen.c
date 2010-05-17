@@ -393,7 +393,7 @@ enum results __fastcall__ drawInputDialog(
 	{
 		if( count < length &&
 			(
-				(key >= 33 && key <= 95) ||
+				(key >= 32 && key <= 95) ||
 				(key >= 65 + 0x80 && key <= 90 + 0x80)
 			)
 		)

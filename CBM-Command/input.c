@@ -192,8 +192,10 @@ void  readKeyboard(void)
 #if defined(__C128__) || defined(__C64__)
 	case KEY_SH_SPACE:
 		writeD64();
+		break;
 	case HK_CREATE_D64:
 		createD64();
+		break;
 #endif
 	default:
 		//writeStatusBarf("%c", key);

@@ -35,7 +35,9 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
+#if defined(__C128__) || defined(__C64__)
 #include <cbm.h>
+#endif
 #include <conio.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +53,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //char* OPTION_MENU_LABELS[1];
 //unsigned char OPTION_MENU_KEYS[1];
 //
-//void __fastcall__ initOptionMenu(void)
+//void  initOptionMenu(void)
 //{
 //	if(!isInitialized)
 //	{
@@ -65,7 +67,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //	}
 //}
 //
-//void __fastcall__ handleOptionMenu(void)
+//void  handleOptionMenu(void)
 //{
 //	unsigned char key;
 //	unsigned handleKeys = TRUE;
@@ -135,13 +137,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //}
 
 //
-//void __fastcall__ saveOptions(void)
+//void  saveOptions(void)
 //{
 //	retrieveScreen();
 //	notImplemented();
 //}
 
-void __fastcall__ writeOptionsPanel(void)
+void  writeOptionsPanel(void)
 {
 	retrieveScreen();
 	notImplemented();

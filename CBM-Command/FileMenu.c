@@ -68,7 +68,7 @@ unsigned char *quit_message[1] =
 //unsigned char FILE_MENU_KEYS[8];
 //#endif
 //
-//void __fastcall__ initFileMenu(void)
+//void  initFileMenu(void)
 //{
 //	if(!isInitialized)
 //	{
@@ -102,7 +102,7 @@ unsigned char *quit_message[1] =
 //	}
 //}
 //
-//void __fastcall__ handleFileMenu(void)
+//void  handleFileMenu(void)
 //{
 //	unsigned char key;
 //	unsigned handleKeys = TRUE;
@@ -208,7 +208,7 @@ unsigned char *quit_message[1] =
 //	}
 //}
 
-void __fastcall__ writeHelpPanel(void)
+void  writeHelpPanel(void)
 {
 	writeStatusBar("cbmcommand.codeplex.com/documentation");
 	//unsigned char* dialogMessage[] =
@@ -229,8 +229,9 @@ void __fastcall__ writeHelpPanel(void)
 
 unsigned char fileBuffer[COPY_BUFFER_SIZE];
 struct panel_drive *targetPanel = NULL, *tempPanel = NULL;
-void __fastcall__ copyFiles(void)
+void  copyFiles(void)
 {
+#if defined(__C128__) || defined(__C64__)
 	unsigned char i = 0, j = 0, sd = 0, td = 0, bit = 0, r = 0;
 	unsigned int index = 0, bytes = 0;
 	unsigned RELOAD = FALSE;
@@ -374,9 +375,10 @@ void __fastcall__ copyFiles(void)
 	{
 		reloadPanels();
 	}
+#endif
 }
 
-void __fastcall__ reloadPanels(void)
+void  reloadPanels(void)
 {
 	tempPanel = selectedPanel;
 	selectedPanel = targetPanel;
@@ -388,7 +390,7 @@ void __fastcall__ reloadPanels(void)
 	writeCurrentFilename(selectedPanel);
 }
 
-void __fastcall__ renameFile(void)
+void  renameFile(void)
 {
 	enum results dialogResult;
 	struct dir_node *selectedNode = NULL;
@@ -434,7 +436,7 @@ void __fastcall__ renameFile(void)
 	}
 }
 
-void __fastcall__ makeDirectory(void)
+void  makeDirectory(void)
 {
 	enum results dialogResult;
 	struct dir_node *selectedNode = NULL;
@@ -472,7 +474,7 @@ void __fastcall__ makeDirectory(void)
 	}
 }
 
-void __fastcall__ deleteFiles(void)
+void  deleteFiles(void)
 {
 	unsigned dialogResult;
 	struct dir_node *selectedNode = NULL;
@@ -514,17 +516,13 @@ void __fastcall__ deleteFiles(void)
 				sendCommand(selectedPanel, command);
 
 				rereadSelectedPanel();
-				//getDirectory(selectedPanel, 
-				//	selectedPanel->slidingWindowStartAt);
-
-				//displayDirectory(selectedPanel);
 			}
 		}
 	}
 }
 
 #ifdef __C128__
-void __fastcall__ go64(void)
+void  go64(void)
 {
 	unsigned result;
 
@@ -540,7 +538,7 @@ void __fastcall__ go64(void)
 }
 #endif
 
-void __fastcall__ quit(void)
+void  quit(void)
 {
 	unsigned result;
 
@@ -557,62 +555,12 @@ void __fastcall__ quit(void)
 	retrieveScreen();
 }
 
-void __fastcall__ writeAboutBox(void)
+void  writeAboutBox(void)
 {
-//	unsigned char x, y, i;
-//	unsigned char oldColor;
-//	unsigned char oldReverse;
-//
-//	const unsigned char w = 25;
-//	const unsigned char h = 11;
-//	
-//	unsigned char* lines[7] =
-//		{
-//			"Copyright 2010",
-//			"Payton Byrd",
-//			"version 2010-05-01",
-//			"Thanks to Uz for CC65",
-//			"and all the support!",
-//			"",
-//#ifdef __C128__
-//			"C128 Edition"
-//#else
-//			"C64 Edition"
-//#endif
-//	};
-//
-//
-//	x = getCenterX(w);
-//	y = getCenterY(h);
-//
-//	writePanel(TRUE, TRUE,
-//		COLOR_WHITE, 
-//		x, y, h, w,
-//		"About CBM-Command",
-//		NULL, "OK");
-//
-//	oldReverse = revers(FALSE);
-//	oldColor = textcolor(COLOR_WHITE);
-//	y = getCenterY(7);
-//	for(i=0; i<7; i++)
-//	{
-//		x = getCenterX(strlen(lines[i]));
-//		gotoxy(x, y + i);
-//		cputs(lines[i]);
-//	}
-//
-//	revers(oldReverse);
-//	textcolor(oldColor);
-//
-//	waitForEnterEsc();
-//
-//	retrieveScreen();
-//
-//	writeStatusBar("Thank you for using CBM Command.", 0, 10);
 	writeStatusBarf("Thank You for using CBM-Command Alpa");
 }
 
-void __fastcall__ executeSelectedFile(void)
+void  executeSelectedFile(void)
 {
 	struct dir_node *currentNode;
 	unsigned result;
@@ -632,6 +580,7 @@ void __fastcall__ executeSelectedFile(void)
 			if(result == TRUE)
 			{
 				clrscr();
+#if defined(__C128__) || defined(__C64__)
 #ifdef __C64__
 				POKE(631,'r');
 				POKE(632,'U');
@@ -646,13 +595,14 @@ void __fastcall__ executeSelectedFile(void)
 #endif
 				writeStatusBarf("Loading %s", currentNode->name);
 				cbm_load(currentNode->name, selectedPanel->drive->drive, NULL);
+#endif
 				exit(EXIT_SUCCESS);
 			}
 		}
 	}
 }
 
-void __fastcall__ inputCommand(void)
+void  inputCommand(void)
 {
 	enum results dialogResult;
 	struct dir_node *selectedNode = NULL;
@@ -671,12 +621,7 @@ void __fastcall__ inputCommand(void)
 
 			dialogResult = drawInputDialog(
 				1, 
-#ifdef __C64__
-				36,
-#endif
-#ifdef __C128__
-				76,
-#endif
+				size_x - 4,
 				dialogMessage,
 				"Command",
 				command
@@ -704,8 +649,9 @@ unsigned char l[] =
 	17,17,17,17,17
 };
 
-void __fastcall__ createD64(void)
+void  createD64(void)
 {
+#if defined(__C128__) || defined(__C64__)
 	unsigned int r = 0, p = 0, pp = 0;
 	unsigned confirmed = FALSE;
 	unsigned char name[17];
@@ -859,11 +805,12 @@ void __fastcall__ createD64(void)
 			}
 		}
 	}
-	
+#endif
 }
 
-void __fastcall__ writeD64(void)
+void  writeD64(void)
 {
+#if defined(__C128__) || defined(__C64__)
 	unsigned int r = 0, p = 0, pp = 0;
 	unsigned confirmed = FALSE;
 	unsigned char *message[] =
@@ -1004,4 +951,5 @@ void __fastcall__ writeD64(void)
 			}
 		}
 	}	
+#endif
 }

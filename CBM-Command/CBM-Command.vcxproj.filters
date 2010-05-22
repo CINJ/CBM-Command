@@ -140,5 +140,11 @@
     <ClInclude Include="globalInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Configuration-CBM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Configuration-Apple2Enh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

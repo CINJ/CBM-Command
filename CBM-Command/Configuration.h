@@ -38,20 +38,23 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _CONFIGURATION_H
 #define _CONFIGURATION_H
 
-extern unsigned char defaultLeftDrive;
-extern unsigned char defaultRightDrive;
+/* Drive Configuration */
+extern unsigned char defaultLeftDrive;		// Left Panel drive on startup
+extern unsigned char defaultRightDrive;		// Right Panel drive on startup
 
-extern unsigned char color_background;
-extern unsigned char color_border;
-extern unsigned char color_selector;
-extern unsigned char color_text_borders;
-extern unsigned char color_text_menus;
-extern unsigned char color_text_files;
-extern unsigned char color_text_status;
-extern unsigned char color_text_other;
-extern unsigned char color_text_highlight;
+/* Color Configuration */
+extern unsigned char color_background;		// Background color for application
+extern unsigned char color_border;			// Border color (does nothing on C= 128)
+extern unsigned char color_selector;		// Color of the drive/file selector glyph
+extern unsigned char color_text_borders;	// Color of panel borders
+extern unsigned char color_text_menus;		// Color of the function key and other menus
+extern unsigned char color_text_files;		// Color of the filenames in the directory
+extern unsigned char color_text_status;		// Color of the status bar and its text
+extern unsigned char color_text_highlight;  // Color of text that needs to stand out
+extern unsigned char color_text_other;		// Color for areas not covered above
 
-void __fastcall__ load(void);
-void __fastcall__ save(void);
+/* Methods */
+void  load(void);				// Loads configuration
+void  save(void);				// Saves configuration
 
 #endif

@@ -38,32 +38,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _CONSTANTS_H
 #define _CONSTANTS_H
 
+/* System BOOLEAN Values */
 #define TRUE 1
 #define FALSE 0
 
-#define slidingWindowSize 30
-#define COPY_BUFFER_SIZE 1018
+/* Drive Constants */
+#define SLIDING_WINDOW_SIZE 30		// 30 directory entries are cached
+#define COPY_BUFFER_SIZE	1018	// The data of 4 blocks
 
-//extern const char LEFT_MENU[];
-//const char LEFT_MENU_X = 0;
-//
-//extern const char FILE_MENU[];
-//const char FILE_MENU_X = 16;
-//
-//extern const char OPTIONS_MENU[];
-//const char OPTIONS_MENU_X = 30; 
-//
-//extern const char COMMAND_MENU[];
-//const char COMMAND_MENU_X = 53;
-//
-//extern const char RIGHT_MENU[];
-//const char RIGHT_MENU_X = 76;
-//
-//extern const char SPACES[];
-
-//extern const char SCREEN_SIZE_FORMAT[];
-
-#define KEY_AT				0x40	// @
+/* Keyboad Constants */
+#define KEY_AT				'@'	// @
+#if defined(__C128__) || defined(__C64__)
 #define KEY_SH_SPACE		0xA0
 #define KEY_SH_RETURN		0x8D
 #define KEY_F1				0x85
@@ -76,4 +61,35 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define KEY_F8				0x8C
 #define KEY_SH_PLUS			0xDB
 #define KEY_SH_MINUS		0xDD
+#define KEY_ALT_D			0xAC
+#define KEY_ALT_E			0xB1
+#endif
+
+#define KEY_CTRL_A			0x01
+#define KEY_CTRL_B			0x02
+#define KEY_CTRL_C			0x03
+#define KEY_CTRL_D			0x04
+#define KEY_CTRL_E			0x05
+#define KEY_CTRL_F			0x06
+#define KEY_CTRL_G			0x07
+#define KEY_CTRL_H			0x08
+#define KEY_CTRL_I			0x09
+#define KEY_CTRL_J			0x0A
+#define KEY_CTRL_K			0x0B
+#define KEY_CTRL_L			0x0C
+#define KEY_CTRL_M			0x0D
+#define KEY_CTRL_N			0x0E
+#define KEY_CTRL_O			0x0F
+#define KEY_CTRL_P			0x10
+#define KEY_CTRL_Q			0x11
+#define KEY_CTRL_R			0x12
+#define KEY_CTRL_S			0x13
+#define KEY_CTRL_T			0x14
+#define KEY_CTRL_U			0x15
+#define KEY_CTRL_V			0x16
+#define KEY_CTRL_W			0x17
+#define KEY_CTRL_X			0x18
+#define KEY_CTRL_Y			0x19
+#define KEY_CTRL_Z			0x1A
+
 #endif

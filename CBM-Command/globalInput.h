@@ -38,6 +38,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _GLOBALINPUT_H
 #define _GLOBALINPUT_H
 
-unsigned char __fastcall__ waitForEnterEsc(void);
+unsigned char  waitForEnterEsc(void);
 
 #endif

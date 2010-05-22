@@ -35,7 +35,10 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
+#if defined(__C128__) || defined(__C64__)
 #include <cbm.h>
+#include "Configuration-CBM.h"
+#endif
 #include <conio.h>
 #include <peekpoke.h>
 #include <string.h>
@@ -68,12 +71,12 @@ void setupScreen(void)
 	return;
 }
 
-void __fastcall__ saveScreen(void)
+void  saveScreen(void)
 {
 #ifdef __C128__
 	copyVdcScreen(0x00, 0x10);
 	return;
-#else
+#elif __CBM__
 	int vicRegister = 53272u;
 	int screenMemoryStart;
 	int colorMemoryStart = 0xD800;
@@ -85,12 +88,12 @@ void __fastcall__ saveScreen(void)
 #endif
 }
 
-void __fastcall__ retrieveScreen(void)
+void  retrieveScreen(void)
 {
 #ifdef __C128__
 	copyVdcScreen(0x10, 0x00);
 	return;
-#else
+#elif __CBM__
 	int vicRegister = 53272u;
 	int screenMemoryStart;
 	int colorMemoryStart = 0xD800;
@@ -102,7 +105,7 @@ void __fastcall__ retrieveScreen(void)
 
 }
 
-void __fastcall__ writeStatusBar(
+void  writeStatusBar(
 	unsigned char message[])
 {
 	unsigned char oldX, oldY;
@@ -143,9 +146,13 @@ void drawBox(
 	// draw body
 	for(i=y+1; i<y+h; ++i)
 	{
+#if defined(__C128__) || defined(__C64__)
 		cputcxy(x, i, CH_VLINE);
 		cclearxy(x + 1, i, w - 1);
 		cputcxy(x+w, i, CH_VLINE);
+#else
+		cclearxy(x, i, w);
+#endif
 	}
 
 	// draw bottom line
@@ -154,12 +161,12 @@ void drawBox(
 	cputcxy(x+w, y+h, CH_LRCORNER);
 }
 
-unsigned char __fastcall__ getCenterX(unsigned char w)
+unsigned char  getCenterX(unsigned char w)
 {
 	return (size_x / 2) - (w / 2) - 1;
 }
 
-unsigned char __fastcall__ getCenterY(unsigned char h)
+unsigned char  getCenterY(unsigned char h)
 {
 	return (size_y / 2) - (h / 2) - 1;
 }
@@ -241,7 +248,7 @@ void writePanel(
 	}
 }
 
-void __fastcall__ notImplemented(void)
+void  notImplemented(void)
 {
 	//unsigned char h = 5, w = 23;
 	//unsigned char x, y;
@@ -267,7 +274,7 @@ void __fastcall__ notImplemented(void)
 	retrieveScreen();
 }
 
-enum results __fastcall__ drawDialog(
+enum results  drawDialog(
 	unsigned char* message[],
 	unsigned char lineCount,
 	unsigned char* title,
@@ -321,7 +328,11 @@ enum results __fastcall__ drawDialog(
 		key = cgetc();
 
 		if(key == CH_ENTER) break;
-		if(key == CH_ESC || key == CH_STOP) break;
+		if(key == CH_ESC 
+#if defined(__C128__) || defined(__C64__)
+			|| key == CH_STOP
+#endif
+			) break;
 		if(key == 'o' && button & OK) break;
 		if(key == 'y' && button & YES) break;
 		if(key == 'c' && button & CANCEL) break;
@@ -330,7 +341,12 @@ enum results __fastcall__ drawDialog(
 
 	switch((int)key)
 	{
-	case CH_ESC: case CH_STOP: case (int)'n': case (int)'c':
+	case CH_ESC: 
+#if defined(__C128__) || defined(__C64__)
+	case CH_STOP: 
+#endif
+	case (int)'n': 
+	case (int)'c':
 		if(button & NO) return NO_RESULT;
 		if(button & CANCEL) return CANCEL_RESULT;
 		break;
@@ -344,7 +360,7 @@ enum results __fastcall__ drawDialog(
 	return CANCEL_RESULT;
 }
 
-enum results __fastcall__ drawInputDialog(
+enum results  drawInputDialog(
 	unsigned char lineCount,
 	unsigned char length,
 	unsigned char *message[],
@@ -389,7 +405,11 @@ enum results __fastcall__ drawInputDialog(
 	cputcxy(x+2, i+2+y, '<');
 	count = 0;
 	key = cgetc();
-	while(key != CH_ESC && key != CH_STOP && key != CH_ENTER)
+	while(key != CH_ESC 
+#if defined(__C128__) || defined(__C64__)
+		&& key != CH_STOP 
+#endif
+		&& key != CH_ENTER)
 	{
 		if( count < length &&
 			(
@@ -406,7 +426,13 @@ enum results __fastcall__ drawInputDialog(
 			gotoxy(x+2+count, i+2+y);
 			cputc('<');
 		}
-		else if(key == CH_DEL && count > 0)
+		else if(
+#if defined(__C128__) || defined(__C64__)
+			key == CH_DEL 
+#else
+			key == 127
+#endif
+			&& count > 0)
 		{
 			input[count] = '\0';
 			gotoxy(x+2+count, i+2+y);
@@ -432,7 +458,7 @@ enum results __fastcall__ drawInputDialog(
 	return result;
 }
 
-unsigned __fastcall__ writeYesNo(
+unsigned  writeYesNo(
 	unsigned char *title,
 	unsigned char *message[],
 	unsigned char lineCount)

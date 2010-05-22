@@ -5,7 +5,7 @@
 #include "globals.h"
 #include "screen.h"
 
-unsigned char __fastcall__ waitForEnterEsc(void)
+unsigned char  waitForEnterEsc(void)
 {
 	unsigned char key = 0;
 
@@ -15,7 +15,9 @@ unsigned char __fastcall__ waitForEnterEsc(void)
 	revers(FALSE);
 
 	while(key != CH_ESC
+#if defined(__C128__) || defined(__C64__)
 		&& key != CH_STOP
+#endif
 		&& key != CH_ENTER)
 	{
 		key = cgetc();

@@ -50,7 +50,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 unsigned char currentMenuX;
 unsigned char currentMenuLine;
 
-//void __fastcall__ writeMenu(enum menus menu)
+//void  writeMenu(enum menus menu)
 //{
 //	unsigned char x;
 //
@@ -91,7 +91,7 @@ unsigned char currentMenuLine;
 //	}	
 //}
 //
-//void __fastcall__ drawFileMenu(unsigned char x)
+//void  drawFileMenu(unsigned char x)
 //{
 //	int i = 0;
 //	unsigned char oldColor;
@@ -112,7 +112,7 @@ unsigned char currentMenuLine;
 //	textcolor(oldColor);
 //}
 //
-//void __fastcall__ drawDriveMenu(unsigned char x)
+//void  drawDriveMenu(unsigned char x)
 //{
 //	int i = 0;
 //	unsigned char oldColor;
@@ -134,7 +134,7 @@ unsigned char currentMenuLine;
 //}
 //
 //
-//void __fastcall__ drawCommandMenu(unsigned char x)
+//void  drawCommandMenu(unsigned char x)
 //{
 //	int i = 0;
 //	unsigned char oldColor;
@@ -155,7 +155,7 @@ unsigned char currentMenuLine;
 //	textcolor(oldColor);
 //}
 //
-//void __fastcall__ drawOptionsMenu(unsigned char x)
+//void  drawOptionsMenu(unsigned char x)
 //{
 //	int i = 0;
 //	unsigned char oldColor;
@@ -176,7 +176,7 @@ unsigned char currentMenuLine;
 //	textcolor(oldColor);
 //}
 //
-//void __fastcall__ drawMenu(
+//void  drawMenu(
 //	unsigned char x,
 //	unsigned char width, 
 //	unsigned char count, 
@@ -204,7 +204,7 @@ unsigned char currentMenuLine;
 //	}
 //}
 //
-//void __fastcall__ drawMenuLine(
+//void  drawMenuLine(
 //	unsigned reverse, 
 //	unsigned char key, 
 //	char* label, 

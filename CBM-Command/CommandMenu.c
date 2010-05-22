@@ -35,7 +35,9 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
+#if defined(__C128__) || defined(__C64__)
 #include <cbm.h>
+#endif
 #include <conio.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,7 +54,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //char* COMMAND_MENU_LABELS[2];
 //unsigned char COMMAND_MENU_KEYS[2];
 //
-//void __fastcall__ initCommandMenu(void)
+//void  initCommandMenu(void)
 //{
 //	if(!isInitialized)
 //	{
@@ -66,7 +68,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //	}
 //}
 //
-//void __fastcall__ handleCommandMenu(void)
+//void  handleCommandMenu(void)
 //{
 //	unsigned char key;
 //	unsigned handleKeys = TRUE;
@@ -135,7 +137,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //	}
 //}
 
-void __fastcall__ togglePanels(void)
+void  togglePanels(void)
 {
 	if(arePanelsOn)
 	{
@@ -151,7 +153,7 @@ void __fastcall__ togglePanels(void)
 	}
 }
 
-void __fastcall__ displayPanels(void)
+void  displayPanels(void)
 {
 	if(leftPanelDrive.drive != NULL)
 	{
@@ -163,12 +165,12 @@ void __fastcall__ displayPanels(void)
 	}
 }
 
-void __fastcall__ swapPanels(void)
+void  swapPanels(void)
 {
 	//unsigned char i=0;
 	//struct panel_drive tempPanel;
 	//
-	//for(i=0; i<slidingWindowSize; ++i)
+	//for(i=0; i<SLIDING_WINDOW_SIZE; ++i)
 	//{
 	//	tempPanel.slidingWindow[i].name = NULL;
 	//	tempPanel.slidingWindow[i].size = 0u;

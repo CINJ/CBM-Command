@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="A2|Win32">
+      <Configuration>A2</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="C128_Config|Win32">
       <Configuration>C128_Config</Configuration>
       <Platform>Win32</Platform>
@@ -31,6 +35,10 @@
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='A2|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C128_Config|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -55,6 +63,9 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='C128|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='A2|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='C128_Config|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -71,7 +82,16 @@
     </NMakeOutput>
     <NMakeCleanCommandLine>make clean T:=c128</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>make T:=c128</NMakeReBuildCommandLine>
-    <NMakePreprocessorDefinitions>__C128__ __CBM__</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions>__C128__; __CBM__</NMakePreprocessorDefinitions>
+    <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
+    <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='A2|Win32'">
+    <NMakeBuildCommandLine>make T:=apple2enh</NMakeBuildCommandLine>
+    <NMakeOutput />
+    <NMakeCleanCommandLine>make clean T:=apple2enh</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make T:=apple2enh</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>__APPLE2ENH__</NMakePreprocessorDefinitions>
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
     <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
@@ -80,7 +100,7 @@
     <NMakeOutput />
     <NMakeCleanCommandLine>make clean T:=c128</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>make T:=c128</NMakeReBuildCommandLine>
-    <NMakePreprocessorDefinitions>__C128__ __CBM__</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions>__C128__; __CBM__</NMakePreprocessorDefinitions>
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
     <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
@@ -89,7 +109,7 @@
     <NMakeOutput />
     <NMakeCleanCommandLine>make clean T:=c64</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>make T:=c64</NMakeReBuildCommandLine>
-    <NMakePreprocessorDefinitions>__C64__ __CBM__ __fastcall__=__fastcall</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions>__C64__; __CBM__; __fastcall__=__fastcall</NMakePreprocessorDefinitions>
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
     <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
@@ -98,7 +118,7 @@
     <NMakeOutput />
     <NMakeCleanCommandLine>make clean T:=c64</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>make T:=c64</NMakeReBuildCommandLine>
-    <NMakePreprocessorDefinitions>__C64__ __CBM__ __fastcall__=__fastcall</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions>__C64__; __CBM__; __fastcall__=__fastcall</NMakePreprocessorDefinitions>
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
     <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
@@ -121,6 +141,11 @@
     <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='C128|Win32'">
+    <BuildLog>
+      <Path>$(Configuration).log</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='A2|Win32'">
     <BuildLog>
       <Path>$(Configuration).log</Path>
     </BuildLog>
@@ -179,6 +204,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssemblerMethods.h" />
+    <ClInclude Include="Configuration-Apple2Enh.h" />
+    <ClInclude Include="Configuration-CBM.h" />
     <ClInclude Include="Configuration.h" />
     <ClInclude Include="ConfigurationManager.h" />
     <ClInclude Include="constants.h" />

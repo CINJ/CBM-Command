@@ -55,31 +55,61 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <c128.h>
 #endif
 
-
-
+/* CBM-Command Main Function
+ * --------------------------
+ * - Payton Byrd 
+ * --------------------------
+ * Prepares application and 
+ * provides main loop.
+ */
 int main(void)
 {
-
 #if defined(__C128__)
+	// Set screen to 80 columns.
+	// 40 columns is not supported
+	// on the C= 128 due memory 
+	// constraints.
 	videomode(VIDEOMODE_80COL);
+
+	// Set system to 2mhz
 	fast();
 #endif
 
+	// Prepares the application
 	initialize();
+
+	// Loads configuration from
+	// drive that the application
+	// was started from.
 	load();
+
+	// Initializes the disk drives
+	// which sets up structures for
+	// the disk panels.
 	initializeDrives();
+
+	// Prepares the screen for use.
 	setupScreen();
+
+	// Writes the function key bar
+	// to the screen.
 	writeMenuBar();
 
+	// Reads the directory of the 
+	// default drive and displays
+	// it in the left panel.
 	rereadSelectedPanel();
 
+	// Main Loop
 	while(TRUE)
 	{
+		// Reads the keyboard
+		// and exits the application
+		// when necessary.
 		readKeyboard();
 	}
 
+	// We should never get here,
+	// but just in case we do...
 	return EXIT_SUCCESS;
 }
-
-
-

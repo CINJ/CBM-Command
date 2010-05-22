@@ -35,7 +35,9 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
+#if defined(__C128__) || defined(__C64__)
 #include <cbm.h>
+#endif
 #include <conio.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +53,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //char* DRIVE_MENU_LABELS[2];
 //unsigned char DRIVE_MENU_KEYS[2];
 //
-//void __fastcall__ initDriveMenu(void)
+//void  initDriveMenu(void)
 //{
 //	if(!isInitialized)
 //	{
@@ -67,7 +69,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //	}
 //}
 //
-//void __fastcall__ handleDriveMenu(enum menus menu)
+//void  handleDriveMenu(enum menus menu)
 //{
 //	unsigned finalRetrieve = TRUE;
 //	unsigned char key;
@@ -166,7 +168,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //	if(finalRetrieve) retrieveScreen();
 //}
 
-void __fastcall__ rereadDrivePanel(enum menus menu)
+void  rereadDrivePanel(enum menus menu)
 {
 	if(menu == left)
 	{
@@ -181,7 +183,7 @@ void __fastcall__ rereadDrivePanel(enum menus menu)
 }
 
 
-void __fastcall__ rereadSelectedPanel(void)
+void  rereadSelectedPanel(void)
 {
 	if(selectedPanel == NULL)
 	{
@@ -208,7 +210,7 @@ void __fastcall__ rereadSelectedPanel(void)
 	writeCurrentFilename(selectedPanel);
 }
 
-void __fastcall__ writeDriveSelectionPanel(enum menus menu)
+void  writeDriveSelectionPanel(enum menus menu)
 {
 	listDrives(menu);
 	retrieveScreen();

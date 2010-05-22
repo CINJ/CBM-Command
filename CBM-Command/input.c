@@ -46,7 +46,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "menus.h"
 #include "screen.h"
 
-void __fastcall__ readKeyboard(void)
+void  readKeyboard(void)
 {
 	unsigned char key;
 //	unsigned char buffer[39];
@@ -58,9 +58,11 @@ void __fastcall__ readKeyboard(void)
 	case KEY_F4:
 		rereadSelectedPanel();
 		break;
+#if defined(__C128__) || defined(__C64__)
 	case KEY_SH_RETURN:
 		executeSelectedFile();
 		break;
+#endif
 	//case KEY_SH_SPACE: case KEY_SH_RETURN:
 	case KEY_F3:
 	case HK_SELECT:
@@ -72,6 +74,8 @@ void __fastcall__ readKeyboard(void)
 	case CH_CURS_DOWN:
 		moveSelectorDown(selectedPanel);
 		break;
+
+#if defined(__CBM__)
 	case CH_CURS_LEFT:
 		if(selectedPanel == &rightPanelDrive
 			&& leftPanelDrive.drive != NULL
@@ -92,6 +96,7 @@ void __fastcall__ readKeyboard(void)
 			writeSelectorPosition(&rightPanelDrive, '>');
 		}
 		break;
+#endif
 	case KEY_SH_PLUS:
 		enterDirectory(selectedPanel);
 		break;
@@ -125,9 +130,6 @@ void __fastcall__ readKeyboard(void)
 	case HK_DRIVE_RIGHT:
 		writeDriveSelectionPanel(right);
 		break;
-	case HK_SWAP_PANELS:
-		swapPanels();
-		break;
 	case HK_TOGGLE_PANELS:
 		togglePanels();
 		break;
@@ -137,11 +139,15 @@ void __fastcall__ readKeyboard(void)
 	case HK_DESELECT_ALL:
 		selectAllFiles(selectedPanel, FALSE);
 		break;
+#ifdef __C128__
 	case HK_HELP_128:
+#endif
 	case KEY_F1:
 		writeHelpPanel();
 		break;
+#if defined(__C128__) || defined(__C64__)
 	case HK_QUIT:
+#endif
 	case KEY_F2:
 		quit();
 		break;
@@ -165,7 +171,9 @@ void __fastcall__ readKeyboard(void)
 	case KEY_AT:
 		inputCommand();
 		break;
+#if defined(__C128__) || defined(__C64__)
 	case HK_MAKE_DIRECTORY:
+#endif
 	case KEY_F7:
 		makeDirectory();
 		break;
@@ -181,10 +189,12 @@ void __fastcall__ readKeyboard(void)
 	case HK_PAGE_DOWN:
 		movePageDown(selectedPanel);
 		break;
+#if defined(__C128__) || defined(__C64__)
 	case KEY_SH_SPACE:
 		writeD64();
 	case HK_CREATE_D64:
 		createD64();
+#endif
 	default:
 		//writeStatusBarf("%c", key);
 		break;

@@ -108,49 +108,49 @@ enum menus
 //extern unsigned char COMMAND_MENU_KEYS[2];
 //
 //// Initialize menus
-//void __fastcall__ initOptionMenu(void);
-//void __fastcall__ initFileMenu(void);
-//void __fastcall__ initDriveMenu(void);
-//void __fastcall__ initCommandMenu(void);
+//void  initOptionMenu(void);
+//void  initFileMenu(void);
+//void  initDriveMenu(void);
+//void  initCommandMenu(void);
 //
 //// Handle menus
-//void __fastcall__ handleOptionMenu(void);
-//void __fastcall__ handleFileMenu(void);
-//void __fastcall__ handleCommandMenu(void);
-//void __fastcall__ handleDriveMenu(enum menus);
+//void  handleOptionMenu(void);
+//void  handleFileMenu(void);
+//void  handleCommandMenu(void);
+//void  handleDriveMenu(enum menus);
 
 // Menu actions
-void __fastcall__ inputCommand(void);
-void __fastcall__ executeSelectedFile(void);
-void __fastcall__ rereadDrivePanel(enum menus menu);
-void __fastcall__ rereadSelectedPanel(void);
-void __fastcall__ reloadPanels(void);
-void __fastcall__ writeDriveSelectionPanel(enum menus menu);
-void __fastcall__ writeAboutBox(void);
-void __fastcall__ displayPanels(void);
-void __fastcall__ writeMenu(enum menus);
-void __fastcall__ writeOptionsPanel(void);
-void __fastcall__ saveOptions(void);
-void __fastcall__ swapPanels(void);
-void __fastcall__ togglePanels(void);
-void __fastcall__ writeHelpPanel(void);
-void __fastcall__ copyFiles(void);
-void __fastcall__ renameFile(void);
-void __fastcall__ makeDirectory(void);
-void __fastcall__ deleteFiles(void);
-void __fastcall__ writeD64(void);
-void __fastcall__ createD64(void);
-void __fastcall__ quit(void);
+void  inputCommand(void);
+void  executeSelectedFile(void);
+void  rereadDrivePanel(enum menus menu);
+void  rereadSelectedPanel(void);
+void  reloadPanels(void);
+void  writeDriveSelectionPanel(enum menus menu);
+void  writeAboutBox(void);
+void  displayPanels(void);
+void  writeMenu(enum menus);
+void  writeOptionsPanel(void);
+void  saveOptions(void);
+void  swapPanels(void);
+void  togglePanels(void);
+void  writeHelpPanel(void);
+void  copyFiles(void);
+void  renameFile(void);
+void  makeDirectory(void);
+void  deleteFiles(void);
+void  writeD64(void);
+void  createD64(void);
+void  quit(void);
 #ifdef __C128__
-void __fastcall__ go64(void);
+void  go64(void);
 #endif
 
 // Menu drawing
-void __fastcall__ drawFileMenu(unsigned char);
-void __fastcall__ drawDriveMenu(unsigned char);
-void __fastcall__ drawCommandMenu(unsigned char);
-void __fastcall__ drawOptionsMenu(unsigned char);
-void __fastcall__ drawMenu(unsigned char, unsigned char, unsigned char, char*[], unsigned char[]);
-void __fastcall__ drawMenuLine(unsigned, unsigned char, char*, unsigned char, unsigned char);
+void  drawFileMenu(unsigned char);
+void  drawDriveMenu(unsigned char);
+void  drawCommandMenu(unsigned char);
+void  drawOptionsMenu(unsigned char);
+void  drawMenu(unsigned char, unsigned char, unsigned char, char*[], unsigned char[]);
+void  drawMenuLine(unsigned, unsigned char, char*, unsigned char, unsigned char);
 void writeMenuBar(void);
 #endif

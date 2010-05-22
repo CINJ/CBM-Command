@@ -88,7 +88,7 @@ unsigned int main(void)
 	return EXIT_SUCCESS;
 }
 
-void __fastcall__ readKeyboard(void)
+void  readKeyboard(void)
 {
 	unsigned char result;
 
@@ -133,7 +133,7 @@ void __fastcall__ readKeyboard(void)
 	}
 }
 
-void __fastcall__ changeColor(unsigned char key)
+void  changeColor(unsigned char key)
 {
 	unsigned char y, color;
 	y = 8 + (key - 49);
@@ -181,7 +181,7 @@ void __fastcall__ changeColor(unsigned char key)
 	writeMenu();
 }
 
-void __fastcall__ displayColor(
+void  displayColor(
 	unsigned char x,
 	unsigned char y,
 	unsigned char color)
@@ -195,15 +195,19 @@ void __fastcall__ displayColor(
 	cputsxy(x+1, y, colors[color]);
 }
 
-void __fastcall__ incrementColor(unsigned char *color)
+void  incrementColor(unsigned char *color)
 {
+#if defined(__C128__) || defined(__C64__)
 	if((unsigned)(*color) == COLOR_GRAY3) (*color) = (unsigned char)COLOR_BLACK;
+#else
+	if((unsigned)(*color) == 7) (*color) = 0;
+#endif
 	else { ++(*color); }
 	
 	return;
 }
 
-void __fastcall__ help(void)
+void  help(void)
 {
 	unsigned char *help_message[] =
 	{
@@ -219,7 +223,7 @@ void __fastcall__ help(void)
 	retrieveScreen();
 }
 
-void __fastcall__ quit(void)
+void  quit(void)
 {
 	unsigned result;
 	unsigned char *quit_message[] =
@@ -240,7 +244,7 @@ void __fastcall__ quit(void)
 	retrieveScreen();
 }
 
-void __fastcall__ writeMenu(void)
+void  writeMenu(void)
 {
 	writePanel(TRUE, FALSE, color_text_borders,
 		0, 0, size_y - 3, size_x - 1,
@@ -265,7 +269,7 @@ void __fastcall__ writeMenu(void)
 
 }
 
-void __fastcall__ writeFunctionKeys(void)
+void  writeFunctionKeys(void)
 {
 	unsigned char bottom = 0;
 	bottom = size_y - 1;
@@ -292,8 +296,9 @@ void __fastcall__ writeFunctionKeys(void)
 #endif
 }
 
-void __fastcall__ save(void)
+void  save(void)
 {
+#if defined(__C128__) || defined(__C64__)
 	unsigned char r, d;
 	unsigned char *buffer;
 	buffer = calloc(1, sizeof(unsigned char));
@@ -338,4 +343,5 @@ void __fastcall__ save(void)
 	cbm_close(1);
 	cbm_close(15);
 	free(buffer);
+#endif
 }

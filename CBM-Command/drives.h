@@ -40,16 +40,30 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "menus.h"
 
-extern int currentLeftIndex;
-extern int currentRightIndex;
-extern enum menus currentPanel;
+/* STRUCTS */
 
+/* Drive Status
+ *-----------------------------
+ *- Payton Byrd
+ *-----------------------------
+ * Used to store the drive number
+ * and drive init message for 
+ * each device.
+ */
 struct drive_status
 {
 	unsigned char drive;
 	unsigned char message[39];
 };
 
+/* Directory Node
+ *-----------------------------
+ *- Payton Byrd
+ *-----------------------------
+ * Stores the name, type, size
+ * and index of a section of the
+ * sliding directory window.
+ */
 struct dir_node
 {
 	unsigned char name[17];
@@ -58,6 +72,25 @@ struct dir_node
 	int index;
 };
 
+/* Panel Drive
+ *-----------------------------
+ *- Payton Byrd
+ *-----------------------------
+ * Contains the "moving parts"
+ * of the application.  There are
+ * two Panels declared, each with
+ * it's own data for selected 
+ * entries, the drive that is 
+ * associated with the panel,
+ * the directory header, the 30
+ * directory nodes for the sliding
+ * window, the total length of the 
+ * directory, where the directory
+ * display starts from, where the
+ * sliding window starts from and
+ * the position (left or right) of
+ * the panel.
+ */
 struct panel_drive
 {
 	unsigned char* selectedEntries;
@@ -71,52 +104,97 @@ struct panel_drive
 	enum menus position;
 };
 
-extern unsigned areDrivesInitialized;
-extern struct drive_status drives[9];
-extern struct panel_drive leftPanelDrive;
-extern struct panel_drive rightPanelDrive;
-extern struct panel_drive *selectedPanel;
+/* GLOBAL VARIABLES */
+extern unsigned areDrivesInitialized;		// Has the drives been intialized?
+extern struct drive_status drives[9];		// The collection of drive statuses
+extern struct panel_drive leftPanelDrive;	// The left panel
+extern struct panel_drive rightPanelDrive;	// The right panel
+extern struct panel_drive *selectedPanel;	// The current panel
 
-void __fastcall__ initializeDrives(void);
+/* METHODS */
+void  initializeDrives(void);
 
-int __fastcall__ getDriveStatus(
+int  getDriveStatus(
 	struct drive_status *drive);
 
-void __fastcall__ listDrives(enum menus menu);
+void  listDrives(enum menus menu);
 
-extern unsigned char __fastcall__ checkDrive(
+extern unsigned char  checkDrive(
 	unsigned char length,
 	unsigned char* file,
 	unsigned char drive);
 
-int __fastcall__ getDirectory(struct panel_drive *drive,
+int  getDirectory(
+	struct panel_drive *drive,
 	int slidingWindowStartAt);
 
-void __fastcall__ displayDirectory(struct panel_drive *drive);
+void  displayDirectory(
+	struct panel_drive *drive);
 
-unsigned char __fastcall__ getFileType(unsigned char type);
-void __fastcall__ shortenSize(unsigned char* buffer, unsigned int value);
-unsigned char* __fastcall__ shortenString(unsigned char* source);
-void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
+unsigned char  getFileType(
+	unsigned char type);
+
+void  shortenSize(
+	unsigned char* buffer, 
+	unsigned int value);
+
+unsigned char*  shortenString(
+	unsigned char* source);
+
+void  writeSelectorPosition(
+	struct panel_drive *panel,
 	unsigned char character);
-void __fastcall__ moveSelectorUp(struct panel_drive *panel);
-void __fastcall__ moveSelectorDown(struct panel_drive *panel);
-void __fastcall__ selectCurrentFile(void);
-void __fastcall__ writeCurrentFilename(struct panel_drive *panel);
-void __fastcall__ enterDirectory(struct panel_drive *panel);
-void __fastcall__ leaveDirectory(struct panel_drive *panel);
-unsigned __fastcall__ isDiskImage(struct panel_drive *panel);
-unsigned __fastcall__ isDirectory(struct panel_drive *panel);
-struct dir_node* __fastcall__ getSelectedNode(struct panel_drive *panel);
-struct dir_node* __fastcall__ getSpecificNode(struct panel_drive *panel, int index);
-unsigned char __fastcall__ sendCommand(
+
+void  moveSelectorUp(
+	struct panel_drive *panel);
+
+void  moveSelectorDown(
+	struct panel_drive *panel);
+
+void  selectCurrentFile(void);
+
+void  writeCurrentFilename(
+	struct panel_drive *panel);
+
+void  enterDirectory(
+	struct panel_drive *panel);
+
+void  leaveDirectory(
+	struct panel_drive *panel);
+
+unsigned  isDiskImage(
+	struct panel_drive *panel);
+
+unsigned  isDirectory(
+	struct panel_drive *panel);
+
+struct dir_node*  getSelectedNode(
+	struct panel_drive *panel);
+
+struct dir_node*  getSpecificNode(
+	struct panel_drive *panel, 
+	int index);
+
+unsigned char  sendCommand(
 	struct panel_drive *panel,
 	unsigned char *command);
-void __fastcall__ resetSelectedFiles(struct panel_drive *panel);
-void __fastcall__ selectAllFiles(struct panel_drive *panel, 
+
+void  resetSelectedFiles(
+	struct panel_drive *panel);
+
+void  selectAllFiles(
+	struct panel_drive *panel, 
 	unsigned select);
-void __fastcall__ moveTop(struct panel_drive *panel);
-void __fastcall__ movePageUp(struct panel_drive *panel);
-void __fastcall__ movePageDown(struct panel_drive *panel);
-void __fastcall__ moveBottom(struct panel_drive *panel);
+
+void  moveTop(
+	struct panel_drive *panel);
+
+void  movePageUp(
+	struct panel_drive *panel);
+
+void  movePageDown(
+	struct panel_drive *panel);
+
+void  moveBottom(
+	struct panel_drive *panel);
 #endif

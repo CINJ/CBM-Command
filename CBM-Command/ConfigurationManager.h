@@ -40,16 +40,16 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 unsigned char *colors[];
 
-void __fastcall__ readKeyboard(void);
+void  readKeyboard(void);
 
-void __fastcall__ quit(void);
-void __fastcall__ writeFunctionKeys(void);
-void __fastcall__ writeMenu(void);
-void __fastcall__ help(void);
-void __fastcall__ changeColor(unsigned char key);
-void __fastcall__ incrementColor(unsigned char *color);
+void  quit(void);
+void  writeFunctionKeys(void);
+void  writeMenu(void);
+void  help(void);
+void  changeColor(unsigned char key);
+void  incrementColor(unsigned char *color);
 
-void __fastcall__ displayColor(
+void  displayColor(
 	unsigned char x,
 	unsigned char y,
 	unsigned char color);

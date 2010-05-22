@@ -60,6 +60,13 @@ else
 		$(X128) $(T)\$(PROGRAM)
 endif
 
+A2Disk: T:=apple2enh
+A2Disk: all
+	cp PRODOS203.DSK a2cmd.dsk
+	cp apple2enh\cbmcommand.apple2enh a2command.bin
+	java -jar AppleCommander-1.3.5.jar -cc65 a2cmd.dsk a2command bin < a2command.bin
+	rm a2command.bin
+
 D64: all
 	cp c64\$(TITLE).c64 $(TITLE).c64
 	cp c128\$(TITLE).c128 $(TITLE).c128

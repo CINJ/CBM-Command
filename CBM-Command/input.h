@@ -39,29 +39,48 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _INPUT_H
 
 // Global Hotkeys
-#define HK_REREAD_LEFT		0x05	// CTRL-E
-#define HK_REREAD_RIGHT		0xB1	// C=-E
-#define HK_DRIVE_LEFT		0x04	// CTRL-D
-#define HK_DRIVE_RIGHT		0xAC	// C=-D
-#define HK_SWAP_PANELS		0x17	// CTRL-W
-#define HK_TOGGLE_PANELS	0x14	// CTRL-T
-#define HK_SELECT_ALL		0x01	// CTRL-A
-#define HK_DESELECT_ALL		0x13	// CTRL-S
-#define HK_HELP_128			0x84	// HELP
-#define HK_QUIT				0x15	// CTRL-U
-#define HK_GO64				0x07	// CTRL-G
-#define HK_TOGGLE_4080		0x0F	// CTRL-O
-#define HK_COPY				0x03	// CTRL-C
-#define HK_RENAME			0x12	// CTRL-R
-#define HK_DELETE			0x1E	// CTRL-^
-#define HK_MAKE_DIRECTORY	0x0B	// CTRL-K
+#define HK_REREAD_LEFT		KEY_CTRL_E	// CTRL-E
+#define HK_REREAD_RIGHT		KEY_ALT_E	// C=-E
+#define HK_DRIVE_LEFT		KEY_CTRL_D	// CTRL-D
+#define HK_DRIVE_RIGHT		KEY_ALT_D	// C=-D
+#define HK_TOGGLE_PANELS	KEY_CTRL_T	// CTRL-T
+#define HK_SELECT_ALL		KEY_CTRL_A	// CTRL-A
+#define HK_DESELECT_ALL		KEY_CTRL_S	// CTRL-S
+#define HK_QUIT				KEY_CTRL_U	// CTRL-U
+#define HK_COPY				KEY_CTRL_C	// CTRL-C
+#define HK_RENAME			KEY_CTRL_R	// CTRL-R
+#if defined(__C128__) || defined(__C64__)
+#define HK_DELETE			0x1E		// CTRL-^
+#else
+#define HK_DELETE			KEY_CTRL_L	// CTRL-L
+#endif
+#define HK_MAKE_DIRECTORY	KEY_CTRL_K	// CTRL-K
+#if defined(__C128__) || defined(__C64__)
 #define HK_TO_TOP			0x5E	// ^
 #define HK_TO_BOTTOM		0xDE	// SHIFT-^
+#else
+#define HK_TO_TOP			'{'		// ^
+#define HK_TO_BOTTOM		'}'		// SHIFT-^
+#endif
+#if defined(__C128__) || defined(__C64__)
 #define HK_PAGE_UP			43
 #define HK_PAGE_DOWN		45
-#define HK_SELECT			32
-#define HK_CREATE_D64		0x18	// CTRL-X
+#else
+#define HK_PAGE_UP			'['
+#define HK_PAGE_DOWN		']'
+#endif
 
-void __fastcall__ readKeyboard(void);
+#define HK_SELECT			32
+
+#if defined(__C128__) || defined(__C64__)
+#define HK_CREATE_D64		0x18	// CTRL-X
+#endif
+
+#ifdef __C128__
+#define HK_HELP_128			0x84	// HELP
+#define HK_GO64				0x07	// CTRL-G
+#endif
+
+void  readKeyboard(void);
 
 #endif

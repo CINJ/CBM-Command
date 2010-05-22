@@ -14,6 +14,8 @@ Global
 		SccLocalPath1 = CBM-Command
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		A2|Win32 = A2|Win32
+		A2|x64 = A2|x64
 		C128_Config|Win32 = C128_Config|Win32
 		C128_Config|x64 = C128_Config|x64
 		C128|Win32 = C128|Win32
@@ -24,6 +26,9 @@ Global
 		C64|x64 = C64|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7F4E2F75-2BFC-4198-80B0-A76EA363E36A}.A2|Win32.ActiveCfg = A2|Win32
+		{7F4E2F75-2BFC-4198-80B0-A76EA363E36A}.A2|Win32.Build.0 = A2|Win32
+		{7F4E2F75-2BFC-4198-80B0-A76EA363E36A}.A2|x64.ActiveCfg = A2|Win32
 		{7F4E2F75-2BFC-4198-80B0-A76EA363E36A}.C128_Config|Win32.ActiveCfg = C128_Config|Win32
 		{7F4E2F75-2BFC-4198-80B0-A76EA363E36A}.C128_Config|Win32.Build.0 = C128_Config|Win32
 		{7F4E2F75-2BFC-4198-80B0-A76EA363E36A}.C128_Config|x64.ActiveCfg = C128_Config|Win32

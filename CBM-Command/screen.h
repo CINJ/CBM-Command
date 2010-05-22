@@ -47,7 +47,7 @@ enum buttons { OK = 1, CANCEL = 2, YES = 4, NO = 8 };
 //typedef void *ButtonCallback(enum buttonTypes buttonType);
 
 void setupScreen(void);
-void __fastcall__ writeStatusBar(unsigned char[]);
+void  writeStatusBar(unsigned char[]);
 
 void writeStatusBarf(
 	unsigned char[], ...);
@@ -69,29 +69,29 @@ void drawBox(
 	unsigned char, unsigned char,
 	unsigned char, unsigned);
 
-enum results __fastcall__ drawDialog(
+enum results  drawDialog(
 	unsigned char* message[],
 	unsigned char lineCount,
 	unsigned char* title,
 	enum buttons button);
 
-unsigned __fastcall__ writeYesNo(
+unsigned  writeYesNo(
 	unsigned char *title,
 	unsigned char *message[],
 	unsigned char lineCount);
 
-enum results __fastcall__ drawInputDialog(
+enum results  drawInputDialog(
 	unsigned char lineCount,
 	unsigned char length,
 	unsigned char *message[],
 	unsigned char *title,
 	unsigned char *resultText);
 
-void __fastcall__ saveScreen(void);
-void __fastcall__ retrieveScreen(void);
+void  saveScreen(void);
+void  retrieveScreen(void);
 
-void __fastcall__ notImplemented(void);
+void  notImplemented(void);
 
-unsigned char __fastcall__ getCenterX(unsigned char w);
-unsigned char __fastcall__ getCenterY(unsigned char h);
+unsigned char  getCenterX(unsigned char w);
+unsigned char  getCenterY(unsigned char h);
 #endif

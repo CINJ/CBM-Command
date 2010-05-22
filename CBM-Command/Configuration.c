@@ -36,7 +36,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
+#if defined(__C128__) || defined(__C64__)
 #include <cbm.h>
+#include "Configuration-CBM.h"
+#endif
 #include <conio.h>
 #include <errno.h>
 #include <peekpoke.h>
@@ -45,9 +48,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "globals.h"
 #include "screen.h"
 
+/* Drive Configuration */
 unsigned char defaultLeftDrive = 8;
 unsigned char defaultRightDrive = 8;
 
+/* Color Configuration */
+// The C= 128 defaults to different colors
+// than the C= 64.
 #ifdef __C128__
 unsigned char color_background	= COLOR_BLACK;
 unsigned char color_border		= COLOR_BLACK;
@@ -58,7 +65,7 @@ unsigned char color_text_files	= COLOR_YELLOW;
 unsigned char color_text_status = COLOR_GRAY3;
 unsigned char color_text_other	= COLOR_WHITE;
 unsigned char color_text_highlight = COLOR_YELLOW;
-#else
+#elif __C64__
 unsigned char color_background	= COLOR_BLUE;
 unsigned char color_border		= COLOR_BLUE;
 unsigned char color_selector	= COLOR_WHITE;
@@ -68,15 +75,47 @@ unsigned char color_text_files	= COLOR_GRAY3;
 unsigned char color_text_status	= COLOR_GRAY2;
 unsigned char color_text_other	= COLOR_GRAY3;
 unsigned char color_text_highlight = COLOR_WHITE;
+#else
+unsigned char color_background	= COLOR_BLACK;
+unsigned char color_border		= COLOR_BLACK;
+unsigned char color_selector	= COLOR_WHITE;
+unsigned char color_text_borders= COLOR_WHITE;
+unsigned char color_text_menus	= COLOR_WHITE;
+unsigned char color_text_files	= COLOR_WHITE;
+unsigned char color_text_status = COLOR_WHITE;
+unsigned char color_text_other	= COLOR_WHITE;
+unsigned char color_text_highlight = COLOR_WHITE;
 #endif
 
-void __fastcall__ load(void)
+/* Load configuration
+ * --------------------------
+ * - Payton Byrd 
+ * --------------------------
+ * Loads the configuration
+ * from disk.
+ */
+void  load(void)
 {
-	unsigned char r, d;
-	//unsigned char *buffer;
-	//buffer = calloc(11,sizeof(unsigned char));
-	d = PEEK(0x00BA);
-	cbm_open(15,d,15,"");
+#if defined(__C128__) || defined(__C64__) 
+	loadCBM();
+#endif
+}
+
+#if defined(__C128__) || defined(__C64__)
+void loadCBM(void)
+{
+	unsigned char r;	// Drive operation result
+	unsigned char d;	// Drive number we started from
+
+	d = PEEK(0x00BA);	// Get the drive that the app
+						// was loaded from
+	
+	cbm_open(15,d,15,"");	// Open the command channel
+
+	// We use different filenames for the C= 64
+	// and C= 128 so that both versions can be
+	// on the same disk and not have to share the
+	// same configuration.
 #ifdef __C64__
 	r = cbm_open(1,d,2,"cbmcmd-cfg.c64,s,r");
 #endif
@@ -84,37 +123,42 @@ void __fastcall__ load(void)
 	r = cbm_open(1,d,2,"cbmcmd-cfg.c128,s,r");
 #endif
 
-	if(r == 0)
+	if(r == 0) // r == success
 	{
-		r = cbm_read(1, buffer, 11);
-		if(r == 11)
+		r = cbm_read(1, buffer, 11);	// Read the configuration bytes
+		if(r == 11)	// Expecting 11 bytes.
 		{
-			defaultLeftDrive = buffer[0];
-			defaultRightDrive = buffer[1];
-			color_background = buffer[2];
-			color_border = buffer[3];
-			color_selector = buffer[4];
-			color_text_borders = buffer[5];
-			color_text_menus = buffer[6];
-			color_text_files = buffer[7];
-			color_text_status = buffer[8];
-			color_text_other = buffer[9];
-			color_text_highlight = buffer[10];
+			// Set the values from the configuration bytes.
+			
+			/* Drive Settings */
+			defaultLeftDrive	= buffer[0];
+			defaultRightDrive	= buffer[1];
+
+			/* Color settings */
+			color_background	= buffer[2];
+			color_border		= buffer[3];
+			color_selector		= buffer[4];
+			color_text_borders	= buffer[5];
+			color_text_menus	= buffer[6];
+			color_text_files	= buffer[7];
+			color_text_status	= buffer[8];
+			color_text_other	= buffer[9];
+			color_text_highlight= buffer[10];
 		}
 	}
 	else
 	{
-		//free(buffer);
-		//buffer = calloc(41, sizeof(unsigned char));
+		// Error, read it from the
+		// command channel and display
+		// to the user.
 		r = cbm_read(15,buffer,39);
 		buffer[r] = '\0';
 		writeStatusBar(buffer);
-		//free(buffer);
 		waitForEnterEsc();
 	}
 
+	// Close the channels
 	cbm_close(1);
 	cbm_close(15);
 }
-
-
+#endif

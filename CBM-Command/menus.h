@@ -145,6 +145,9 @@ void  quit(void);
 void  go64(void);
 #endif
 
+
+extern unsigned char fileBuffer[COPY_BUFFER_SIZE];
+
 // Menu drawing
 void  drawFileMenu(unsigned char);
 void  drawDriveMenu(unsigned char);

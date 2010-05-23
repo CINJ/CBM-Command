@@ -114,7 +114,6 @@ void  initializeDrives(void)
 int  getDriveStatus(
 	struct drive_status *drive)
 {
-#if defined(__C128__) || defined(__C64__)
 	int result;
 	int size;
 	unsigned char dr;
@@ -129,6 +128,7 @@ int  getDriveStatus(
 
 	if(_oserror != 0)
 	{
+		writeStatusBarf("_oserror: %d", _oserror); waitForEnterEsc();
 		cbm_close(15);
 
 		return -1;
@@ -153,22 +153,25 @@ int  getDriveStatus(
 
 		return size;
 	}
+	else
+	{
+		writeStatusBarf("Error: %d", result); waitForEnterEsc();
+	}
 
+
+	cbm_close(15);
 	return result;
-#else
-	return 0;
-#endif
 }
 
 void  listDrives(enum menus menu)
 {
 	unsigned selected = FALSE;
-	const unsigned char h = 14, w = 39;
+	unsigned char h = 14, w = 39;
 	unsigned char original=0;
-
-	unsigned char x, y, i;
+	unsigned char x=0, y=0, i=0;
 	unsigned char status, current, key;
 
+	w = size_x - 1;
 	x = getCenterX(w);
 	y = getCenterY(h);
 
@@ -212,6 +215,7 @@ void  listDrives(enum menus menu)
 		revers(FALSE);
 	}
 
+
 	textcolor(color_text_highlight);
 	cputsxy(x + 1, y + 12, 
 		"Use arrow keys & enter to select drive");
@@ -219,6 +223,7 @@ void  listDrives(enum menus menu)
 
 	gotoxy(x + 1, current + 2 + y); cputc('>');
 
+	selected = FALSE;
 	while(!selected)
 	{
 		key = cgetc();
@@ -226,9 +231,7 @@ void  listDrives(enum menus menu)
 		switch((int)key)
 		{
 		case CH_ESC: 
-#if defined(__C128__) || defined(__C64__)
 		case CH_STOP:
-#endif
 			selected = TRUE;
 			current = original;
 			break;
@@ -240,7 +243,6 @@ void  listDrives(enum menus menu)
 			}
 			break;
 
-#if defined(__C128__) || defined(__C64__)
 		case CH_CURS_UP:
 			if(current > 0)
 			{
@@ -258,7 +260,6 @@ void  listDrives(enum menus menu)
 				gotoxy(x + 1, current + 2 + y); cputc('>');
 			}
 			break;
-#endif
 		}
 	}
 

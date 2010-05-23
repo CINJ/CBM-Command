@@ -171,6 +171,7 @@
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="cbmcmd.help" />
     <None Include="loadcbmcmd" />
     <None Include="res\common\CommandMenu.s" />
     <None Include="res\c128\PlatformSpecific.s" />
@@ -201,6 +202,7 @@
     <ClCompile Include="menus.c" />
     <ClCompile Include="OptionMenu.c" />
     <ClCompile Include="screen.c" />
+    <ClCompile Include="Viewer.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssemblerMethods.h" />
@@ -216,6 +218,7 @@
     <ClInclude Include="menus.h" />
     <ClInclude Include="PlatformSpecific.h" />
     <ClInclude Include="screen.h" />
+    <ClInclude Include="Viewer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

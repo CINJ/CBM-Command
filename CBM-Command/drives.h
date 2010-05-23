@@ -119,7 +119,7 @@ int  getDriveStatus(
 
 void  listDrives(enum menus menu);
 
-extern unsigned char  checkDrive(
+extern unsigned char __fastcall__ checkDrive(
 	unsigned char length,
 	unsigned char* file,
 	unsigned char drive);

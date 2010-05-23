@@ -53,6 +53,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "input.h"
 #include "menus.h"
 #include "screen.h"
+#include "Viewer.h"
 
 unsigned char *quit_message[1] =
 {
@@ -210,21 +211,7 @@ unsigned char *quit_message[1] =
 
 void  writeHelpPanel(void)
 {
-	writeStatusBar("cbmcommand.codeplex.com/documentation");
-	//unsigned char* dialogMessage[] =
-	//{
-	//	{ "Please visit" },
-	//	{ "http://cbmcommand.codeplex.com/" },
-	//	{ "    documentation" }
-	//};
-
-	//saveScreen();
-
-	//drawDialog(
-	//	dialogMessage, 3, "Help",
-	//	OK);
-
-	//retrieveScreen();
+	viewFile(PEEK(0xBA),"cbmcmd.help");
 }
 
 unsigned char fileBuffer[COPY_BUFFER_SIZE];
@@ -564,14 +551,30 @@ void  executeSelectedFile(void)
 {
 	struct dir_node *currentNode;
 	unsigned result;
+	unsigned char *message[] ={ "Open as text file?" };
 
 	if(selectedPanel != NULL)
 	{
 		currentNode = getSelectedNode(selectedPanel);
 
-		if(currentNode != NULL && currentNode->type == 2)
+		if(currentNode != NULL && 
+			currentNode->type == 2 ||
+			currentNode->type == 1)
 		{
 			saveScreen();
+			if(currentNode->type == 1 ||
+				writeYesNo(currentNode->name, message, 1)
+					== TRUE)
+			{
+				retrieveScreen();
+
+				viewFile(selectedPanel->drive->drive, 
+					currentNode->name);
+
+				return;
+			}
+
+			retrieveScreen();
 
 			result = writeYesNo("Confirm", quit_message, 1);
 
@@ -598,6 +601,7 @@ void  executeSelectedFile(void)
 #endif
 				exit(EXIT_SUCCESS);
 			}
+			
 		}
 	}
 }

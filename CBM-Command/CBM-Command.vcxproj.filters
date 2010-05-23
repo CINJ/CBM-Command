@@ -58,11 +58,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="loadcbmcmd" />
+    <None Include="cbmcmd.help" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="makefile">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AssemblerMethods.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -105,6 +103,10 @@
     <ClCompile Include="Configuration.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Viewer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="makefile" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="constants.h">
@@ -144,6 +146,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Configuration-Apple2Enh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

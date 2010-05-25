@@ -84,6 +84,7 @@ void  initializeDrives(void)
 	{
 		startupDevice = PEEK(0x00BA);
 
+		leftPanelDrive.visible = FALSE;
 		leftPanelDrive.drive = &(drives[defaultLeftDrive - 8]);
 		leftPanelDrive.currentIndex = 0;
 		leftPanelDrive.displayStartAt = 0;
@@ -95,6 +96,7 @@ void  initializeDrives(void)
 			leftPanelDrive.slidingWindow[i].type = 0;
 		}
 
+		rightPanelDrive.visible = FALSE;
 		rightPanelDrive.drive = &(drives[defaultRightDrive - 8]);
 		rightPanelDrive.currentIndex = 0;
 		rightPanelDrive.displayStartAt = 0;
@@ -381,14 +383,28 @@ void  displayDirectory(
 		getDirectory(drive, 0);
 	}
 
+	if(drive->header.name == NULL)
+	{
+		return;
+	}
+
+	drive->visible = TRUE;
+
 	if(size_x > 40) w=39;
 	if(drive->position == right) x=w + 1;
 	
-	writePanel(TRUE, FALSE, color_text_borders, x, 1, 21, w, 
-		drive->header.name, NULL, NULL);
+	textcolor(color_text_borders);
+	cvlinexy(0, 1, 22);
+	cvlinexy(w+1, 1, 22);
+	chlinexy(x+1, 22, w);
 
 	gotoxy(x+1, 22); cprintf("[%2d]", drive->drive->drive);
-	gotoxy(x + w - 7, 22); cprintf("[%5u]", drive->header.size);
+	gotoxy(x + w - 6, 22); cprintf("[%5u]", drive->header.size);
+	gotoxy(x+1, 1); cprintf("[%s ]", drive->header.name);
+	for(i=0; i<20; ++i)
+	{
+		cclearxy(x + 1, i+2, w);
+	}
 
 	start = drive->displayStartAt;
 
@@ -433,9 +449,13 @@ void  displayDirectory(
 		}		
 
 		y = i - start + 2;
-		cputcxy(x + 2, y, fileType);
-		cputsxy(x + 4, y, size);
-		cputsxy(x + 8, y, shortenString(currentNode->name));
+		cputsxy(x + 1, y, size);
+		cputsxy(x + 5, y, shortenString(currentNode->name));
+#ifdef __C64__
+		cputcxy(x + 19, y, fileType);
+#else
+		cputcxy(x + 5 + 17, y, fileType);
+#endif
 		
 		revers(FALSE);
 		
@@ -448,10 +468,15 @@ void  writeSelectorPosition(struct panel_drive *panel,
 {
 	unsigned char x, y;
 	y = (panel->currentIndex - panel->displayStartAt) + 2;
-	x = (panel == &leftPanelDrive ? 1 : size_x / 2 + 1);
+	x = (panel == &leftPanelDrive ? 0 : size_x / 2);
 	gotoxy(x, y);
 	textcolor(color_selector);
 	revers(FALSE);
+	if(character == ' ')
+	{
+		textcolor(color_text_borders);
+		character = CH_VLINE;
+	}
 	cputc(character);
 }
 
@@ -468,10 +493,9 @@ void  writeCurrentFilename(struct panel_drive *panel)
 			if(currentDirNode != NULL &&
 				currentDirNode->name != NULL)
 			{
-				writeStatusBarf("Idx: %3u Sz: %5u Nm: %s",
-					currentDirNode->index,
-					currentDirNode->size,
-					currentDirNode->name);
+				writeStatusBarf("%16s - %5u",
+					currentDirNode->name,
+					currentDirNode->size);
 			}
 		}
 	}
@@ -555,15 +579,14 @@ void  shortenSize(unsigned char* buffer, unsigned int value)
 
 unsigned char*  shortenString(unsigned char* source)
 {
-	const int targetLength = 11;
+	const int targetLength = 13;
 	unsigned char buffer[18];
 
 	if(size_x == 40)
 	{
 		if(strlen(source) > targetLength)
 		{
-			strncpy(buffer, source, targetLength - 3);
-			buffer[targetLength - 3] = '.';
+			strncpy(buffer, source, targetLength - 2);
 			buffer[targetLength - 2] = '.';
 			buffer[targetLength - 1] = '.';
 			buffer[targetLength] = '\0';

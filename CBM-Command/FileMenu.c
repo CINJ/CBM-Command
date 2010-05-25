@@ -406,7 +406,7 @@ void  renameFile(void)
 
 			retrieveScreen();
 
-			if(dialogResult == OK_RESULT)
+			if(dialogResult == OK_RESULT && strlen(filename) > 0)
 			{
 				writeStatusBarf("Renaming to %s", filename);
 

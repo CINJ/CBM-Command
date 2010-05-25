@@ -93,6 +93,7 @@ struct dir_node
  */
 struct panel_drive
 {
+	unsigned visible;
 	unsigned char* selectedEntries;
 	struct drive_status *drive;
 	struct dir_node header;

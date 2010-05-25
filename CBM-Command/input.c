@@ -78,7 +78,7 @@ void  readKeyboard(void)
 #if defined(__CBM__)
 	case CH_CURS_LEFT:
 		if(selectedPanel == &rightPanelDrive
-			&& leftPanelDrive.drive != NULL
+			&& leftPanelDrive.visible == TRUE
 			&& arePanelsOn)
 		{
 			selectedPanel = &leftPanelDrive;
@@ -88,7 +88,7 @@ void  readKeyboard(void)
 		break;
 	case CH_CURS_RIGHT:
 		if(selectedPanel == &leftPanelDrive
-			&& rightPanelDrive.drive != NULL
+			&& rightPanelDrive.visible == TRUE
 			&& arePanelsOn)
 		{
 			selectedPanel = &rightPanelDrive;

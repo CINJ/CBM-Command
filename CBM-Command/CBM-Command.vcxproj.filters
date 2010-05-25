@@ -59,6 +59,7 @@
     </None>
     <None Include="loadcbmcmd" />
     <None Include="cbmcmd.help" />
+    <None Include="cbmcommand.d64" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblerMethods.c">

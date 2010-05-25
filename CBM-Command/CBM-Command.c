@@ -100,6 +100,8 @@ int main(void)
 	// it in the left panel.
 	rereadSelectedPanel();
 
+	writeStatusBarf("CBM-Command Build: %s %s", __DATE__, __TIME__);
+
 	// Main Loop
 	while(TRUE)
 	{

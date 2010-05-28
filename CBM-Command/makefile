@@ -55,18 +55,12 @@ else
 endif
 
 D64: all
+	rm $(TITLE).d64
+	cp $(TITLE)_master.d64 $(TITLE).d64
 	cp c64\$(TITLE).c64 $(TITLE).c64
 	cp c128\$(TITLE).c128 $(TITLE).c128
 	cp c64\$(CONFIG_TITLE).c64 $(CONFIG_TITLE).c64
 	cp c128\$(CONFIG_TITLE).c128 $(CONFIG_TITLE).c128
-#	$(C1541) -format $(TITLE),id d64 $(TITLE).d64
-#	$(C1541) $(TITLE).d64 -write loadcbmcmd loadcbmcmd
-#	$(C1541) $(TITLE).d64 -write cbmcmd.help cbmcmd.help
-
-	$(C1541) $(TITLE).d64 -delete $(TITLE).c64
-	$(C1541) $(TITLE).d64 -delete $(TITLE).c128
-	$(C1541) $(TITLE).d64 -delete $(CONFIG_TITLE).c64 
-	$(C1541) $(TITLE).d64 -delete $(CONFIG_TITLE).c128 
 
 	$(C1541) $(TITLE).d64 -write $(TITLE).c64 $(TITLE).c64
 	$(C1541) $(TITLE).d64 -write $(TITLE).c128 $(TITLE).c128

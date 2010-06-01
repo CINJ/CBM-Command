@@ -36,7 +36,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 #include <cbm.h>
 #include "Configuration-CBM.h"
 #endif
@@ -96,12 +96,12 @@ unsigned char color_text_highlight = COLOR_WHITE;
  */
 void  load(void)
 {
-#if defined(__C128__) || defined(__C64__) 
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) 
 	loadCBM();
 #endif
 }
 
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 void loadCBM(void)
 {
 	unsigned char r;	// Drive operation result

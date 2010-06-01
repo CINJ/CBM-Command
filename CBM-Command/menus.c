@@ -291,5 +291,20 @@ void writeMenuBar(void)
 
 	revers(FALSE);
 #endif
+#ifdef __PET__
+	cputsxy(0, bottom, "  HELP     QUIT    SELECT   REFRESH   COPY    RENAME    MAKE DIRECTORY    DELETE");
+
+	revers(TRUE);
+	gotoxy(0, bottom); cputc('S'); cputc('1');
+	gotoxy(9, bottom); cputc('S'); cputc('2');
+	gotoxy(17, bottom); cputc('S'); cputc('3');
+	gotoxy(26, bottom); cputc('S'); cputc('4');
+	gotoxy(36, bottom); cputc('S'); cputc('5');
+	gotoxy(44, bottom); cputc('S'); cputc('6');
+	gotoxy(54, bottom); cputc('S'); cputc('7');
+	gotoxy(72, bottom); cputc('S'); cputc('8');
+
+	revers(FALSE);
+#endif
 }
 

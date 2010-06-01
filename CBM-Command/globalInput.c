@@ -15,7 +15,7 @@ unsigned char  waitForEnterEsc(void)
 	revers(FALSE);
 
 	while(key != CH_ESC
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 		&& key != CH_STOP
 #endif
 		&& key != CH_ENTER)

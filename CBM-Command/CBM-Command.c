@@ -81,7 +81,7 @@ int main(void)
 	// Loads configuration from
 	// drive that the application
 	// was started from.
-	load();
+	//load();
 
 	// Initializes the disk drives
 	// which sets up structures for

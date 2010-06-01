@@ -49,8 +49,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Keyboad Constants */
 #define KEY_AT				'@'	// @
 #if defined(__C128__) || defined(__C64__)
-#define KEY_SH_SPACE		0xA0
-#define KEY_SH_RETURN		0x8D
 #define KEY_F1				0x85
 #define KEY_F3				0x86
 #define KEY_F5				0x87
@@ -59,6 +57,26 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define KEY_F4				0x8A
 #define KEY_F6				0x8B
 #define KEY_F8				0x8C
+
+#define KEY_SH_SPACE		0xA0
+#define KEY_SH_RETURN		0x8D
+#define KEY_SH_PLUS			0xDB
+#define KEY_SH_MINUS		0xDD
+#define KEY_ALT_D			0xAC
+#define KEY_ALT_E			0xB1
+#endif
+#if defined(__PET__)
+#define KEY_F1				0x21
+#define KEY_F3				0x23
+#define KEY_F5				0x25
+#define KEY_F7				0x27
+#define KEY_F2				0x22
+#define KEY_F4				0x24
+#define KEY_F6				0x26
+#define KEY_F8				0x28
+
+#define KEY_SH_SPACE		0xA0
+#define KEY_SH_RETURN		0x8D
 #define KEY_SH_PLUS			0xDB
 #define KEY_SH_MINUS		0xDD
 #define KEY_ALT_D			0xAC

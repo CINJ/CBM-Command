@@ -35,7 +35,7 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 #include <cbm.h>
 #include "Configuration-CBM.h"
 #endif
@@ -53,7 +53,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PlatformSpecific.h"
 #include "input.h"
 
-#ifdef __C64__
+#if defined(__C64__) || defined(__PET__)
 unsigned int vicRegister;
 unsigned int screenMemoryStart;
 unsigned char SCREEN_BUFFER[1000];
@@ -76,7 +76,7 @@ void  saveScreen(void)
 #ifdef __C128__
 	copyVdcScreen(0x00, 0x10);
 	return;
-#elif __CBM__
+#elif defined(__C64__)
 	int vicRegister = 53272u;
 	int screenMemoryStart;
 	int colorMemoryStart = 0xD800;
@@ -85,6 +85,11 @@ void  saveScreen(void)
 
 	memcpy(SCREEN_BUFFER, screenMemoryStart, 1000);
 	memcpy(COLOR_BUFFER, colorMemoryStart, 1000);
+#elif defined(__PET__)
+	screenMemoryStart = 0x8000;
+
+	memcpy(SCREEN_BUFFER, screenMemoryStart, 2000);
+	//memcpy(COLOR_BUFFER, colorMemoryStart, 1000);
 #endif
 }
 
@@ -93,7 +98,7 @@ void  retrieveScreen(void)
 #ifdef __C128__
 	copyVdcScreen(0x10, 0x00);
 	return;
-#elif __CBM__
+#elif defined(__C64__)
 	int vicRegister = 53272u;
 	int screenMemoryStart;
 	int colorMemoryStart = 0xD800;
@@ -101,6 +106,9 @@ void  retrieveScreen(void)
 	screenMemoryStart = ((PEEK(vicRegister) & 0xF0) >> 4) * 1024;
 	memcpy(screenMemoryStart, SCREEN_BUFFER, 1000);
 	memcpy(colorMemoryStart, COLOR_BUFFER, 1000);
+#elif defined(__PET__)
+	screenMemoryStart = 0x8000;
+	memcpy(screenMemoryStart, SCREEN_BUFFER, 2000);
 #endif
 
 }
@@ -146,7 +154,7 @@ void drawBox(
 	// draw body
 	for(i=y+1; i<y+h; ++i)
 	{
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 		cputcxy(x, i, CH_VLINE);
 		cclearxy(x + 1, i, w - 1);
 		cputcxy(x+w, i, CH_VLINE);
@@ -329,7 +337,7 @@ enum results  drawDialog(
 
 		if(key == CH_ENTER) break;
 		if(key == CH_ESC 
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 			|| key == CH_STOP
 #endif
 			) break;
@@ -342,7 +350,7 @@ enum results  drawDialog(
 	switch((int)key)
 	{
 	case CH_ESC: 
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 	case CH_STOP: 
 #endif
 	case (int)'n': 
@@ -406,7 +414,7 @@ enum results  drawInputDialog(
 	count = 0;
 	key = cgetc();
 	while(key != CH_ESC 
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 		&& key != CH_STOP 
 #endif
 		&& key != CH_ENTER)
@@ -427,7 +435,7 @@ enum results  drawInputDialog(
 			cputc('<');
 		}
 		else if(
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 			key == CH_DEL 
 #else
 			key == 127

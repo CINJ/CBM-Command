@@ -75,7 +75,7 @@ unsigned int main(void)
 #endif
 
 	initialize();
-	load();
+	//load();
 	setupScreen();
 	writeFunctionKeys();
 	writeMenu();
@@ -298,7 +298,7 @@ void  writeFunctionKeys(void)
 
 void  save(void)
 {
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 	unsigned char r, d;
 	unsigned char *buffer;
 	buffer = calloc(1, sizeof(unsigned char));

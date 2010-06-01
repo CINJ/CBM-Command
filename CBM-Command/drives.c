@@ -35,7 +35,7 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 #include <cbm.h>
 #endif
 #include <conio.h>
@@ -281,7 +281,7 @@ int  getDirectory(
 	struct panel_drive *drive,
 	int slidingWindowStartAt)
 {
-#if defined(__C128__) || defined(__C64__)	
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)	
 	unsigned int counter=0, read=0;
 	unsigned char result, dr, i;
 	struct cbm_dirent currentDE;
@@ -760,7 +760,7 @@ unsigned char  sendCommand(
 	struct panel_drive *panel,
 	unsigned char *command)
 {
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 	char result;
 	unsigned char drive;
 

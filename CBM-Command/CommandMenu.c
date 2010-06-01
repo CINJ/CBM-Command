@@ -35,7 +35,7 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
 #include <cbm.h>
 #endif
 #include <conio.h>

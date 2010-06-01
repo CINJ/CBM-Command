@@ -35,7 +35,7 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
 #include <cbm.h>
 #include "Configuration-CBM.h"
 #endif
@@ -154,7 +154,7 @@ void drawBox(
 	// draw body
 	for(i=y+1; i<y+h; ++i)
 	{
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
 		cputcxy(x, i, CH_VLINE);
 		cclearxy(x + 1, i, w - 1);
 		cputcxy(x+w, i, CH_VLINE);
@@ -337,7 +337,7 @@ enum results  drawDialog(
 
 		if(key == CH_ENTER) break;
 		if(key == CH_ESC 
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
 			|| key == CH_STOP
 #endif
 			) break;
@@ -350,7 +350,7 @@ enum results  drawDialog(
 	switch((int)key)
 	{
 	case CH_ESC: 
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
 	case CH_STOP: 
 #endif
 	case (int)'n': 
@@ -414,7 +414,7 @@ enum results  drawInputDialog(
 	count = 0;
 	key = cgetc();
 	while(key != CH_ESC 
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
 		&& key != CH_STOP 
 #endif
 		&& key != CH_ENTER)
@@ -435,7 +435,7 @@ enum results  drawInputDialog(
 			cputc('<');
 		}
 		else if(
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
 			key == CH_DEL 
 #else
 			key == 127

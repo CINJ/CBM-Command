@@ -58,7 +58,7 @@ void  readKeyboard(void)
 	case KEY_F4:
 		rereadSelectedPanel();
 		break;
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
 	case KEY_SH_RETURN:
 		executeSelectedFile();
 		break;
@@ -145,7 +145,7 @@ void  readKeyboard(void)
 	case KEY_F1:
 		writeHelpPanel();
 		break;
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
 	case HK_QUIT:
 #endif
 	case KEY_F2:
@@ -171,7 +171,7 @@ void  readKeyboard(void)
 	case KEY_AT:
 		inputCommand();
 		break;
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
 	case HK_MAKE_DIRECTORY:
 #endif
 	case KEY_F7:
@@ -189,7 +189,7 @@ void  readKeyboard(void)
 	case HK_PAGE_DOWN:
 		movePageDown(selectedPanel);
 		break;
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
 	case KEY_SH_SPACE:
 		writeD64();
 		break;

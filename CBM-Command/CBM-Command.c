@@ -81,7 +81,9 @@ int main(void)
 	// Loads configuration from
 	// drive that the application
 	// was started from.
-	//load();
+#ifndef __PET__
+	load();
+#endif
 
 	// Initializes the disk drives
 	// which sets up structures for

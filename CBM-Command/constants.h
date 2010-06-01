@@ -48,7 +48,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* Keyboad Constants */
 #define KEY_AT				'@'	// @
-#if defined(__C128__) || defined(__C64__)
+#if defined(__C128__) || defined(__C64__) || defined(__VIC20__)
 #define KEY_F1				0x85
 #define KEY_F3				0x86
 #define KEY_F5				0x87

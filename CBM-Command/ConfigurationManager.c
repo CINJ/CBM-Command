@@ -98,13 +98,13 @@ void  readKeyboard(void)
 
 	switch((int)result)
 	{
-	case KEY_F1:
+	case CH_F1:
 		help();
 		break;
-	case KEY_F2:
+	case CH_F2:
 		quit();
 		break;
-	case KEY_F3:
+	case CH_F3:
 		save();
 		break;
 	case '1':

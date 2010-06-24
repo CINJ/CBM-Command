@@ -38,6 +38,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _MENUS_H
 #define _MENUS_H
 
+#include "constants.h"
+
 // Menu Globals
 extern unsigned char currentMenuX;
 extern unsigned char currentMenuLine;

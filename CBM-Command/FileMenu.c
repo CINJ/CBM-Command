@@ -59,6 +59,7 @@ unsigned char *quit_message[1] =
 {
 	"Quit CBM-Command?"
 };
+#define A_SIZE_QUIT A_SIZE(quit_message)
 	
 
 //#ifdef __C128__
@@ -547,61 +548,62 @@ void  writeAboutBox(void)
 	writeStatusBarf("Thank You for using CBM-Command Alpa");
 }
 
-void  executeSelectedFile(void)
+void executeSelectedFile(void)
 {
-	struct dir_node *currentNode;
-	unsigned result;
-	unsigned char *message[] ={ "Open as text file?" };
+	const struct dir_node *currentNode;
+	static const char* const message[] =
+	{
+		{ "Read as text?" }
+	};
 
 	if(selectedPanel != NULL)
 	{
 		currentNode = getSelectedNode(selectedPanel);
-
-		if(currentNode != NULL && 
-			currentNode->type == 2 ||
-			currentNode->type == 1)
+		if(currentNode != NULL)
 		{
-			saveScreen();
-			if(currentNode->type == 1 ||
-				writeYesNo(currentNode->name, message, 1)
-					== TRUE)
+			switch (currentNode->type)
 			{
-				retrieveScreen();
+			case CBM_T_PRG:
+				//saveScreen();
+				if(!writeYesNo(currentNode->name, (char**)message, A_SIZE(message)))
+				{
+					retrieveScreen();
+					if(writeYesNo("Confirm execute", quit_message, A_SIZE_QUIT))
+					{
+						//textcolor(outsideText);
+						//bgcolor(outsideScreen);
+						//bordercolor(outsideFrame);
+						clrscr();
 
-				viewFile(selectedPanel->drive->drive, 
-					currentNode->name);
-
-				return;
-			}
-
-			retrieveScreen();
-
-			result = writeYesNo("Confirm", quit_message, 1);
-
-			retrieveScreen();
-	
-			if(result == TRUE)
-			{
-				clrscr();
-#if defined(__C128__) || defined(__C64__)
+						cprintf("lO\"%s\",%u,1\r\n\n\n\n\nrU",
+							currentNode->name, selectedPanel->drive->drive);
 #ifdef __C64__
-				POKE(631,'r');
-				POKE(632,'U');
-				POKE(633,13);
-				POKE(198,3);
+						POKE(631,0x13);		/* HOME */
+						POKE(632,'\n');
+						POKE(633,'\n');
+						POKE(198,3);
 #endif
 #ifdef __C128__
-				POKE(0x034A,'r');
-				POKE(0x034B,'U');
-				POKE(0x034C,13);
-				POKE(0x00D0,3);
+						POKE(0x034A,0x13);	/* HOME */
+						POKE(0x034B,'\n');
+						POKE(0x034C,'\n');
+						POKE(0x00D0,3);
 #endif
-				writeStatusBarf("Loading %s", currentNode->name);
-				cbm_load(currentNode->name, selectedPanel->drive->drive, NULL);
-#endif
-				exit(EXIT_SUCCESS);
+						exit(EXIT_SUCCESS);
+						//return;			// exit() doesn't return
+					}
+					retrieveScreen();
+					break;
+				}
+				retrieveScreen();
+				// fall through
+			case CBM_T_SEQ:
+			//case CBM_T_USR:
+				viewFile(selectedPanel->drive->drive,
+					currentNode->name);
+				retrieveScreen();
 			}
-			
+
 		}
 	}
 }
@@ -954,6 +956,6 @@ void  writeD64(void)
 				}
 			}
 		}
-	}	
+	}
 #endif
 }

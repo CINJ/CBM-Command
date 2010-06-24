@@ -1,102 +1,102 @@
-/**************************************************************
+/***************************************************************
 Copyright (c) 2010, Payton Byrd
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or 
-without modification, are permitted provided that the following 
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following
 conditions are met:
 
-* Redistributions of source code must retain the above 
-  copyright notice, this list of conditions and the following 
+* Redistributions of source code must retain the above
+  copyright notice, this list of conditions and the following
   disclaimer.
 
-* Redistributions in binary form must reproduce the above 
-  copyright notice, this list of conditions and the following 
-  disclaimer in the documentation and/or other materials 
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following
+  disclaimer in the documentation and/or other materials
   provided with the distribution.
 
-* Neither the name of Payton Byrd nor the names of its 
-  contributors may be used to endorse or promote products 
-  derived from this software without specific prior written 
+* Neither the name of Payton Byrd nor the names of its
+  contributors may be used to endorse or promote products
+  derived from this software without specific prior written
   permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND 
-CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+#include <stdbool.h>
 #include <conio.h>
 
-#include "constants.h"
+//#include "constants.h"
 #include "drives.h"
 #include "globals.h"
 #include "input.h"
 #include "menus.h"
-#include "screen.h"
+//#include "screen.h"
 
-void  readKeyboard(void)
+void readKeyboard(void)
 {
-	unsigned char key;
-//	unsigned char buffer[39];
+	//char buffer[39];
+	//char key = cgetc();
 
-	key = cgetc();
-
-	switch((int)key)
+	switch(cgetc())
 	{
-	case KEY_F4:
+	case CH_F4:
 		rereadSelectedPanel();
 		break;
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#ifdef __CBM__
 	case KEY_SH_RETURN:
 		executeSelectedFile();
 		break;
 #endif
-	//case KEY_SH_SPACE: case KEY_SH_RETURN:
-	case KEY_F3:
+	case CH_F3:
+		selectCurrentFile();
+		break;
 	case HK_SELECT:
 		selectCurrentFile();
+		break; // don't fall through -- yet
+	case CH_CURS_DOWN:
+		moveSelectorDown(selectedPanel);
 		break;
 	case CH_CURS_UP:
 		moveSelectorUp(selectedPanel);
 		break;
-	case CH_CURS_DOWN:
-		moveSelectorDown(selectedPanel);
-		break;
-
-#if defined(__CBM__)
 	case CH_CURS_LEFT:
 		if(selectedPanel == &rightPanelDrive
-			&& leftPanelDrive.visible == TRUE
+			&& leftPanelDrive.visible
 			&& arePanelsOn)
 		{
 			selectedPanel = &leftPanelDrive;
+			writeCurrentFilename(selectedPanel);
 			writeSelectorPosition(&leftPanelDrive, '>');
 			writeSelectorPosition(&rightPanelDrive, ' ');
 		}
 		break;
 	case CH_CURS_RIGHT:
 		if(selectedPanel == &leftPanelDrive
-			&& rightPanelDrive.visible == TRUE
+			&& rightPanelDrive.visible
 			&& arePanelsOn)
 		{
 			selectedPanel = &rightPanelDrive;
+			writeCurrentFilename(selectedPanel);
 			writeSelectorPosition(&leftPanelDrive, ' ');
 			writeSelectorPosition(&rightPanelDrive, '>');
 		}
 		break;
-#endif
+#ifdef __CBM__
 	case KEY_SH_PLUS:
 		enterDirectory(selectedPanel);
 		break;
@@ -118,6 +118,7 @@ void  readKeyboard(void)
 	//case 185: // C= O - Options Menu
 	//	writeMenu(options);
 	//	break;
+#endif
 	case HK_REREAD_LEFT:
 		rereadDrivePanel(left);
 		break;
@@ -134,21 +135,21 @@ void  readKeyboard(void)
 		togglePanels();
 		break;
 	case HK_SELECT_ALL:
-		selectAllFiles(selectedPanel, TRUE);
+		selectAllFiles(selectedPanel, true);
 		break;
 	case HK_DESELECT_ALL:
-		selectAllFiles(selectedPanel, FALSE);
+		selectAllFiles(selectedPanel, false);
 		break;
 #ifdef __C128__
 	case HK_HELP_128:
 #endif
-	case KEY_F1:
+	case CH_F1:
 		writeHelpPanel();
 		break;
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#ifdef __CBM__
 	case HK_QUIT:
 #endif
-	case KEY_F2:
+	case CH_F2:
 		quit();
 		break;
 #ifdef __C128__
@@ -157,24 +158,29 @@ void  readKeyboard(void)
 		break;
 #endif
 	case HK_COPY:
-	case KEY_F5:
+	case CH_F5:
 		copyFiles();
 		break;
 	case HK_RENAME:
-	case KEY_F6:
+	case CH_F6:
 		renameFile();
 		break;
 	case HK_DELETE:
-	case KEY_F8:
+	case CH_F8:
 		deleteFiles();
 		break;
+//#ifdef __C64__
+	//case HK_FILE_INFO:
+	//	writeFileInfoPanel();
+	//	break;
+//#endif
 	case KEY_AT:
 		inputCommand();
 		break;
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#ifdef __CBM__
 	case HK_MAKE_DIRECTORY:
 #endif
-	case KEY_F7:
+	case CH_F7:
 		makeDirectory();
 		break;
 	case HK_TO_TOP:
@@ -189,7 +195,7 @@ void  readKeyboard(void)
 	case HK_PAGE_DOWN:
 		movePageDown(selectedPanel);
 		break;
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#ifdef __CBM__
 	case KEY_SH_SPACE:
 		writeD64();
 		break;

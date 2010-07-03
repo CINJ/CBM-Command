@@ -269,6 +269,7 @@
     <ClInclude Include="PlatformSpecific.h" />
     <ClInclude Include="screen.h" />
     <ClInclude Include="Viewer.h" />
+    <ClInclude Include="res\macroes.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

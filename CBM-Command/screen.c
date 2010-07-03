@@ -35,12 +35,10 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#ifdef __CBM__
 #include <cbm.h>
-#include "Configuration-CBM.h"
 #endif
 #include <conio.h>
-#include <peekpoke.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -53,65 +51,42 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PlatformSpecific.h"
 #include "input.h"
 
-#if defined(__C64__) || defined(__PET__)
-unsigned int vicRegister;
-unsigned int screenMemoryStart;
-unsigned char SCREEN_BUFFER[1000];
-unsigned char COLOR_BUFFER[1000];
+#ifdef __PET__
+#define screenMemoryStart 0x8000
+static unsigned char SCREEN_BUFFER[1000];
+static unsigned char COLOR_BUFFER[1000];
 #endif
-// Prepares the screen 
+
+// Prepares the screen
 void setupScreen(void)
 {
-	clrscr();
-
 	textcolor(color_text_other);
 	bgcolor(color_background);
 	bordercolor(color_border);
 
-	return;
+	clrscr();
 }
 
-void  saveScreen(void)
+#ifndef __C64__
+void saveScreen(void)
 {
 #ifdef __C128__
 	copyVdcScreen(0x00, 0x10);
-	return;
-#elif defined(__C64__)
-	int vicRegister = 53272u;
-	int screenMemoryStart;
-	int colorMemoryStart = 0xD800;
-
-	screenMemoryStart = ((PEEK(vicRegister) & 0xF0) >> 4) * 1024;
-
-	memcpy(SCREEN_BUFFER, screenMemoryStart, 1000);
-	memcpy(COLOR_BUFFER, colorMemoryStart, 1000);
 #elif defined(__PET__)
-	screenMemoryStart = 0x8000;
-
 	memcpy(SCREEN_BUFFER, screenMemoryStart, 2000);
 	//memcpy(COLOR_BUFFER, colorMemoryStart, 1000);
 #endif
 }
 
-void  retrieveScreen(void)
+void retrieveScreen(void)
 {
 #ifdef __C128__
 	copyVdcScreen(0x10, 0x00);
-	return;
-#elif defined(__C64__)
-	int vicRegister = 53272u;
-	int screenMemoryStart;
-	int colorMemoryStart = 0xD800;
-
-	screenMemoryStart = ((PEEK(vicRegister) & 0xF0) >> 4) * 1024;
-	memcpy(screenMemoryStart, SCREEN_BUFFER, 1000);
-	memcpy(colorMemoryStart, COLOR_BUFFER, 1000);
 #elif defined(__PET__)
-	screenMemoryStart = 0x8000;
 	memcpy(screenMemoryStart, SCREEN_BUFFER, 2000);
 #endif
-
 }
+#endif
 
 void  writeStatusBar(
 	unsigned char message[])

@@ -149,5 +149,8 @@
     <ClInclude Include="Viewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="res\macroes.inc">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -102,7 +102,11 @@ void viewFile(
 
 						if(currentLine == size_y - 1)
 						{
-							writeStatusBar("Enter to cont, STOP/ESC to end.");
+#ifndef __VIC20__
+							writeStatusBar("RETURN to cont, STOP/ESC to end.");
+#else
+							writeStatusBar("STOP to end.");
+#endif
 							if(waitForEnterEsc() == CH_ENTER)
 							{
 								clrscr();

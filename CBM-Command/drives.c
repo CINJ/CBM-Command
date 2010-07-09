@@ -367,13 +367,15 @@ void  displayDirectory(
 {
 	unsigned char w = 19, x = 0, y = 0;
 	unsigned char i = 0, start=0, ii = 0, mod = 0, bit = 0, r = 0;
-	unsigned char fileType;
+	unsigned char fileType, panelHeight;
 	struct dir_node *currentNode;
 	unsigned char size[4];
 
 #ifdef __VIC20__
 	w = 21;
 #endif
+
+	panelHeight = size_y - 3;
 
 	if(drive->drive == NULL)
 	{
@@ -395,24 +397,27 @@ void  displayDirectory(
 	drive->visible = TRUE;
 
 	if(size_x > 40) w=39;
+
+#ifndef __VIC20__
 	if(drive->position == right) x=w + 1;
+#endif
 	
 	textcolor(color_text_borders);
-	cvlinexy(0, 1, 22);
-	cvlinexy(w+1, 1, 22);
-	chlinexy(x+1, 22, w);
+	cvlinexy(0, 1, panelHeight);
+	cvlinexy(w+1, 1, panelHeight);
+	chlinexy(x+1, panelHeight, w);
 
-	gotoxy(x+1, 22); cprintf("[%2d]", drive->drive->drive);
-	gotoxy(x + w - 6, 22); cprintf("[%5u]", drive->header.size);
+	gotoxy(x+1, panelHeight); cprintf("[%2d]", drive->drive->drive);
+	gotoxy(x + w - 6, panelHeight); cprintf("[%5u]", drive->header.size);
 	gotoxy(x+1, 1); cprintf("[%s ]", drive->header.name);
-	for(i=0; i<20; ++i)
+	for(i=0; i<panelHeight - 2; ++i)
 	{
 		cclearxy(x + 1, i+2, w);
 	}
 
 	start = drive->displayStartAt;
 
-	for(i=start; i<start + 20 && i < drive->length - 1; i++)
+	for(i=start; i<start + (panelHeight - 2) && i < drive->length - 1; i++)
 	{
 		currentNode = getSpecificNode(drive, i);
 		if(currentNode == NULL ||
@@ -472,7 +477,11 @@ void  writeSelectorPosition(struct panel_drive *panel,
 {
 	unsigned char x, y;
 	y = (panel->currentIndex - panel->displayStartAt) + 2;
+#ifndef __VIC20__
 	x = (panel == &leftPanelDrive ? 0 : size_x / 2);
+#else
+	x = 0;
+#endif
 	gotoxy(x, y);
 	textcolor(color_selector);
 	revers(FALSE);
@@ -531,7 +540,11 @@ void  moveSelectorUp(struct panel_drive *panel)
 
 void  moveSelectorDown(struct panel_drive *panel)
 {
+#ifndef __VIC20__
 	const unsigned char offset = 19;
+#else
+	const unsigned char offset = 17;
+#endif
 	unsigned char diff;
 	unsigned lastPage;
 
@@ -866,6 +879,11 @@ void  movePageDown(struct panel_drive *panel)
 
 void  moveBottom(struct panel_drive *panel)
 {
+#ifndef __VIC20__
+	const unsigned char l = 21;
+#else
+	const unsigned char l = 19;
+#endif
 	if(panel != NULL)
 	{
 		panel->currentIndex = panel->length - 2;
@@ -879,9 +897,9 @@ void  moveBottom(struct panel_drive *panel)
 			panel->slidingWindowStartAt = 0;
 		}
 
-		if(panel->length > 21)
+		if(panel->length > l)
 		{
-			panel->displayStartAt = panel->length - 21;
+			panel->displayStartAt = panel->length - l;
 		}
 		else
 		{

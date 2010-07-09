@@ -60,18 +60,24 @@ D64: all
 	cp $(TITLE)_master.d64 $(TITLE).d64
 	cp c64\$(TITLE).c64 $(TITLE).c64
 	cp c128\$(TITLE).c128 $(TITLE).c128
+	cp vic20\$(TITLE).vic20 $(TITLE).vic20
 	cp c64\$(CONFIG_TITLE).c64 $(CONFIG_TITLE).c64
 	cp c128\$(CONFIG_TITLE).c128 $(CONFIG_TITLE).c128
+	cp vic20\$(CONFIG_TITLE).vic20 $(CONFIG_TITLE).vic20
 
 	$(C1541) $(TITLE).d64 -write $(TITLE).c64 $(TITLE).c64
 	$(C1541) $(TITLE).d64 -write $(TITLE).c128 $(TITLE).c128
+	$(C1541) $(TITLE).d64 -write $(TITLE).vic20 $(TITLE).vic20
 	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).c64 $(CONFIG_TITLE).c64
 	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).c128 $(CONFIG_TITLE).c128
+	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).vic20 $(CONFIG_TITLE).vic20
 
 	rm $(TITLE).c64
 	rm $(TITLE).c128
+	rm $(TITLE).vic20
 	rm $(CONFIG_TITLE).c64
 	rm $(CONFIG_TITLE).c128
+	rm $(CONFIG_TITLE).vic20
 
 # Build our program
 $(PROGRAM): $(SOURCES) $(ASMFILES)

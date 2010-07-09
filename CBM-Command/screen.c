@@ -177,7 +177,7 @@ void writePanel(
 	unsigned char *ok)
 {
 	unsigned int i = 0, okLeft = 0, cancelLeft = 0;
-	unsigned char buffer[80];
+	//unsigned char buffer[80];
 
 	saveScreen();
 
@@ -208,8 +208,7 @@ void writePanel(
 		textcolor(color);
 		revers(reverse);
 #endif
-		sprintf(buffer, "[%s]", title);
-		cputsxy(x+1, y,buffer);
+		gotoxy(x+1, y); cprintf("[%s]", title);
 	}
 
 	revers(FALSE);
@@ -223,9 +222,8 @@ void writePanel(
 		textcolor(color);
 		revers(reverse);
 #endif
-		sprintf(buffer, "[%s]", ok);
-		okLeft -= strlen(buffer);
-		cputsxy(okLeft, y + h - 1, buffer);
+		okLeft -= strlen(ok) + 2;
+		gotoxy(okLeft, y + h - 1); cprintf("[%s]", ok);
 	}
 
 	cancelLeft = okLeft - 2;
@@ -237,9 +235,8 @@ void writePanel(
 		textcolor(color);
 		revers(reverse);
 #endif
-		sprintf(buffer, "[%s]", cancel);
-		cancelLeft -= strlen(buffer);
-		cputsxy(cancelLeft, y + h - 1,buffer);
+		cancelLeft -= strlen(cancel) + 2;
+		gotoxy(cancelLeft, y + h - 1); cprintf("[%s]", cancel);
 	}
 }
 
@@ -280,7 +277,12 @@ enum results  drawDialog(
 	unsigned char cancelButton[7];
 
 	h = lineCount + 5;
-	w = 33;
+	w = 20;
+
+	for(i=0; i<lineCount; ++i)
+	{
+		if(strlen(message[i]) + 4 > w) w = strlen(message[i]) + 4;
+	}
 
 	x = getCenterX(w);
 	y = getCenterY(h);
@@ -366,7 +368,8 @@ enum results  drawInputDialog(
 		key = 0, count = 0;
 	unsigned result;
 	unsigned char *input;
-	input = calloc(length+1, sizeof(unsigned char));
+	input = // calloc(length+1, sizeof(unsigned char));
+		resultText;
 	h = lineCount + 6;
 	w = length + 3;
 	//for(i=0; i<lineCount; ++i);

@@ -45,6 +45,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "globals.h"
 #include "input.h"
 #include "menus.h"
+#include "globalInput.h"
 //#include "screen.h"
 
 void readKeyboard(void)
@@ -80,9 +81,14 @@ void readKeyboard(void)
 			&& arePanelsOn)
 		{
 			selectedPanel = &leftPanelDrive;
+#ifdef __VIC20__
+			displayDirectory(selectedPanel);
+#endif
 			writeCurrentFilename(selectedPanel);
 			writeSelectorPosition(&leftPanelDrive, '>');
+#ifndef __VIC20__
 			writeSelectorPosition(&rightPanelDrive, ' ');
+#endif
 		}
 		break;
 	case CH_CURS_RIGHT:
@@ -91,9 +97,14 @@ void readKeyboard(void)
 			&& arePanelsOn)
 		{
 			selectedPanel = &rightPanelDrive;
+#ifdef __VIC20__
+			displayDirectory(selectedPanel);
+#endif
 			writeCurrentFilename(selectedPanel);
-			writeSelectorPosition(&leftPanelDrive, ' ');
 			writeSelectorPosition(&rightPanelDrive, '>');
+#ifndef __VIC20__
+			writeSelectorPosition(&leftPanelDrive, ' ');
+#endif
 		}
 		break;
 #ifdef __CBM__

@@ -397,7 +397,11 @@ void  renameFile(void)
 		{
 			saveScreen();
 
+#ifndef __VIC20__
 			writeStatusBarf("Old name: %s", selectedNode->name);
+#else
+			writeStatusBar(selectedNode->name);
+#endif
 
 			dialogResult = drawInputDialog(
 				2, 16,
@@ -657,7 +661,7 @@ unsigned char l[] =
 
 void  createD64(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 	unsigned int r = 0, p = 0, pp = 0;
 	unsigned confirmed = FALSE;
 	unsigned char name[17];
@@ -816,7 +820,7 @@ void  createD64(void)
 
 void  writeD64(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)
 	unsigned int r = 0, p = 0, pp = 0;
 	unsigned confirmed = FALSE;
 	unsigned char *message[] =

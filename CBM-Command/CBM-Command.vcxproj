@@ -236,6 +236,14 @@
     <None Include="res\c128\FileMenu.s" />
     <None Include="res\c128\OptionsMenu.s" />
     <None Include="res\common\driveRoutines.s" />
+    <None Include="res\pet\FileMenu.s" />
+    <None Include="res\pet\OptionsMenu.s" />
+    <None Include="res\pet\PlatformSpecific.s" />
+    <None Include="res\pet\Text.s" />
+    <None Include="res\vic20\FileMenu.s" />
+    <None Include="res\vic20\OptionsMenu.s" />
+    <None Include="res\vic20\PlatformSpecific.s" />
+    <None Include="res\vic20\Text.s" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblerMethods.c" />

@@ -19,6 +19,12 @@
     <Filter Include="Resource Files\C128">
       <UniqueIdentifier>{3da17094-6a74-4a77-9d9a-bcae22a13d34}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\VIC20">
+      <UniqueIdentifier>{186b5253-991a-4fce-a2d7-8dcf7f34f613}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\PET">
+      <UniqueIdentifier>{44b39402-9039-441f-ba59-ea5bbd9fd4ff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\c64\Text.s">
@@ -60,6 +66,30 @@
     <None Include="loadcbmcmd" />
     <None Include="cbmcmd.help" />
     <None Include="cbmcommand_master.d64" />
+    <None Include="res\pet\FileMenu.s">
+      <Filter>Resource Files\PET</Filter>
+    </None>
+    <None Include="res\vic20\FileMenu.s">
+      <Filter>Resource Files\VIC20</Filter>
+    </None>
+    <None Include="res\pet\OptionsMenu.s">
+      <Filter>Resource Files\PET</Filter>
+    </None>
+    <None Include="res\vic20\OptionsMenu.s">
+      <Filter>Resource Files\VIC20</Filter>
+    </None>
+    <None Include="res\vic20\PlatformSpecific.s">
+      <Filter>Resource Files\VIC20</Filter>
+    </None>
+    <None Include="res\pet\PlatformSpecific.s">
+      <Filter>Resource Files\PET</Filter>
+    </None>
+    <None Include="res\vic20\Text.s">
+      <Filter>Resource Files\VIC20</Filter>
+    </None>
+    <None Include="res\pet\Text.s">
+      <Filter>Resource Files\PET</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblerMethods.c">

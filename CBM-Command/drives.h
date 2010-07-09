@@ -120,10 +120,17 @@ int  getDriveStatus(
 
 void  listDrives(enum menus menu);
 
+#ifndef __PLUS4__
 extern unsigned char __fastcall__ checkDrive(
 	unsigned char length,
 	unsigned char* file,
 	unsigned char drive);
+#else
+unsigned char checkDrivePlus4(
+	unsigned char length,
+	unsigned char* file,
+	unsigned char drive);
+#endif
 
 int  getDirectory(
 	struct panel_drive *drive,

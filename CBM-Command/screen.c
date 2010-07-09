@@ -64,6 +64,13 @@ static unsigned char SCREEN_BUFFER[506];
 static unsigned char COLOR_BUFFER[506];
 #endif
 
+#if defined(__PLUS4__)
+#define screenMemoryStart 3072
+#define colorMemoryStart 2048
+static unsigned char SCREEN_BUFFER[1000];
+static unsigned char COLOR_BUFFER[1000];
+#endif
+
 // Prepares the screen
 void setupScreen(void)
 {
@@ -79,10 +86,10 @@ void saveScreen(void)
 {
 #ifdef __C128__
 	copyVdcScreen(0x00, 0x10);
-#elif defined(__PET__) || defined(__VIC20__)
+#elif defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
 	memcpy(SCREEN_BUFFER, screenMemoryStart, sizeof(SCREEN_BUFFER));
 #endif
-#ifdef __VIC20__
+#if defined(__VIC20__) || defined(__PLUS4__)
 	memcpy(COLOR_BUFFER, colorMemoryStart, sizeof(COLOR_BUFFER));
 #endif
 }
@@ -91,10 +98,10 @@ void retrieveScreen(void)
 {
 #ifdef __C128__
 	copyVdcScreen(0x10, 0x00);
-#elif defined(__PET__) || defined(__VIC20__)
+#elif defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
 	memcpy(screenMemoryStart, SCREEN_BUFFER, sizeof(SCREEN_BUFFER));
 #endif
-#ifdef __VIC20__
+#if defined(__VIC20__) || defined(__PLUS4__)
 	memcpy(colorMemoryStart, COLOR_BUFFER, sizeof(COLOR_BUFFER));
 #endif
 }

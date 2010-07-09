@@ -165,6 +165,17 @@ int  getDriveStatus(
 	return result;
 }
 
+unsigned char checkDrivePlus4(
+	unsigned char length,
+	unsigned char* file,
+	unsigned char drive)
+{
+	unsigned char result = 0;
+	result = cbm_open(drive, drive, 15, file);
+	cbm_close(drive);
+	return result;
+}
+
 void  listDrives(enum menus menu)
 {
 	unsigned selected = FALSE;
@@ -200,7 +211,11 @@ void  listDrives(enum menus menu)
 		gotoxy(x + 2, i + 2 + y);
 		cprintf("%d", i + 8);
 
+#ifndef __PLUS4__
 		status = checkDrive(2, "UI", i + 8);
+#else
+		status = checkDrivePlus4(2, "UI", i + 8);
+#endif
 
 		gotoxy(x + 5, i + 2 + y);
 
@@ -281,7 +296,7 @@ int  getDirectory(
 	struct panel_drive *drive,
 	int slidingWindowStartAt)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)	
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)	|| defined(__PLUS4__)
 	unsigned int counter=0, read=0;
 	unsigned char result, dr, i;
 	struct cbm_dirent currentDE;
@@ -463,7 +478,7 @@ void  displayDirectory(
 		}		
 
 		y = i - start + 2;
-#if defined(__C64__) 
+#if defined(__C64__) || defined(__PLUS4__)
 		cputsxy(x + 1, y, size);
 		cputsxy(x + 5, y, shortenString(currentNode->name));
 		cputcxy(x + 19, y, fileType);

@@ -670,7 +670,7 @@ unsigned char l[] =
 
 void  createD64(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__)
 	unsigned int r = 0, p = 0, pp = 0;
 	unsigned confirmed = FALSE;
 	unsigned char name[17];
@@ -829,7 +829,7 @@ void  createD64(void)
 
 void  writeD64(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__)
 	unsigned int r = 0, p = 0, pp = 0;
 	unsigned confirmed = FALSE;
 	unsigned char *message[] =

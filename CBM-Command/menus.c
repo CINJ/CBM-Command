@@ -277,7 +277,7 @@ void writeMenuBar(void)
 
 	revers(FALSE);
 #endif
-#ifdef __C64__	
+#if defined(__C64__) || defined(__PLUS4__)
 	cputsxy(0, bottom, " HLP  QUIT  SEL  REF  CPY  REN  MDR  DEL");
 
 	revers(TRUE);

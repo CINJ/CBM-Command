@@ -36,7 +36,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
 #include <cbm.h>
 #include "Configuration-CBM.h"
 #endif
@@ -85,6 +85,16 @@ unsigned char color_text_files	= COLOR_BLUE;
 unsigned char color_text_status	= COLOR_BLUE;
 unsigned char color_text_other	= COLOR_BLACK;
 unsigned char color_text_highlight = COLOR_YELLOW;
+#elif defined(__PLUS4__)
+unsigned char color_background	= COLOR_WHITE;
+unsigned char color_border		= (BCOLOR_BLUE | CATTR_LUMA6);
+unsigned char color_selector	= BCOLOR_RED;
+unsigned char color_text_borders= (BCOLOR_BLUE | CATTR_LUMA6);
+unsigned char color_text_menus	= BCOLOR_BLUE;
+unsigned char color_text_files	= BCOLOR_BLUE;
+unsigned char color_text_status	= BCOLOR_BLUE;
+unsigned char color_text_other	= BCOLOR_BLACK;
+unsigned char color_text_highlight = BCOLOR_YELLOW;
 #else
 unsigned char color_background	= COLOR_BLACK;
 unsigned char color_border		= COLOR_BLACK;

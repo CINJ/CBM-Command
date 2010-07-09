@@ -51,10 +51,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PlatformSpecific.h"
 #include "input.h"
 
-#ifdef __PET__
+#if defined(__PET__)
 #define screenMemoryStart 0x8000
 static unsigned char SCREEN_BUFFER[1000];
-static unsigned char COLOR_BUFFER[1000];
+//static unsigned char COLOR_BUFFER[1000];
+#endif
+
+#if defined(__VIC20__)
+#define screenMemoryStart 4096
+#define colorMemoryStart 37388
+static unsigned char SCREEN_BUFFER[506];
+static unsigned char COLOR_BUFFER[506];
 #endif
 
 // Prepares the screen
@@ -72,19 +79,24 @@ void saveScreen(void)
 {
 #ifdef __C128__
 	copyVdcScreen(0x00, 0x10);
-#elif defined(__PET__)
-	memcpy(SCREEN_BUFFER, screenMemoryStart, 2000);
-	//memcpy(COLOR_BUFFER, colorMemoryStart, 1000);
+#elif defined(__PET__) || defined(__VIC20__)
+	memcpy(SCREEN_BUFFER, screenMemoryStart, sizeof(SCREEN_BUFFER));
 #endif
+//#ifdef __VIC20__
+//	memcpy(COLOR_BUFFER, colorMemoryStart, sizeof(COLOR_BUFFER));
+//#endif
 }
 
 void retrieveScreen(void)
 {
 #ifdef __C128__
 	copyVdcScreen(0x10, 0x00);
-#elif defined(__PET__)
-	memcpy(screenMemoryStart, SCREEN_BUFFER, 2000);
+#elif defined(__PET__) || defined(__VIC20__)
+	memcpy(screenMemoryStart, SCREEN_BUFFER, sizeof(SCREEN_BUFFER));
 #endif
+//#ifdef __VIC20__
+//	memcpy(colorMemoryStart, COLOR_BUFFER, sizeof(COLOR_BUFFER));
+//#endif
 }
 #endif
 

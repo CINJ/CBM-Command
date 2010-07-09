@@ -7,6 +7,7 @@ C1541 := c:\winvice\c1541.exe
 X64 := c:\winvice\x64.exe -autostart
 X128 := c:\winvice\x128.exe -autostart
 T := c128
+VIC_CONFIG := vic20-32k.cfg
 
 CONFIG_SOURCES = \
 	ConfigurationManager.c \
@@ -74,8 +75,13 @@ D64: all
 
 # Build our program
 $(PROGRAM): $(SOURCES) $(ASMFILES)
+ifeq "$(T)" "vic20"
+		$(CL) -O -t $(T) -C $(VIC_CONFIG) -o $(T)\$(PROGRAM) $(SOURCES) $(ASMFILES) $(LIBS)
+		$(CL) -O -t $(T) -C $(VIC_CONFIG) -o $(T)\$(CONFIG_PROGRAM) $(CONFIG_SOURCES) $(ASMFILES) $(LIBS)
+else
 		$(CL) -O -t $(T) -o $(T)\$(PROGRAM) $(SOURCES) $(ASMFILES) $(LIBS)
 		$(CL) -O -t $(T) -o $(T)\$(CONFIG_PROGRAM) $(CONFIG_SOURCES) $(ASMFILES) $(LIBS)
+endif
 
 # Our phony targets for managing the project
 #.PHONY: clean

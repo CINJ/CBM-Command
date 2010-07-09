@@ -101,8 +101,11 @@ int main(void)
 	// default drive and displays
 	// it in the left panel.
 	rereadSelectedPanel();
-
+#ifndef __VIC20__
 	writeStatusBarf("CBM-Command Build: %s %s", __DATE__, __TIME__);
+#else
+	writeStatusBarf("%s %s", __DATE__, __TIME__);
+#endif
 
 	// Main Loop
 	while(TRUE)

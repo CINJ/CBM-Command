@@ -371,6 +371,10 @@ void  displayDirectory(
 	struct dir_node *currentNode;
 	unsigned char size[4];
 
+#ifdef __VIC20__
+	w = 21;
+#endif
+
 	if(drive->drive == NULL)
 	{
 		drive->drive = &(drives[startupDevice - 8]);
@@ -451,7 +455,7 @@ void  displayDirectory(
 		y = i - start + 2;
 		cputsxy(x + 1, y, size);
 		cputsxy(x + 5, y, shortenString(currentNode->name));
-#ifdef __C64__
+#if defined(__C64__) || defined(__VIC20__)
 		cputcxy(x + 19, y, fileType);
 #else
 		cputcxy(x + 5 + 17, y, fileType);
@@ -582,7 +586,7 @@ unsigned char*  shortenString(unsigned char* source)
 	const int targetLength = 13;
 	unsigned char buffer[18];
 
-	if(size_x == 40)
+	if(size_x <= 40)
 	{
 		if(strlen(source) > targetLength)
 		{

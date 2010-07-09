@@ -55,7 +55,7 @@ unsigned char defaultRightDrive = 8;
 /* Color Configuration */
 // The C= 128 defaults to different colors
 // than the C= 64.
-#ifdef __C128__
+#if defined(__C128__)
 unsigned char color_background	= COLOR_BLACK;
 unsigned char color_border		= COLOR_BLACK;
 unsigned char color_selector	= COLOR_WHITE;
@@ -65,7 +65,7 @@ unsigned char color_text_files	= COLOR_YELLOW;
 unsigned char color_text_status = COLOR_GRAY3;
 unsigned char color_text_other	= COLOR_WHITE;
 unsigned char color_text_highlight = COLOR_YELLOW;
-#elif __C64__
+#elif defined(__C64__)
 unsigned char color_background	= COLOR_BLUE;
 unsigned char color_border		= COLOR_BLUE;
 unsigned char color_selector	= COLOR_WHITE;
@@ -75,6 +75,16 @@ unsigned char color_text_files	= COLOR_GRAY3;
 unsigned char color_text_status	= COLOR_GRAY2;
 unsigned char color_text_other	= COLOR_GRAY3;
 unsigned char color_text_highlight = COLOR_WHITE;
+#elif defined(__VIC20__)
+unsigned char color_background	= COLOR_WHITE;
+unsigned char color_border		= COLOR_CYAN;
+unsigned char color_selector	= COLOR_RED;
+unsigned char color_text_borders= COLOR_CYAN;
+unsigned char color_text_menus	= COLOR_BLUE;
+unsigned char color_text_files	= COLOR_BLUE;
+unsigned char color_text_status	= COLOR_BLUE;
+unsigned char color_text_other	= COLOR_BLACK;
+unsigned char color_text_highlight = COLOR_YELLOW;
 #else
 unsigned char color_background	= COLOR_BLACK;
 unsigned char color_border		= COLOR_BLACK;
@@ -96,12 +106,12 @@ unsigned char color_text_highlight = COLOR_WHITE;
  */
 void  load(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) 
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)// || defined(__VIC20__) 
 	loadCBM();
 #endif
 }
 
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__)// || defined(__VIC20__)
 void loadCBM(void)
 {
 	unsigned char r;	// Drive operation result

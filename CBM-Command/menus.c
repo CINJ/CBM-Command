@@ -262,15 +262,18 @@ void writeMenuBar(void)
 	bottom = size_y - 1;
 	cclearxy(0, bottom, size_x);
 #ifdef __VIC20__
-	cputsxy(0, bottom, " SL RF CP RN MD DL");
+	cputsxy(0, bottom - 1, " HELP  SLCT  CPY  MKD");
+	cputsxy(0, bottom    , " QUIT  REFR  REN  DEL");
 
 	revers(TRUE);
-	gotoxy(0, bottom); cputc('3');
-	gotoxy(3, bottom); cputc('4');
-	gotoxy(6, bottom); cputc('5');
-	gotoxy(9, bottom); cputc('6');
-	gotoxy(12, bottom); cputc('7');
-	gotoxy(15, bottom); cputc('8');
+	gotoxy(0, bottom - 1); cputc('1');
+	gotoxy(0, bottom    ); cputc('2');
+	gotoxy(6, bottom - 1); cputc('3');
+	gotoxy(6, bottom    ); cputc('4');
+	gotoxy(12, bottom - 1); cputc('5');
+	gotoxy(12, bottom    ); cputc('6');
+	gotoxy(17, bottom - 1); cputc('7');
+	gotoxy(17, bottom    ); cputc('8');
 
 	revers(FALSE);
 #endif

@@ -404,12 +404,17 @@ void  displayDirectory(
 	
 	textcolor(color_text_borders);
 	cvlinexy(0, 1, panelHeight);
+#ifndef __VIC20__
 	cvlinexy(w+1, 1, panelHeight);
+#endif
 	chlinexy(x+1, panelHeight, w);
 
 	gotoxy(x+1, panelHeight); cprintf("[%2d]", drive->drive->drive);
 	gotoxy(x + w - 6, panelHeight); cprintf("[%5u]", drive->header.size);
 	gotoxy(x+1, 1); cprintf("[%s ]", drive->header.name);
+#ifdef __VIC20__
+	cputsxy(getCenterX(5), panelHeight, (drive == &leftPanelDrive ? "Left" : "Right"));
+#endif
 	for(i=0; i<panelHeight - 2; ++i)
 	{
 		cclearxy(x + 1, i+2, w);
@@ -458,15 +463,25 @@ void  displayDirectory(
 		}		
 
 		y = i - start + 2;
+#if defined(__C64__) 
 		cputsxy(x + 1, y, size);
 		cputsxy(x + 5, y, shortenString(currentNode->name));
-#if defined(__C64__) || defined(__VIC20__)
 		cputcxy(x + 19, y, fileType);
+#elif defined(__VIC20__)
+		cputcxy(x + 1, y, fileType);
+		cputsxy(x + 2, y, size);
+		cputsxy(x + 6, y, shortenString(currentNode->name));
 #else
-		cputcxy(x + 5 + 17, y, fileType);
+		cputsxy(x + 1, y, size);
+		cputsxy(x + 5, y, shortenString(currentNode->name));
+		cputcxy(x + 22, y, fileType);
 #endif
 		
 		revers(FALSE);
+
+#ifdef __VIC20__
+		writeMenuBar();
+#endif
 		
 	}
 	
@@ -506,7 +521,7 @@ void  writeCurrentFilename(struct panel_drive *panel)
 			if(currentDirNode != NULL &&
 				currentDirNode->name != NULL)
 			{
-				writeStatusBarf("%16s - %5u",
+				writeStatusBarf("%16s %5u",
 					currentDirNode->name,
 					currentDirNode->size);
 			}
@@ -596,7 +611,12 @@ void  shortenSize(unsigned char* buffer, unsigned int value)
 
 unsigned char*  shortenString(unsigned char* source)
 {
+#ifndef __VIC20__
 	const int targetLength = 13;
+#else
+	const int targetLength = 16;
+#endif
+
 	unsigned char buffer[18];
 
 	if(size_x <= 40)
@@ -858,7 +878,12 @@ void  movePageDown(struct panel_drive *panel)
 {
 	if(panel != NULL)
 	{
-		panel->currentIndex += 19;
+#ifndef __VIC20__
+		const unsigned char l = 19;
+#else
+		const unsigned char l = 17;
+#endif
+		panel->currentIndex += l;
 		if(panel->currentIndex > panel->length - 2) 
 		{
 			moveBottom(panel);
@@ -866,8 +891,8 @@ void  movePageDown(struct panel_drive *panel)
 		}
 		else
 		{
-			panel->displayStartAt = panel->currentIndex - 19;
-			panel->slidingWindowStartAt = panel->currentIndex - 19;
+			panel->displayStartAt = panel->currentIndex - l;
+			panel->slidingWindowStartAt = panel->currentIndex - l;
 
 			getDirectory(panel, panel->slidingWindowStartAt);
 			displayDirectory(panel);

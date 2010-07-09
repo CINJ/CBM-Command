@@ -59,7 +59,7 @@ static unsigned char SCREEN_BUFFER[1000];
 
 #if defined(__VIC20__)
 #define screenMemoryStart 4096
-#define colorMemoryStart 37388
+#define colorMemoryStart 38400
 static unsigned char SCREEN_BUFFER[506];
 static unsigned char COLOR_BUFFER[506];
 #endif
@@ -82,9 +82,9 @@ void saveScreen(void)
 #elif defined(__PET__) || defined(__VIC20__)
 	memcpy(SCREEN_BUFFER, screenMemoryStart, sizeof(SCREEN_BUFFER));
 #endif
-//#ifdef __VIC20__
-//	memcpy(COLOR_BUFFER, colorMemoryStart, sizeof(COLOR_BUFFER));
-//#endif
+#ifdef __VIC20__
+	memcpy(COLOR_BUFFER, colorMemoryStart, sizeof(COLOR_BUFFER));
+#endif
 }
 
 void retrieveScreen(void)
@@ -94,9 +94,9 @@ void retrieveScreen(void)
 #elif defined(__PET__) || defined(__VIC20__)
 	memcpy(screenMemoryStart, SCREEN_BUFFER, sizeof(SCREEN_BUFFER));
 #endif
-//#ifdef __VIC20__
-//	memcpy(colorMemoryStart, COLOR_BUFFER, sizeof(COLOR_BUFFER));
-//#endif
+#ifdef __VIC20__
+	memcpy(colorMemoryStart, COLOR_BUFFER, sizeof(COLOR_BUFFER));
+#endif
 }
 #endif
 

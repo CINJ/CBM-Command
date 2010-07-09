@@ -241,7 +241,7 @@ void  copyFiles(void)
 	if(sd == td)
 	{
 		saveScreen();
-		writeStatusBar("Cannot copy to the same drive.");
+		writeStatusBar("Can't copy to the same drive");
 		waitForEnterEsc();
 		retrieveScreen();
 		return;
@@ -265,7 +265,7 @@ void  copyFiles(void)
 						{
 							if(currentNode == NULL)
 							{
-								writeStatusBarf("Cannot get file %u", i*8+j); 
+								writeStatusBarf("Can't get file %u", i*8+j); 
 								waitForEnterEsc();
 								return;
 							}
@@ -330,13 +330,13 @@ void  copyFiles(void)
 									writeStatusBar(status); waitForEnterEsc();
 									break;
 								}
-								writeStatusBarf("%s - %d of %d.", currentNode->name, index, currentNode->size);
+								writeStatusBarf("%s %d/%d", currentNode->name, index, currentNode->size);
 							}
 							RELOAD = TRUE;
 						}
 						else
 						{
-							writeStatusBarf("Cannot open %s for write (%d)", 
+							writeStatusBarf("Can't open %s for write (%d)", 
 								currentNode->name, r); 
 							waitForEnterEsc();
 							cbm_read(14, status, 40);
@@ -483,7 +483,11 @@ void  deleteFiles(void)
 		{
 			saveScreen();
 
+#ifndef __VIC20__
 			writeStatusBarf("File to delete: %s", selectedNode->name);
+#else
+			writeStatusBarf("DEL: %s", selectedNode->name);
+#endif
 
 			dialogResult = writeYesNo(
 				"Delete File",
@@ -494,7 +498,11 @@ void  deleteFiles(void)
 
 			if(dialogResult == TRUE)
 			{
+#ifndef __VIC20__
 				writeStatusBarf("Deleting %s", selectedNode->name);
+#else
+				writeStatusBarf("Dltng %s", selectedNode->name);
+#endif
 
 				if(selectedNode->type != 6)
 				{
@@ -540,6 +548,7 @@ void  quit(void)
 	
 	if(result == TRUE)
 	{
+		clrscr();
 		writeStatusBar("Goodbye!");
 		exit(EXIT_SUCCESS);
 	}

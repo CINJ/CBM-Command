@@ -219,7 +219,7 @@ unsigned char fileBuffer[COPY_BUFFER_SIZE];
 struct panel_drive *targetPanel = NULL, *tempPanel = NULL;
 void  copyFiles(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
 	unsigned char i = 0, j = 0, sd = 0, td = 0, bit = 0, r = 0;
 	unsigned int index = 0, bytes = 0;
 	unsigned RELOAD = FALSE;

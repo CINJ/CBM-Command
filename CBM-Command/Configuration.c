@@ -116,19 +116,23 @@ unsigned char color_text_highlight = COLOR_WHITE;
  */
 void  load(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)// || defined(__VIC20__) 
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__) || defined(__VIC20__) 
 	loadCBM();
 #endif
 }
 
-#if defined(__C128__) || defined(__C64__) || defined(__PET__)// || defined(__VIC20__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__) || defined(__VIC20__)
 void loadCBM(void)
 {
 	unsigned char r;	// Drive operation result
 	unsigned char d;	// Drive number we started from
 
+#ifndef __PLUS4__
 	d = PEEK(0x00BA);	// Get the drive that the app
 						// was loaded from
+#else
+	d = PEEK(174);
+#endif
 	
 	cbm_open(15,d,15,"");	// Open the command channel
 
@@ -141,6 +145,15 @@ void loadCBM(void)
 #endif
 #ifdef __C128__
 	r = cbm_open(1,d,2,"cbmcmd-cfg.c128,s,r");
+#endif
+#ifdef __PET__
+	r = cbm_open(1,d,2,"cbmcmd-cfg.pet,s,r");
+#endif
+#ifdef __VIC20__
+	r = cbm_open(1,d,2,"cbmcmd-cfg.vic20,s,r");
+#endif
+#ifdef __PLUS4__
+	r = cbm_open(1,d,2,"cbmcmd-cfg.plus4,s,r");
 #endif
 
 	if(r == 0) // r == success

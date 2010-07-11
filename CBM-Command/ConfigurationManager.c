@@ -276,7 +276,7 @@ void  writeFunctionKeys(void)
 	unsigned char bottom = 0;
 	bottom = size_y - 1;
 	cclearxy(0, bottom, size_x);
-#ifdef __C64__	
+#if defined(__C64__) || defined(__PLUS4__) || defined(__VIC20__)
 	cputsxy(0, bottom," HELP  QUIT  SAVE");
 
 	revers(TRUE);
@@ -286,7 +286,7 @@ void  writeFunctionKeys(void)
 
 	revers(FALSE);
 #endif
-#ifdef __C128__
+#if defined(__C128__) || defined(__PET__)
 	cputsxy(0, bottom, "  HELP     QUIT    SAVE");
 
 	revers(TRUE);
@@ -300,17 +300,30 @@ void  writeFunctionKeys(void)
 
 void  save(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
 	unsigned char r, d;
 	unsigned char *buffer;
 	buffer = calloc(1, sizeof(unsigned char));
+#ifndef __PLUS4__
 	d = PEEK(0x00BA);
+#else
+	d = PEEK(174);
+#endif
 	cbm_open(15,d,15,"");
 #ifdef __C64__
 	r = cbm_open(1,d,2,"@0:cbmcmd-cfg.c64,s,w");
 #endif
 #ifdef __C128__
 	r = cbm_open(1,d,2,"@0:cbmcmd-cfg.c128,s,w");
+#endif
+#ifdef __VIC20__
+	r = cbm_open(1,d,2,"@0:cbmcmd-cfg.vic20,s,w");
+#endif
+#ifdef __PET__
+	r = cbm_open(1,d,2,"@0:cbmcmd-cfg.pet,s,w");
+#endif
+#ifdef __PLUS4__
+	r = cbm_open(1,d,2,"@0:cbmcmd-cfg.plus4,s,w");
 #endif
 
 	if(r == 0)

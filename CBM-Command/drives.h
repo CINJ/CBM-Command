@@ -127,7 +127,6 @@ extern unsigned char __fastcall__ checkDrive(
 	unsigned char drive);
 #else
 unsigned char checkDrivePlus4(
-	unsigned char length,
 	unsigned char* file,
 	unsigned char drive);
 #endif
@@ -205,4 +204,9 @@ void  movePageDown(
 
 void  moveBottom(
 	struct panel_drive *panel);
+
+//unsigned getDriveError(
+//	unsigned char channel, 
+//	unsigned char* message);
+//
 #endif

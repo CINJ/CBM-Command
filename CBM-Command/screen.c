@@ -53,7 +53,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if defined(__PET__)
 #define screenMemoryStart 0x8000
-static unsigned char SCREEN_BUFFER[1000];
+static unsigned char SCREEN_BUFFER[2000];
 //static unsigned char COLOR_BUFFER[1000];
 #endif
 
@@ -483,4 +483,43 @@ void writeStatusBarf(unsigned char format[], ...)
 	vsprintf(buffer, format, ap);
 	va_end(ap);
 	writeStatusBar(buffer);
+}
+
+void drawProgressBar(
+	unsigned char* message, 
+	unsigned int currentValue, 
+	unsigned int maxValue)
+{
+	unsigned char x, y, solid, remainder, i;
+	long result;
+	unsigned char barSegments[] = { 32, 165, 165, 180, 181, 161, 182, 182, 170, 167 };
+
+	x = getCenterX(18);
+	y = getCenterY(1);
+
+	textcolor(color_text_files);
+	cputsxy(x, y, message);
+
+	++y;
+
+	if(currentValue > maxValue) maxValue = currentValue;
+
+	result = (((long)currentValue * 10000L) / (long)maxValue) / 100L;
+
+	solid = result / 10;
+	remainder = result % 10;
+
+	textcolor(color_text_highlight);
+
+	revers(TRUE);
+	for(i=0; i<solid; ++i)
+	{
+		cputcxy(x + i, y, 32);
+	}
+	if(remainder < 6) { revers(FALSE); }
+	cputcxy(x + i, y, barSegments[remainder]);
+	revers(FALSE);
+
+	gotoxy(x + 14, y); cprintf("%3u%%", (unsigned int)result);
+
 }

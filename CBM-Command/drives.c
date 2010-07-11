@@ -165,8 +165,8 @@ int  getDriveStatus(
 	return result;
 }
 
+#ifdef __PLUS4__
 unsigned char checkDrivePlus4(
-	unsigned char length,
 	unsigned char* file,
 	unsigned char drive)
 {
@@ -175,6 +175,7 @@ unsigned char checkDrivePlus4(
 	cbm_close(drive);
 	return result;
 }
+#endif
 
 void  listDrives(enum menus menu)
 {
@@ -212,9 +213,9 @@ void  listDrives(enum menus menu)
 		cprintf("%d", i + 8);
 
 #ifndef __PLUS4__
-		status = checkDrive(2, "UI", i + 8);
+		status = checkDrive(2, "ui", i + 8);
 #else
-		status = checkDrivePlus4(2, "UI", i + 8);
+		status = checkDrivePlus4("ui", i + 8);
 #endif
 
 		gotoxy(x + 5, i + 2 + y);
@@ -952,3 +953,19 @@ void  moveBottom(struct panel_drive *panel)
 		writeCurrentFilename(panel);
 	}
 }
+
+//unsigned getDriveError(
+//	unsigned char channel, 
+//	unsigned char* message)
+//{
+//	unsigned char result;
+//
+//	result = cbm_read(channel, message, sizeof(message));
+//
+//	if(result > 0)
+//	{
+//		return strncmp(message, "00,", 3);
+//	}
+//
+//	return FALSE;
+//}

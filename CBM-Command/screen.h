@@ -65,9 +65,12 @@ void writePanel(
 
 
 void drawBox(
-	unsigned char, unsigned char,
-	unsigned char, unsigned char,
-	unsigned char, unsigned);
+	unsigned char x,
+	unsigned char y,
+	unsigned char w,
+	unsigned char h,
+	unsigned char color,
+	unsigned reverse);
 
 enum results  drawDialog(
 	unsigned char* message[],
@@ -86,6 +89,11 @@ enum results  drawInputDialog(
 	unsigned char *message[],
 	unsigned char *title,
 	unsigned char *resultText);
+
+void drawProgressBar(
+	unsigned char* message, 
+	unsigned int currentValue, 
+	unsigned int maxValue);
 
 void  saveScreen(void);
 void  retrieveScreen(void);

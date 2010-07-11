@@ -60,28 +60,37 @@ D64: all
 	cp $(TITLE)_master.d64 $(TITLE).d64
 	cp c64\$(TITLE).c64 $(TITLE).c64
 	cp c128\$(TITLE).c128 $(TITLE).c128
+#	cp pet\$(TITLE).pet $(TITLE).pet
 	cp vic20\$(TITLE).vic20 $(TITLE).vic20
 	cp plus4\$(TITLE).plus4 $(TITLE).plus4
+
 	cp c64\$(CONFIG_TITLE).c64 $(CONFIG_TITLE).c64
 	cp c128\$(CONFIG_TITLE).c128 $(CONFIG_TITLE).c128
+#	cp pet\$(CONFIG_TITLE).pet $(CONFIG_TITLE).pet
 	cp vic20\$(CONFIG_TITLE).vic20 $(CONFIG_TITLE).vic20
 	cp plus4\$(CONFIG_TITLE).plus4 $(CONFIG_TITLE).plus4
 
 	$(C1541) $(TITLE).d64 -write $(TITLE).c64 $(TITLE).c64
 	$(C1541) $(TITLE).d64 -write $(TITLE).c128 $(TITLE).c128
+#	$(C1541) $(TITLE).d64 -write $(TITLE).pet $(TITLE).pet
 	$(C1541) $(TITLE).d64 -write $(TITLE).vic20 $(TITLE).vic20
 	$(C1541) $(TITLE).d64 -write $(TITLE).plus4 $(TITLE).plus4
+
 	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).c64 $(CONFIG_TITLE).c64
 	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).c128 $(CONFIG_TITLE).c128
+#	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).pet $(CONFIG_TITLE).pet
 	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).vic20 $(CONFIG_TITLE).vic20
 	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).plus4 $(CONFIG_TITLE).plus4
 
 	rm $(TITLE).c64
 	rm $(TITLE).c128
+#	rm $(TITLE).pet
 	rm $(TITLE).vic20
 	rm $(TITLE).plus4
+
 	rm $(CONFIG_TITLE).c64
 	rm $(CONFIG_TITLE).c128
+#	rm $(CONFIG_TITLE).pet
 	rm $(CONFIG_TITLE).vic20
 	rm $(CONFIG_TITLE).plus4
 

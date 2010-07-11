@@ -55,6 +55,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "screen.h"
 #include "Viewer.h"
 
+#define D64_SIZE 689
+#define D81_SIZE 3226
+
 unsigned char *quit_message[1] =
 {
 	"Quit CBM-Command?"
@@ -283,6 +286,14 @@ void  copyFiles(void)
 						r = cbm_open(2, td, 3, targetFilename);
 						if(r == 0)
 						{
+							drawBox(
+								getCenterX(20), 
+								getCenterY(3), 
+								19, 
+								3, 
+								color_text_borders, 
+								FALSE);
+
 							for(index=0; index < currentNode->size; index+=(COPY_BUFFER_SIZE/254))
 							{
 								bytes = cbm_read(1, fileBuffer, COPY_BUFFER_SIZE);
@@ -330,7 +341,8 @@ void  copyFiles(void)
 									writeStatusBar(status); waitForEnterEsc();
 									break;
 								}
-								writeStatusBarf("%s %d/%d", currentNode->name, index, currentNode->size);
+								//writeStatusBarf("%s %d/%d", currentNode->name, index, currentNode->size);
+								drawProgressBar(currentNode->name, index, currentNode->size);
 							}
 							RELOAD = TRUE;
 						}
@@ -670,14 +682,14 @@ unsigned char l[] =
 
 void  createD64(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__)// || defined(__VIC20__)
 	unsigned int r = 0, p = 0, pp = 0;
-	unsigned confirmed = FALSE;
+	unsigned confirmed = FALSE, isD64 = TRUE;
 	unsigned char name[17];
 	unsigned char *message[] =
 	{
 		{ "Enter a name for the" },
-		{ "new D64 file." }
+		{ "new disk image." }
 	};
 	unsigned char sd, td,  i, j, t;
 	struct dir_node *currentNode;
@@ -703,31 +715,42 @@ void  createD64(void)
 			saveScreen();
 			result = drawInputDialog(
 				2, 30,
-				message, "Create D64",
+				message, "Create Disk Image",
 				name);
 			retrieveScreen();
 
 			if(result == OK_RESULT)
 			{
 				strlower(name);
-				if(strstr(name,".d64") == 0)
-				{
-					strcat(name, ".d64");
-				}
-				writeStatusBarf("Creating %s", name);
-
+				//if(strstr(name,".d64") == 0)
+				//{
+				//	strcat(name, ".d64");
+				//}
+				
 				sd = selectedPanel->drive->drive;
 				td = targetPanel->drive->drive;
 
-				cbm_open(15, sd, 15, "U");
+				cbm_open(15, sd, 15, "ui");
 				r = cbm_read(15, buffer, 41);
 				if(r > 0)
 				{
-					if(strstr(buffer,"1541") != 0 ||
-						strstr(buffer,"1571") != 0)
+					if(strstr(buffer,"1541") == 0 &&
+						strstr(buffer,"1571") == 0)
 					{
-						writeStatusBar("Must be a 1541 or 1571 drive.");
-						return;
+						if(strstr(buffer,"1581") == 0 )
+						{
+							writeStatusBar("Must be a 1541, 1571 or 1581 drive.");
+							return;
+						}
+						else
+						{
+							isD64 = FALSE;
+							writeStatusBar("Creating D81.");
+						}
+					}
+					else
+					{
+						writeStatusBar("Creating D64.");
 					}
 				}
 				else
@@ -735,39 +758,28 @@ void  createD64(void)
 					writeStatusBar("Error opening drive.");
 					return;
 				}
-				strcat(name,",p,w");
 				r=cbm_open(2, sd, 2, "#");
 				if(r == 0)
 				{
 					saveScreen();
-					writePanel(FALSE, FALSE, color_text_borders,
-						0, 1, size_y-3, size_x 
-						,
-						NULL, NULL, NULL);
 
-					textcolor(color_text_highlight);
-					revers(TRUE);
-					for(i=1;i<36;++i)
-					{
-						gotoxy(1+i, 1); cprintf("%d",i/10);
-						gotoxy(1+i, 2); cprintf("%d",i%10);
-					}
-					for(j=0;j<21;++j)
-					{
-						gotoxy(0,3+j); cprintf("%2d",j);
-					}
-					revers(FALSE);
-
-					textcolor(color_text_other);
+					drawBox(
+						getCenterX(20), 
+						getCenterY(3), 
+						19, 
+						3, 
+						color_text_borders, 
+						FALSE);
 
 					cbm_open(14,td,15,"");
+					strcat(name,",p,w");
 					r = cbm_open(3,td,3,name);
 					if(r == 0)
 					{
 						p = 0;
-						for(i=0;i<35;++i)
+						for(i=0;i<(isD64 == TRUE ? 35 : 80);++i)
 						{
-							for(j=0;j<l[i];++j)
+							for(j=0;j<(isD64 == TRUE ? l[i] : 40);++j)
 							{
 								if(kbhit())
 								{
@@ -779,25 +791,22 @@ void  createD64(void)
 									}
 								}
 								++p; 
-								pp = (100u * p) / 689u;
-								gotoxy(size_x-4, size_y-2);
-								cprintf("%3d%%", pp);
 
-								cputcxy(i+2,j+3,'R');
+								drawProgressBar("Creating image..", p, (isD64 == TRUE ? D64_SIZE : D81_SIZE));
+
 								sprintf(buffer,"u1:2,0,%d,%d\n", i+1, j);
 								cbm_write(15, buffer, strlen(buffer));
+								writeStatusBar(buffer);
 
 								r = cbm_read(2,fileBuffer, 256);
 
-								cputcxy(i+2,j+3,'W');
 								cbm_write(3, fileBuffer, r);
-								cputcxy(i+2,j+3,166);
 							}
 						}
 						cbm_close(15); cbm_close(14); cbm_close(2); cbm_close(3);
 						retrieveScreen();
 						reloadPanels();
-						writeStatusBar("Finished writing D64.");
+						writeStatusBar("Finished writing image.");
 					}
 					else
 					{
@@ -829,7 +838,7 @@ void  createD64(void)
 
 void  writeD64(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__)// || defined(__VIC20__)
 	unsigned int r = 0, p = 0, pp = 0;
 	unsigned confirmed = FALSE;
 	unsigned char *message[] =
@@ -858,10 +867,10 @@ void  writeD64(void)
 		{
 			currentNode = getSelectedNode(selectedPanel);
 
-			if(currentNode->size != 689)
+			if(currentNode->size != D64_SIZE && currentNode->size != D81_SIZE)
 			{
 				saveScreen();
-				writeStatusBarf("%s is not a valid D64.",
+				writeStatusBarf("%s is not a valid disk image.",
 					currentNode->name);
 				waitForEnterEsc();
 				retrieveScreen();
@@ -869,13 +878,11 @@ void  writeD64(void)
 			}
 
 			saveScreen();
-			confirmed = writeYesNo("Write D64", message, 2);
+			confirmed = writeYesNo("Write Image?", message, 2);
 			retrieveScreen();
 
 			if(confirmed == TRUE)
 			{
-				
-
 				sd = selectedPanel->drive->drive;
 				td = targetPanel->drive->drive;
 
@@ -897,28 +904,20 @@ void  writeD64(void)
 					writeStatusBar("Formatting disk...");
 					cbm_open(3,td,3,"#");
 					
-					writePanel(FALSE, FALSE, color_text_borders,
-						0, 1, size_y-3, size_x 
-						,
-						NULL, NULL, NULL);
-					writeStatusBarf("Writing %s", currentNode->name);
-					textcolor(color_text_highlight);
-					revers(TRUE);
-					for(i=1;i<36;++i)
-					{
-						gotoxy(1+i, 1); cprintf("%d",i/10);
-						gotoxy(1+i, 2); cprintf("%d",i%10);
-					}
-					for(j=0;j<21;++j)
-					{
-						gotoxy(0,3+j); cprintf("%2d",j);
-					}
-					revers(FALSE);
+					drawBox(
+						getCenterX(20), 
+						getCenterY(3), 
+						19, 
+						3, 
+						color_text_borders, 
+						FALSE);
+
+					writeStatusBar("Writing D64...");
 
 					textcolor(color_text_other);
-					for(i=0;i<35;++i)
+					for(i=0;i<(currentNode->size == D64_SIZE ? 35 : 80);++i)
 					{
-						for(j=0;j<l[i];++j)
+						for(j=0;j<(currentNode->size == D64_SIZE ? l[i] : 40);++j)
 						{
 							if(kbhit())
 							{
@@ -930,11 +929,8 @@ void  writeD64(void)
 								}
 							}
 							++p; 
-							pp = (100 * p) / 689;
-							gotoxy(size_x-4, size_y-2);
-							cprintf("%3d%%", pp);
 							
-							cputcxy(i+2,j+3,'R');
+							drawProgressBar(currentNode->name, p, currentNode->size);
 
 							r = cbm_read(2,fileBuffer,256);
 
@@ -943,14 +939,12 @@ void  writeD64(void)
 
 							cbm_write(3,temp,256);
 
-							cputcxy(i+2,j+3,'W');
 							sprintf(buffer, "u2 3 0 %d %d", i+1, j);
 							cbm_write(14,buffer,strlen(buffer));
 
 							sprintf(buffer, "u1 3 0 %d %d", i+1, j);
 							cbm_write(14,buffer,strlen(buffer));
 							cbm_read(3,fileBuffer,256);
-							cputcxy(i+2,j+3,166);
 						}
 					}
 					cbm_close(2);

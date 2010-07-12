@@ -92,9 +92,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AssemblerMethods.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CBM-Command.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -141,9 +138,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="constants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AssemblerMethods.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="menus.h">

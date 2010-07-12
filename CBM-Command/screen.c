@@ -148,7 +148,7 @@ void drawBox(
 	// draw body
 	for(i=y+1; i<y+h; ++i)
 	{
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
 		cputcxy(x, i, CH_VLINE);
 		cclearxy(x + 1, i, w - 1);
 		cputcxy(x+w, i, CH_VLINE);
@@ -184,7 +184,6 @@ void writePanel(
 	unsigned char *ok)
 {
 	unsigned int i = 0, okLeft = 0, cancelLeft = 0;
-	//unsigned char buffer[80];
 
 	saveScreen();
 
@@ -197,12 +196,8 @@ void writePanel(
 	}
 	else
 	{
-		//strncpy(buffer, SPACES, w);
-		//buffer[w] = '\0';
-
 		for(i=0; i<h; ++i)
 		{
-			//cputsxy(x, y+i,buffer);
 			cclearxy(x,y+i,w);
 		}
 	}
@@ -249,24 +244,6 @@ void writePanel(
 
 void  notImplemented(void)
 {
-	//unsigned char h = 5, w = 23;
-	//unsigned char x, y;
-
-	//saveScreen();
-
-	//x = getCenterX(w);
-	//y = getCenterY(h);
-
-	//writePanel(TRUE, TRUE, color_border, x, y, h, w,
-	//	"Sorry...", "OK", NULL);
-
-	//textcolor(color_text_other);
-	//revers(TRUE);
-	//cputsxy(x+2, y+2, "Not yet implemented.");
-
-	//waitForEnterEsc();
-
-	//retrieveScreen();
 	saveScreen();
 	writeStatusBar("Not implemented...");
 	waitForEnterEsc();

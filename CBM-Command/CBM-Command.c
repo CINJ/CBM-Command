@@ -44,12 +44,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Configuration.h"
 #include "constants.h"
 #include "drives.h"
-#include "AssemblerMethods.h"
-#include "globals.h";
-#include "menus.h";
-#include "screen.h";
-#include "input.h";
-#include "PlatformSpecific.h";
+#include "globals.h"
+#include "menus.h"
+#include "screen.h"
+#include "input.h"
+#include "PlatformSpecific.h"
 
 #if defined(__C128__)
 #include <c128.h>

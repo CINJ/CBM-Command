@@ -17,7 +17,6 @@ CONFIG_SOURCES = \
 	globalInput.c
 
 SOURCES	= \
-	AssemblerMethods.c \
 	CBM-Command.c \
 	CommandMenu.c \
 	Configuration.c \

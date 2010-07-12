@@ -37,7 +37,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <conio.h>
 
-#include "AssemblerMethods.h"
 #include "constants.h"
 #include "drives.h"
 #include "globals.h"

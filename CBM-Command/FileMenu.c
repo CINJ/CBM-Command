@@ -265,14 +265,12 @@ void  copyFiles(void)
 					{
 						getDirectory(selectedPanel, i*8+j);
 						currentNode = getSpecificNode(selectedPanel, i*8+j);
-						{
-							if(currentNode == NULL)
-							{
-								writeStatusBarf("Can't get file %u", i*8+j); 
-								waitForEnterEsc();
-								return;
-							}
-						}
+							//if(currentNode == NULL)
+							//{
+							//	writeStatusBarf("Can't get file %u", i*8+j); 
+							//	waitForEnterEsc();
+							//	return;
+							//}
 					}
 
 					cbm_open(15, sd, 15, "");
@@ -481,8 +479,9 @@ void  makeDirectory(void)
 
 void  deleteFiles(void)
 {
-	unsigned dialogResult;
+	unsigned dialogResult = 0, size = 0, isBatch = FALSE, i = 0;
 	struct dir_node *selectedNode = NULL;
+	unsigned char r, bit, j;
 	unsigned char command[40];
 	unsigned char* dialogMessage[] =
 	{
@@ -491,6 +490,15 @@ void  deleteFiles(void)
 
 	if(selectedPanel != NULL)
 	{
+		size = sizeof(selectedPanel->selectedEntries);
+		if(size > 0)
+		{
+			for(i = 0; i<size; i++)
+			{
+				isBatch |= selectedPanel->selectedEntries[i] != 0;
+			}
+		}
+
 		selectedNode = getSelectedNode(selectedPanel);
 		if(selectedNode != NULL)
 		{
@@ -511,24 +519,66 @@ void  deleteFiles(void)
 
 			if(dialogResult == TRUE)
 			{
+				if(isBatch == FALSE)
+				{
 #ifndef __VIC20__
-				writeStatusBarf("Deleting %s", selectedNode->name);
+					writeStatusBarf("Deleting %s", selectedNode->name);
 #else
-				writeStatusBarf("Dltng %s", selectedNode->name);
+					writeStatusBarf("Dltng %s", selectedNode->name);
 #endif
 
-				if(selectedNode->type != 6)
-				{
-					sprintf(command, "s0:%s", selectedNode->name);
+					if(selectedNode->type != 6)
+					{
+						sprintf(command, "s0:%s", selectedNode->name);
+					}
+					else
+					{
+						sprintf(command, "rd:%s", selectedNode->name);
+					}
+
+					sendCommand(selectedPanel, command);
+
+					rereadSelectedPanel();
 				}
 				else
 				{
-					sprintf(command, "rd:%s", selectedNode->name);
+					writeStatusBar("Deleting files...");
+					for(i=0; i<selectedPanel->length / 8 + 1; ++i)
+					{
+						for(j=0; j<8; ++j)
+						{
+							bit = 1 << j;
+							r = selectedPanel->selectedEntries[i] & bit;
+							if(r != 0)
+							{
+								selectedNode = getSpecificNode(selectedPanel, i*8+j);
+								if(selectedNode == NULL)
+								{
+									getDirectory(selectedPanel, i*8+j);
+									selectedNode = getSpecificNode(selectedPanel, i*8+j);
+										//if(currentNode == NULL)
+										//{
+										//	writeStatusBarf("Can't get file %u", i*8+j); 
+										//	waitForEnterEsc();
+										//	return;
+										//}
+								}
+
+								if(selectedNode->type != 6)
+								{
+									sprintf(command, "s0:%s", selectedNode->name);
+								}
+								else
+								{
+									sprintf(command, "rd:%s", selectedNode->name);
+								}
+				
+								sendCommand(selectedPanel, command);
+							}
+						}
+					}
+					rereadSelectedPanel();
 				}
-
-				sendCommand(selectedPanel, command);
-
-				rereadSelectedPanel();
 			}
 		}
 	}

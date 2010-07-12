@@ -414,6 +414,7 @@ void  renameFile(void)
 #else
 			writeStatusBar(selectedNode->name);
 #endif
+			strcpy(filename, selectedNode->name);
 
 			dialogResult = drawInputDialog(
 				2, 16,

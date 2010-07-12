@@ -374,16 +374,8 @@ enum results  drawInputDialog(
 	unsigned char x = 0, y = 0, h = 0, w = 0, i = 0, 
 		key = 0, count = 0;
 	unsigned result;
-	unsigned char *input;
-	input = // calloc(length+1, sizeof(unsigned char));
-		resultText;
 	h = lineCount + 6;
 	w = length + 3;
-	//for(i=0; i<lineCount; ++i);
-	//{
-	//	if(strlen(message[i]) > w) 
-	//		w = strlen(message[i]);
-	//}
 
 	x = getCenterX(w);
 	y = getCenterY(h);
@@ -406,9 +398,10 @@ enum results  drawInputDialog(
 	revers(TRUE);
 	textcolor(color_text_other);
 	
+	count = strlen(resultText);
 	cclearxy(x+2, i+2+y, length + 1);
-	cputcxy(x+2, i+2+y, '<');
-	count = 0;
+	cputsxy(x+2, i+2+y, resultText);
+	cputcxy(x+2+count, i+2+y, '<');
 	key = cgetc();
 	while(key != CH_ESC 
 #if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
@@ -423,8 +416,8 @@ enum results  drawInputDialog(
 			)
 		)
 		{
-			input[count] = key;
-			input[count+1] = '\0';
+			resultText[count] = key;
+			resultText[count+1] = '\0';
 			gotoxy(x+2+count, i+2+y);
 			cputc(key);
 			++count;
@@ -432,14 +425,14 @@ enum results  drawInputDialog(
 			cputc('<');
 		}
 		else if(
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
 			key == CH_DEL 
 #else
 			key == 127
 #endif
 			&& count > 0)
 		{
-			input[count] = '\0';
+			resultText[count-1] = '\0';
 			gotoxy(x+2+count, i+2+y);
 			cputc(' ');
 			--count;
@@ -450,8 +443,6 @@ enum results  drawInputDialog(
 		key = cgetc();
 	}
 
-	strcpy(resultText, input);
-
 	switch((int)key)
 	{
 	case CH_ENTER: result = OK_RESULT; break;
@@ -459,7 +450,6 @@ enum results  drawInputDialog(
 	}
 
 	revers(FALSE);
-	free(input);
 	return result;
 }
 

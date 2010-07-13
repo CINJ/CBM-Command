@@ -479,7 +479,7 @@ void  makeDirectory(void)
 
 void  deleteFiles(void)
 {
-	unsigned dialogResult = 0, size = 0, isBatch = FALSE, i = 0;
+	unsigned dialogResult = 0, isBatch = FALSE, i = 0;
 	struct dir_node *selectedNode = NULL;
 	unsigned char r, bit, j;
 	unsigned char command[40];
@@ -490,10 +490,9 @@ void  deleteFiles(void)
 
 	if(selectedPanel != NULL)
 	{
-		size = sizeof(selectedPanel->selectedEntries);
-		if(size > 0)
+		if(selectedPanel->length / 8 + 1 > 0)
 		{
-			for(i = 0; i<size; i++)
+			for(i = 0; i<selectedPanel->length / 8 + 1; ++i)
 			{
 				isBatch |= selectedPanel->selectedEntries[i] != 0;
 			}
@@ -803,6 +802,7 @@ void  createD64(void)
 					{
 						writeStatusBar("Creating D64.");
 					}
+					waitForEnterEsc();
 				}
 				else
 				{
@@ -837,7 +837,7 @@ void  createD64(void)
 									t = cgetc();
 									if(t == CH_STOP || t == CH_ESC)
 									{
-										i=41;
+										i=81;
 										break;
 									}
 								}

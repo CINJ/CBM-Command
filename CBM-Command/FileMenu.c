@@ -215,7 +215,11 @@ unsigned char *quit_message[1] =
 
 void  writeHelpPanel(void)
 {
+#ifndef __PLUS4__
 	viewFile(PEEK(0xBA),"cbmcmd.help");
+#else
+	viewFile(PEEK(174),"cbmcmd.help");
+#endif
 }
 
 unsigned char fileBuffer[COPY_BUFFER_SIZE];

@@ -160,7 +160,7 @@ void  displayColor(
 	unsigned char y,
 	unsigned char color)
 {
-	cclearxy(x, y, 12);
+	cclearxy(x, y, 1);
 	textcolor(color);
 	revers(TRUE);
 	cputsxy(x, y, " ");
@@ -201,15 +201,17 @@ void  quit(void)
 	unsigned result;
 	unsigned char *quit_message[] =
 	{
-		{ "Are you sure you want to quit?" }
+		{ "Are you sure you" },
+		{ "want to quit?" }
 	};
 
 	saveScreen();
 
-	result = writeYesNo("Confirm", quit_message, 1);
+	result = writeYesNo("Confirm", quit_message, 2);
 	
 	if(result == TRUE)
 	{
+		clrscr();
 		writeStatusBar("Goodbye!");
 		exit(EXIT_SUCCESS);
 	}
@@ -221,24 +223,29 @@ void  writeMenu(void)
 {
 	writePanel(TRUE, FALSE, color_text_borders,
 		0, 0, size_y - 3, size_x - 1,
-		"CBM-Command Configuration Manager",
+		"Config Manager",
 		NULL, NULL);
 
 	textcolor(color_text_menus);
 	cputsxy(1, 3, "Drives");
-	cputsxy(2, 4, "L - Default Left Drive :"); gotoxy(27,4); cprintf("%d", defaultLeftDrive);
+#ifndef __VIC20__
+	cputsxy(2, 4, "L - Default Left Drive : "); gotoxy(27,4); cprintf("%d", defaultLeftDrive);
 	cputsxy(2, 5, "R - Default Right Drive: "); gotoxy(27,5); cprintf("%d", defaultRightDrive);
+#else
+	cputsxy(2, 4, "L - Def Lft Dr :"); cprintf("%d", defaultLeftDrive);
+	cputsxy(2, 5, "R - Def Rght Dr:"); cprintf("%d", defaultRightDrive);
+#endif
 
 	cputsxy(1, 7, "Colors");
-	cputsxy(2, 8,  "1 - Background    : "); displayColor(22,8,color_background);
-	cputsxy(2, 9,  "2 - Border        : "); displayColor(22,9,color_border);
-	cputsxy(2, 10, "3 - Selector      : "); displayColor(22,10,color_selector);
-	cputsxy(2, 11, "4 - Box Borders   : "); displayColor(22,11,color_text_borders);
-	cputsxy(2, 12, "5 - Menus         : "); displayColor(22,12,color_text_menus);
-	cputsxy(2, 13, "6 - Filenames     : "); displayColor(22,13,color_text_files);
-	cputsxy(2, 14, "7 - Status Bar    : "); displayColor(22,14,color_text_status);
-	cputsxy(2, 15, "8 - Text Highlight: "); displayColor(22,15,color_text_highlight);
-	cputsxy(2, 16, "9 - Other         : "); displayColor(22,16,color_text_other);
+	cputsxy(2, 8,  "1 - Background: "); displayColor(17,8,color_background);
+	cputsxy(2, 9,  "2 - Border    : "); displayColor(17,9,color_border);
+	cputsxy(2, 10, "3 - Selector  : "); displayColor(17,10,color_selector);
+	cputsxy(2, 11, "4 - Box Brders: "); displayColor(17,11,color_text_borders);
+	cputsxy(2, 12, "5 - Menus     : "); displayColor(17,12,color_text_menus);
+	cputsxy(2, 13, "6 - Filenames : "); displayColor(17,13,color_text_files);
+	cputsxy(2, 14, "7 - Status Bar: "); displayColor(17,14,color_text_status);
+	cputsxy(2, 15, "8 - Highlight : "); displayColor(17,15,color_text_highlight);
+	cputsxy(2, 16, "9 - Other     : "); displayColor(17,16,color_text_other);
 
 }
 

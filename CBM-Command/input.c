@@ -64,8 +64,6 @@ void readKeyboard(void)
 		break;
 #endif
 	case CH_F3:
-		selectCurrentFile();
-		break;
 	case HK_SELECT:
 		selectCurrentFile();
 		break; // don't fall through -- yet
@@ -176,7 +174,7 @@ void readKeyboard(void)
 	case CH_F6:
 		renameFile();
 		break;
-	case HK_DELETE:
+//	case HK_DELETE:
 	case CH_F8:
 		deleteFiles();
 		break;

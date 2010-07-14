@@ -53,4 +53,6 @@ void  displayColor(
 	unsigned char x,
 	unsigned char y,
 	unsigned char color);
+
+unsigned char pickColor(unsigned char startColor);
 #endif

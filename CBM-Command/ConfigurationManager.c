@@ -47,25 +47,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "globals.h"
 #include "screen.h"
 
-unsigned char *colors[] =
-{
-	{ "Black" },
-	{ "White" },
-	{ "Red" },
-	{ "Cyan" },
-	{ "Purple" },
-	{ "Green" },
-	{ "Blue" },
-	{ "Yellow" },
-	{ "Orange" },
-	{ "Brown" },
-	{ "Light Red" },
-	{ "Dark Gray" },
-	{ "Medium Gray" },
-	{ "Light Green" },
-	{ "Light Blue" },
-	{ "Light Gray" }
-};
 
 unsigned int main(void)
 {
@@ -142,40 +123,31 @@ void  changeColor(unsigned char key)
 	switch((int)key)
 	{
 	case '1':
-		incrementColor(&color_background);
-		color = color_background;
+		color_background = pickColor(color_background);
 		break;
 	case '2':
-		incrementColor(&color_border);
-		color = color_border;
+		color_border = pickColor(color_border);
 		break;
 	case '3':
-		incrementColor(&color_selector);
-		color = color_selector;
+		color_selector = pickColor(color_selector);
 		break;
 	case '4':
-		incrementColor(&color_text_borders);
-		color = color_text_borders;
+		color_text_borders = pickColor(color_text_borders);
 		break;
 	case '5':
-		incrementColor(&color_text_menus);
-		color = color_text_menus;
+		color_text_menus = pickColor(color_text_menus);
 		break;
 	case '6':
-		incrementColor(&color_text_files);
-		color = color_text_files;
+		color_text_files = pickColor(color_text_files);
 		break;
 	case '7':
-		incrementColor(&color_text_status);
-		color = color_text_status;
+		color_text_status = pickColor(color_text_status);
 		break;
 	case '8':
-		incrementColor(&color_text_highlight);
-		color = color_text_other;
+		color_text_highlight = pickColor(color_text_highlight);
 		break;
 	case '9':
-		incrementColor(&color_text_other);
-		color = color_text_highlight;
+		color_text_other = pickColor(color_text_other);
 		break;
 	}
 	setupScreen();
@@ -194,7 +166,6 @@ void  displayColor(
 	cputsxy(x, y, " ");
 	revers(FALSE);
 	textcolor(color_text_menus);
-	cputsxy(x+1, y, colors[color]);
 }
 
 void  incrementColor(unsigned char *color)
@@ -359,4 +330,79 @@ void  save(void)
 	cbm_close(15);
 	free(buffer);
 #endif
+}
+
+unsigned char pickColor(unsigned char startColor)
+{
+	unsigned char i = 0, j = 0, k = 0;
+#ifdef __VIC20__
+#define NUM_COLORS 8
+	unsigned char colors[NUM_COLORS];
+#elif __C64__
+#define NUM_COLORS 16
+	unsigned char colors[NUM_COLORS];
+#elif __C128__
+#define NUM_COLORS 16
+	unsigned char colors[NUM_COLORS];
+#elif __PLUS4__
+#define NUM_COLORS 128
+	unsigned char colors[NUM_COLORS];
+#endif
+
+	for(;i<NUM_COLORS;++i)
+	{
+		colors[i] = i;
+	}
+
+	saveScreen();
+	writePanel(TRUE, FALSE, color_text_borders, 0, 0, size_y-1, size_x-1, "Pick Color", "Cancel", "OK");
+
+	revers(TRUE);
+	for(i=0; i<NUM_COLORS; i += 16)
+	{
+		for(j=0; j<16 && i + j < NUM_COLORS; ++j)
+		{
+			textcolor(colors[j + i]);
+			cputcxy(2+j*2, 2+(i/16)*2, ' ');
+		}
+	}
+	revers(FALSE);
+	textcolor(color_selector);
+
+	i=startColor / 16; 
+	j=startColor % 16;
+
+	while(k != CH_ENTER && k != CH_STOP)
+	{
+		cputcxy(2+j*2, 3+i*2, '^');
+		k=cgetc();
+		cputcxy(2+j*2, 3+i*2, ' ');
+		switch(k)
+		{
+		case CH_CURS_DOWN:
+			if((i + 1) * 16 < NUM_COLORS) ++i;
+			break;
+
+		case CH_CURS_UP:
+			if(i > 0) --i;
+			break;
+
+		case CH_CURS_LEFT:
+			if(j > 0) --j;
+			break;
+
+		case CH_CURS_RIGHT:
+			if(j < 15 && j +1 < NUM_COLORS) ++j;
+			break;
+
+		case CH_ENTER:
+			return colors[i*16 + j];
+			break;
+		}
+	}
+
+	//waitForEnterEsc();
+
+	retrieveScreen();
+	return startColor;
 }

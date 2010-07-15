@@ -226,3 +226,9 @@ void  writeDriveSelectionPanel(enum menus menu)
 		selectedPanel = &rightPanelDrive;
 	}
 }
+
+void selectCurrentPanelDrive()
+{
+	if(selectedPanel == &leftPanelDrive) writeDriveSelectionPanel(left);
+	else writeDriveSelectionPanel(right);
+}

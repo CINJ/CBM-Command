@@ -128,6 +128,7 @@ void  rereadDrivePanel(enum menus menu);
 void  rereadSelectedPanel(void);
 void  reloadPanels(void);
 void  writeDriveSelectionPanel(enum menus menu);
+void  selectCurrentPanelDrive();
 void  writeAboutBox(void);
 void  displayPanels(void);
 void  writeMenu(enum menus);

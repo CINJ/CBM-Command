@@ -262,7 +262,7 @@ void writeMenuBar(void)
 	bottom = size_y - 1;
 	cclearxy(0, bottom, size_x);
 #ifdef __VIC20__
-	cputsxy(0, bottom - 1, " HELP  SLCT  CPY  MKD");
+	cputsxy(0, bottom - 1, " HELP  DRIV  CPY  MKD");
 	cputsxy(0, bottom    , " QUIT  REFR  REN  DEL");
 
 	revers(TRUE);
@@ -278,7 +278,7 @@ void writeMenuBar(void)
 	revers(FALSE);
 #endif
 #if defined(__C64__) || defined(__PLUS4__)
-	cputsxy(0, bottom, " HLP  QUIT  SEL  REF  CPY  REN  MDR  DEL");
+	cputsxy(0, bottom, " HLP  QUIT  DRV  REF  CPY  REN  MDR  DEL");
 
 	revers(TRUE);
 	gotoxy(0, bottom); cputc('1');
@@ -293,7 +293,7 @@ void writeMenuBar(void)
 	revers(FALSE);
 #endif
 #ifdef __C128__
-	cputsxy(0, bottom, "  HELP     QUIT    SELECT   REFRESH   COPY    RENAME    MAKE DIRECTORY    DELETE");
+	cputsxy(0, bottom, "  HELP     QUIT    DRIVE    REFRESH   COPY    RENAME    MAKE DIRECTORY    DELETE");
 
 	revers(TRUE);
 	gotoxy(0, bottom); cputc('F'); cputc('1');
@@ -308,7 +308,7 @@ void writeMenuBar(void)
 	revers(FALSE);
 #endif
 #ifdef __PET__
-	cputsxy(0, bottom, "  HELP     QUIT    SELECT   REFRESH   COPY    RENAME    MAKE DIRECTORY    DELETE");
+	cputsxy(0, bottom, "  HELP     QUIT    DRIVE    REFRESH   COPY    RENAME    MAKE DIRECTORY    DELETE");
 
 	revers(TRUE);
 	gotoxy(0, bottom); cputc('S'); cputc('1');

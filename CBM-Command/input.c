@@ -64,6 +64,8 @@ void readKeyboard(void)
 		break;
 #endif
 	case CH_F3:
+		selectCurrentPanelDrive();
+		break;
 	case HK_SELECT:
 		selectCurrentFile();
 		break; // don't fall through -- yet

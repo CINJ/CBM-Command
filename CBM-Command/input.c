@@ -158,6 +158,9 @@ void readKeyboard(void)
 #endif
 	case CH_F1:
 		writeHelpPanel();
+#ifdef __VIC20__
+		rereadSelectedPanel();
+#endif
 		break;
 #ifdef __CBM__
 	case HK_QUIT:

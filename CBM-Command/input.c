@@ -91,7 +91,9 @@ void readKeyboard(void)
 		break;
 	case CH_CURS_RIGHT:
 		if(selectedPanel == &leftPanelDrive
+#ifndef __VIC20__
 			&& rightPanelDrive.visible
+#endif
 			&& arePanelsOn)
 		{
 			selectedPanel = &rightPanelDrive;

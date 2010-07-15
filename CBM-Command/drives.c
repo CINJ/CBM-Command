@@ -400,9 +400,16 @@ void  displayDirectory(
 		resetSelectedFiles(drive);
 	}
 
+	if(drive->length == 0)
+	{
+		getDirectory(drive, 0);
+		resetSelectedFiles(drive);
+	}
+
 	if(drive->header.name == NULL)
 	{
 		getDirectory(drive, 0);
+		resetSelectedFiles(drive);
 	}
 
 	if(drive->header.name == NULL)

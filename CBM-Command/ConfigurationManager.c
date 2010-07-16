@@ -160,7 +160,6 @@ void  displayColor(
 	unsigned char y,
 	unsigned char color)
 {
-	cclearxy(x, y, 1);
 	textcolor(color);
 	revers(TRUE);
 	cputsxy(x, y, " ");

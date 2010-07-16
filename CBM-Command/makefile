@@ -3,13 +3,11 @@ CC := cc65.exe
 CA := ca65.exe
 LD := ld65.exe
 CL := cl65.exe
-C1541 := C:\Program Files\Vice Team\WinVICE 1.22 Setup\WinVICE-1.22\c1541.exe
-X64 := C:\Program Files\Vice Team\WinVICE 1.22 Setup\WinVICE-1.22\x64.exe -autostart
-X128 := C:\Program Files\Vice Team\WinVICE 1.22 Setup\WinVICE-1.22\x128.exe -autostart
+C1541 := c:\winvice\c1541.exe
+X64 := c:\winvice\x64.exe -autostart
+X128 := c:\winvice\x128.exe -autostart
 T := c128
 VIC_CONFIG := vic20-32k.cfg
-RM := del
-CP := copy
 
 CONFIG_SOURCES = \
 	ConfigurationManager.c \
@@ -57,19 +55,19 @@ else
 endif
 
 D64: all
-	$(RM) $(TITLE).d64
-	$(CP) $(TITLE)_master.d64 $(TITLE).d64
-	$(CP) c64\$(TITLE).c64 $(TITLE).c64
-	$(CP) c128\$(TITLE).c128 $(TITLE).c128
-#	$(CP) pet\$(TITLE).pet $(TITLE).pet
-	$(CP) vic20\$(TITLE).vic20 $(TITLE).vic20
-	$(CP) plus4\$(TITLE).plus4 $(TITLE).plus4
+	rm $(TITLE).d64
+	cp $(TITLE)_master.d64 $(TITLE).d64
+	cp c64\$(TITLE).c64 $(TITLE).c64
+	cp c128\$(TITLE).c128 $(TITLE).c128
+#	cp pet\$(TITLE).pet $(TITLE).pet
+	cp vic20\$(TITLE).vic20 $(TITLE).vic20
+	cp plus4\$(TITLE).plus4 $(TITLE).plus4
 
-	$(CP) c64\$(CONFIG_TITLE).c64 $(CONFIG_TITLE).c64
-	$(CP) c128\$(CONFIG_TITLE).c128 $(CONFIG_TITLE).c128
-#	$(CP) pet\$(CONFIG_TITLE).pet $(CONFIG_TITLE).pet
-	$(CP) vic20\$(CONFIG_TITLE).vic20 $(CONFIG_TITLE).vic20
-	$(CP) plus4\$(CONFIG_TITLE).plus4 $(CONFIG_TITLE).plus4
+	cp c64\$(CONFIG_TITLE).c64 $(CONFIG_TITLE).c64
+	cp c128\$(CONFIG_TITLE).c128 $(CONFIG_TITLE).c128
+#	cp pet\$(CONFIG_TITLE).pet $(CONFIG_TITLE).pet
+	cp vic20\$(CONFIG_TITLE).vic20 $(CONFIG_TITLE).vic20
+	cp plus4\$(CONFIG_TITLE).plus4 $(CONFIG_TITLE).plus4
 
 	$(C1541) $(TITLE).d64 -write $(TITLE).c64 $(TITLE).c64
 	$(C1541) $(TITLE).d64 -write $(TITLE).c128 $(TITLE).c128
@@ -83,17 +81,17 @@ D64: all
 	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).vic20 $(CONFIG_TITLE).vic20
 	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).plus4 $(CONFIG_TITLE).plus4
 
-	$(RM) $(TITLE).c64
-	$(RM) $(TITLE).c128
-#	$(RM) $(TITLE).pet
-	$(RM) $(TITLE).vic20
-	$(TITLE).plus4
+	rm $(TITLE).c64
+	rm $(TITLE).c128
+#	rm $(TITLE).pet
+	rm $(TITLE).vic20
+	rm $(TITLE).plus4
 
-	$(RM) $(CONFIG_TITLE).c64
-	$(RM) $(CONFIG_TITLE).c128
-#	$(RM) $(CONFIG_TITLE).pet
-	$(RM) $(CONFIG_TITLE).vic20
-	$(RM) $(CONFIG_TITLE).plus4
+	rm $(CONFIG_TITLE).c64
+	rm $(CONFIG_TITLE).c128
+#	rm $(CONFIG_TITLE).pet
+	rm $(CONFIG_TITLE).vic20
+	rm $(CONFIG_TITLE).plus4
 
 # Build our program
 $(PROGRAM): $(SOURCES) $(ASMFILES)

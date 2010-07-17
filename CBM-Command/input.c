@@ -144,9 +144,9 @@ void readKeyboard(void)
 	case HK_DRIVE_RIGHT:
 		writeDriveSelectionPanel(right);
 		break;
-	case HK_TOGGLE_PANELS:
-		togglePanels();
-		break;
+	//case HK_TOGGLE_PANELS:
+	//	togglePanels();
+	//	break;
 	case HK_SELECT_ALL:
 		selectAllFiles(selectedPanel, true);
 		break;
@@ -211,7 +211,7 @@ void readKeyboard(void)
 	case HK_PAGE_DOWN:
 		movePageDown(selectedPanel);
 		break;
-#ifdef __CBM__
+#ifndef __VIC20__
 	case KEY_SH_SPACE:
 		writeD64();
 		break;

@@ -40,7 +40,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <conio.h>
 #include <string.h>
 #include <errno.h>
-#include <peekpoke.h>
 #ifdef __C128__
 #include <c128.h>
 #endif
@@ -63,6 +62,15 @@ unsigned char *quit_message[1] =
 	"Quit CBM-Command?"
 };
 #define A_SIZE_QUIT A_SIZE(quit_message)
+#ifdef __C64__
+#define KB_START 631
+#define KB_COUNT 198
+#endif
+#ifdef __C128__
+#define KB_START 0x034A
+#define KB_COUNT 0x00D0
+#endif
+
 	
 
 //#ifdef __C128__
@@ -215,11 +223,7 @@ unsigned char *quit_message[1] =
 
 void  writeHelpPanel(void)
 {
-#ifndef __PLUS4__
-	viewFile(PEEK(0xBA),"cbmcmd.help");
-#else
-	viewFile(PEEK(174),"cbmcmd.help");
-#endif
+	viewFile(startupDevice,"cbmcmd.help");
 }
 
 unsigned char fileBuffer[COPY_BUFFER_SIZE];
@@ -248,8 +252,7 @@ void  copyFiles(void)
 	if(sd == td)
 	{
 		saveScreen();
-		writeStatusBar("Can't copy to the same drive");
-		waitForEnterEsc();
+		waitForEnterEscf("Can't copy to the same drive");
 		retrieveScreen();
 		return;
 	}
@@ -301,12 +304,11 @@ void  copyFiles(void)
 								bytes = cbm_read(1, fileBuffer, COPY_BUFFER_SIZE);
 								if(bytes == -1)
 								{
-									writeStatusBarf("Problem (%d) reading %s", 
+									waitForEnterEscf("Problem (%d) reading %s", 
 										_oserror, 
-										currentNode->name); 
-									waitForEnterEsc();
+										currentNode->name);
 									cbm_read(15, status, 40);
-									writeStatusBar(status); waitForEnterEsc();
+									waitForEnterEscf(status);
 									break;
 								}
 								else if(bytes == EOF)
@@ -335,12 +337,11 @@ void  copyFiles(void)
 								r = cbm_write(2, fileBuffer, bytes);
 								if(r == -1)
 								{
-									writeStatusBarf("Problem (%d) writing %s", 
+									waitForEnterEscf("Problem (%d) writing %s", 
 										_oserror, 
 										currentNode->name); 
-									waitForEnterEsc();
 									cbm_read(14, status, 40);
-									writeStatusBar(status); waitForEnterEsc();
+									waitForEnterEscf(status);
 									break;
 								}
 								//writeStatusBarf("%s %d/%d", currentNode->name, index, currentNode->size);
@@ -350,20 +351,18 @@ void  copyFiles(void)
 						}
 						else
 						{
-							writeStatusBarf("Can't open %s for write (%d)", 
+							waitForEnterEscf("Can't open %s for write (%d)", 
 								currentNode->name, r); 
-							waitForEnterEsc();
 							cbm_read(14, status, 40);
-							writeStatusBar(status); waitForEnterEsc();
+							waitForEnterEscf(status);
 						}
 					}
 					else
 					{
-						writeStatusBarf("Cannot open %s for read (%d)", 
+						waitForEnterEscf("Cannot open %s for read (%d)", 
 							currentNode->name, r); 
-						waitForEnterEsc();
 						cbm_read(15, status, 40);
-						writeStatusBar(status); waitForEnterEsc();
+						waitForEnterEscf(status);
 					}
 					cbm_close(2); 
 					cbm_close(1);
@@ -428,8 +427,6 @@ void  renameFile(void)
 
 			if(dialogResult == OK_RESULT && strlen(filename) > 0)
 			{
-				writeStatusBarf("Renaming to %s", filename);
-
 				sprintf(command, "r0:%s=%s",
 					filename, selectedNode->name);
 
@@ -606,13 +603,9 @@ void  go64(void)
 
 void  quit(void)
 {
-	unsigned result;
-
 	saveScreen();
 
-	result = writeYesNo("Confirm", quit_message, 1);
-	
-	if(result == TRUE)
+	if(writeYesNo("Confirm", quit_message, 1) == TRUE)
 	{
 		clrscr();
 		writeStatusBar("Goodbye!");
@@ -630,6 +623,7 @@ void  writeAboutBox(void)
 void executeSelectedFile(void)
 {
 	const struct dir_node *currentNode;
+	//int *ptr = NULL;
 	static const char* const message[] =
 	{
 		{ "Read as text?" }
@@ -646,6 +640,7 @@ void executeSelectedFile(void)
 				//saveScreen();
 				if(!writeYesNo(currentNode->name, (char**)message, A_SIZE(message)))
 				{
+#if defined(__C64__) || defined (__C128__)
 					retrieveScreen();
 					if(writeYesNo("Confirm execute", quit_message, A_SIZE_QUIT))
 					{
@@ -656,22 +651,17 @@ void executeSelectedFile(void)
 
 						cprintf("lO\"%s\",%u,1\r\n\n\n\n\nrU",
 							currentNode->name, selectedPanel->drive->drive);
-#ifdef __C64__
-						POKE(631,0x13);		/* HOME */
-						POKE(632,'\n');
-						POKE(633,'\n');
-						POKE(198,3);
-#endif
-#ifdef __C128__
-						POKE(0x034A,0x13);	/* HOME */
-						POKE(0x034B,'\n');
-						POKE(0x034C,'\n');
-						POKE(0x00D0,3);
-#endif
+
+						*(int *)KB_START = 0x13;
+						*(int *)(KB_START + 1) = '\n';
+						*(int *)(KB_START + 2) = '\n';
+						
+						*(int *)KB_COUNT = 3; 
+
 						exit(EXIT_SUCCESS);
-						//return;			// exit() doesn't return
 					}
 					retrieveScreen();
+#endif
 					break;
 				}
 				retrieveScreen();
@@ -703,7 +693,7 @@ void  inputCommand(void)
 		if(selectedNode != NULL)
 		{
 			saveScreen();
-
+			memset(command,'\0',77);
 			dialogResult = drawInputDialog(
 				1, 
 				size_x - 4,
@@ -734,9 +724,9 @@ unsigned char l[] =
 	17,17,17,17,17
 };
 
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__)// || defined(__VIC20__)
 void  createD64(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__)// || defined(__VIC20__)
 	unsigned int r = 0, p = 0, pp = 0;
 	unsigned confirmed = FALSE, isD64 = TRUE;
 	unsigned char name[17];
@@ -793,24 +783,23 @@ void  createD64(void)
 					{
 						if(strstr(buffer,"1581") == 0 )
 						{
-							writeStatusBar("Must be a 1541, 1571 or 1581 drive.");
+							waitForEnterEscf("Must be a 1541, 1571 or 1581 drive.");
 							return;
 						}
 						else
 						{
 							isD64 = FALSE;
-							writeStatusBar("Creating D81.");
+							waitForEnterEscf("Creating D81.");
 						}
 					}
 					else
 					{
-						writeStatusBar("Creating D64.");
+						waitForEnterEscf("Creating D64.");
 					}
-					waitForEnterEsc();
 				}
 				else
 				{
-					writeStatusBar("Error opening drive.");
+					waitForEnterEscf("Error opening drive.");
 					return;
 				}
 				r=cbm_open(2, sd, 2, "#");
@@ -888,12 +877,10 @@ void  createD64(void)
 			}
 		}
 	}
-#endif
 }
 
 void  writeD64(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__)// || defined(__VIC20__)
 	unsigned int r = 0, p = 0, pp = 0;
 	unsigned confirmed = FALSE;
 	unsigned char *message[] =
@@ -925,9 +912,8 @@ void  writeD64(void)
 			if(currentNode->size != D64_SIZE && currentNode->size != D81_SIZE)
 			{
 				saveScreen();
-				writeStatusBarf("%s is not a valid disk image.",
+				waitForEnterEscf("%s is not a valid disk image.",
 					currentNode->name);
-				waitForEnterEsc();
 				retrieveScreen();
 				return;
 			}
@@ -1014,10 +1000,10 @@ void  writeD64(void)
 				{
 					cbm_read(15, buffer, 40);
 					retrieveScreen();
-					writeStatusBar(buffer); waitForEnterEsc();
+					waitForEnterEscf(buffer);
 				}
 			}
 		}
 	}
-#endif
 }
+#endif

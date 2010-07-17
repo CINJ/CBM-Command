@@ -242,13 +242,13 @@ void writePanel(
 	}
 }
 
-void  notImplemented(void)
-{
-	saveScreen();
-	writeStatusBar("Not implemented...");
-	waitForEnterEsc();
-	retrieveScreen();
-}
+//void  notImplemented(void)
+//{
+//	saveScreen();
+//	writeStatusBar("Not implemented...");
+//	waitForEnterEsc();
+//	retrieveScreen();
+//}
 
 enum results  drawDialog(
 	unsigned char* message[],

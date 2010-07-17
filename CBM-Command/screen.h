@@ -98,7 +98,7 @@ void drawProgressBar(
 void  saveScreen(void);
 void  retrieveScreen(void);
 
-void  notImplemented(void);
+//void  notImplemented(void);
 
 unsigned char  getCenterX(unsigned char w);
 unsigned char  getCenterY(unsigned char h);

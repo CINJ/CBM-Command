@@ -143,8 +143,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //	notImplemented();
 //}
 
-void  writeOptionsPanel(void)
-{
-	retrieveScreen();
-	notImplemented();
-}
+//void  writeOptionsPanel(void)
+//{
+//	retrieveScreen();
+//	notImplemented();
+//}

@@ -38,7 +38,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <peekpoke.h>
+//#include <peekpoke.h>
 
 #include "ConfigurationManager.h"
 #include "Configuration.h"
@@ -282,9 +282,9 @@ void  save(void)
 	unsigned char *buffer;
 	buffer = calloc(1, sizeof(unsigned char));
 #ifndef __PLUS4__
-	d = PEEK(0x00BA);
+	d = *(unsigned char*)0x00BA;
 #else
-	d = PEEK(174);
+	d = *(unsigned char*)174;
 #endif
 	cbm_open(15,d,15,"");
 #ifdef __C64__
@@ -324,12 +324,10 @@ void  save(void)
 	{
 		free(buffer);
 		buffer = calloc(41, sizeof(unsigned char));
-		writeStatusBarf("Error %d writing cfg", r);
-		waitForEnterEsc();
+		waitForEnterEscf("Error %d writing cfg", r);
 		r = cbm_read(15,buffer,39);
 		buffer[r] = '\0';
-		writeStatusBar(buffer);
-		waitForEnterEsc();
+		waitForEnterEscf(buffer);
 	}
 
 	cbm_close(1);

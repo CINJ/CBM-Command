@@ -41,11 +41,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constants.h"
 
 // Menu Globals
-extern unsigned char currentMenuX;
-extern unsigned char currentMenuLine;
+//extern unsigned char currentMenuX;
+//extern unsigned char currentMenuLine;
 enum menus
 {
-	left, right, file, command, options
+	left, right//, file, command, options
 };
 
 
@@ -134,15 +134,16 @@ void  displayPanels(void);
 void  writeMenu(enum menus);
 void  writeOptionsPanel(void);
 void  saveOptions(void);
-void  swapPanels(void);
-void  togglePanels(void);
+//void  togglePanels(void);
 void  writeHelpPanel(void);
 void  copyFiles(void);
 void  renameFile(void);
 void  makeDirectory(void);
 void  deleteFiles(void);
+#ifndef __VIC20__
 void  writeD64(void);
 void  createD64(void);
+#endif
 void  quit(void);
 #ifdef __C128__
 void  go64(void);

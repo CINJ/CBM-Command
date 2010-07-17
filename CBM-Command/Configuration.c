@@ -41,8 +41,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Configuration-CBM.h"
 #endif
 #include <conio.h>
-#include <errno.h>
-#include <peekpoke.h>
+//#include <errno.h>
 
 #include "globalInput.h"
 #include "globals.h"
@@ -125,35 +124,27 @@ void  load(void)
 void loadCBM(void)
 {
 	unsigned char r;	// Drive operation result
-	unsigned char d;	// Drive number we started from
 
-#ifndef __PLUS4__
-	d = PEEK(0x00BA);	// Get the drive that the app
-						// was loaded from
-#else
-	d = PEEK(174);
-#endif
-	
-	cbm_open(15,d,15,"");	// Open the command channel
+	cbm_open(15,startupDevice,15,"");	// Open the command channel
 
 	// We use different filenames for the C= 64
 	// and C= 128 so that both versions can be
 	// on the same disk and not have to share the
 	// same configuration.
 #ifdef __C64__
-	r = cbm_open(1,d,2,"cbmcmd-cfg.c64,s,r");
+	r = cbm_open(1,startupDevice,2,"cbmcmd-cfg.c64,s,r");
 #endif
 #ifdef __C128__
-	r = cbm_open(1,d,2,"cbmcmd-cfg.c128,s,r");
+	r = cbm_open(1,startupDevice,2,"cbmcmd-cfg.c128,s,r");
 #endif
 #ifdef __PET__
-	r = cbm_open(1,d,2,"cbmcmd-cfg.pet,s,r");
+	r = cbm_open(1,startupDevice,2,"cbmcmd-cfg.pet,s,r");
 #endif
 #ifdef __VIC20__
-	r = cbm_open(1,d,2,"cbmcmd-cfg.vic20,s,r");
+	r = cbm_open(1,startupDevice,2,"cbmcmd-cfg.vic20,s,r");
 #endif
 #ifdef __PLUS4__
-	r = cbm_open(1,d,2,"cbmcmd-cfg.plus4,s,r");
+	r = cbm_open(1,startupDevice,2,"cbmcmd-cfg.plus4,s,r");
 #endif
 
 	if(r == 0) // r == success
@@ -186,8 +177,7 @@ void loadCBM(void)
 		// to the user.
 		r = cbm_read(15,buffer,39);
 		buffer[r] = '\0';
-		writeStatusBar(buffer);
-		waitForEnterEsc();
+		waitForEnterEscf(buffer);
 	}
 
 	// Close the channels

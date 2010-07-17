@@ -39,7 +39,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <string.h>
 #include <conio.h>
-#include <peekpoke.h>
 
 #include "Configuration.h"
 #include "constants.h"

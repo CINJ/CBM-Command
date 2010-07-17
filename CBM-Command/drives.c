@@ -40,7 +40,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #include <conio.h>
 #include <errno.h>
-#include <peekpoke.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -82,8 +81,6 @@ void  initializeDrives(void)
 	unsigned char i = 0;
 	if(!areDrivesInitialized)
 	{
-		startupDevice = PEEK(0x00BA);
-
 		leftPanelDrive.visible = FALSE;
 		leftPanelDrive.drive = &(drives[defaultLeftDrive - 8]);
 		leftPanelDrive.currentIndex = 0;
@@ -130,7 +127,7 @@ int  getDriveStatus(
 
 	if(_oserror != 0)
 	{
-		writeStatusBarf("_oserror: %d", _oserror); waitForEnterEsc();
+		waitForEnterEscf("_oserror: %d", _oserror);
 		cbm_close(15);
 
 		return -1;
@@ -157,7 +154,7 @@ int  getDriveStatus(
 	}
 	else
 	{
-		writeStatusBarf("Error: %d", result); waitForEnterEsc();
+		waitForEnterEscf("Error: %d", result);
 	}
 
 
@@ -248,17 +245,16 @@ void  listDrives(enum menus menu)
 
 		switch((int)key)
 		{
+#ifdef __C128__
 		case CH_ESC: 
+#endif
 		case CH_STOP:
 			selected = TRUE;
 			current = original;
 			break;
 
 		case CH_ENTER:
-			if(strlen(drives[current].message) != 0)
-			{
-				selected = TRUE;
-			}
+			selected = strlen(drives[current].message) != 0;
 			break;
 
 		case CH_CURS_UP:
@@ -359,7 +355,7 @@ int  getDirectory(
 
 		cbm_close(2);
 
-		writeStatusBarf("Finished reading %u files.", counter - 1);
+		writeStatusBarf("Read %u files.", counter - 1);
 	}
 
 
@@ -461,8 +457,7 @@ void  displayDirectory(
 			}
 			else
 			{
-				if(drive->slidingWindowStartAt > 5) drive->slidingWindowStartAt = i - 5;
-				else drive->slidingWindowStartAt = 0;
+				drive->slidingWindowStartAt = (drive->slidingWindowStartAt > 5 ? i - 5: 0);
 				getDirectory(drive, drive->slidingWindowStartAt);
 				currentNode = getSpecificNode(drive, i);
 			}
@@ -476,14 +471,8 @@ void  displayDirectory(
 		mod =  (currentNode->index - 1) % 8;
 		bit = 1 << mod;
 		r = drive->selectedEntries[ii] & bit;
-		if(r != 0)
-		{
-			revers(TRUE);
-		}
-		else
-		{
-			revers(FALSE);
-		}		
+
+		revers(r != 0);
 
 		y = i - start + 2;
 #if defined(__C64__) || defined(__PLUS4__)
@@ -563,13 +552,13 @@ void  moveSelectorUp(struct panel_drive *panel)
 
 	if(!firstPage && diff == 1)
 	{
-		panel->displayStartAt--;
-		panel->currentIndex--;
+		--(panel->displayStartAt);
+		--(panel->currentIndex);
 		displayDirectory(panel);
 	}
 	else if(diff > 0)
 	{
-		panel->currentIndex--;
+		--(panel->currentIndex);
 	}
 	
 	writeSelectorPosition(panel, '>');
@@ -594,19 +583,19 @@ void  moveSelectorDown(struct panel_drive *panel)
 	if(!lastPage && diff > offset &&
 		((panel->currentIndex - panel->displayStartAt) == offset))
 	{
-		panel->displayStartAt++;
-		panel->currentIndex++;
+		++(panel->displayStartAt);
+		++(panel->currentIndex);
 		displayDirectory(panel);
 	}
 	else if(lastPage && 
 		(panel->currentIndex - panel->displayStartAt) < offset &&
 		(panel->currentIndex + 2) < panel->length)
 	{
-		panel->currentIndex++;
+		++(panel->currentIndex);
 	}
 	else if(!lastPage)
 	{
-		panel->currentIndex++;
+		++(panel->currentIndex);
 	}
 
 	if(panel->currentIndex < 0) panel->currentIndex=0;
@@ -747,18 +736,11 @@ unsigned  isDiskImage(struct panel_drive *panel)
 
 	if(currentDirNode != NULL)
 	{
-		if(strstr(name, ".d64") > 0
+		result  = strstr(name, ".d64") > 0
 			|| strstr(name, ".d81") > 0
 			|| strstr(name, ".d71") > 0
 			|| strstr(name, ".dnp") > 0
-		)
-		{
-			result = TRUE;
-		}
-		else
-		{
-			result = FALSE;
-		}
+				? TRUE: FALSE;
 	}
 
 	return result;
@@ -773,14 +755,8 @@ unsigned  isDirectory(struct panel_drive *panel)
 
 	if(currentDirNode != NULL)
 	{
-		if(currentDirNode->type == 6)
-		{
-			result = TRUE;
-		}
-		else
-		{
-			result = FALSE;
-		}
+		result = 
+			currentDirNode->type == 6 ? TRUE: FALSE;
 	}
 
 	return result;
@@ -800,16 +776,10 @@ struct dir_node*  getSpecificNode(
 	{
 		if(panel->drive != NULL)
 		{
-
-			if(index >= panel->slidingWindowStartAt &&
-				index < panel->slidingWindowStartAt + SLIDING_WINDOW_SIZE)
-			{
-				return &(panel->slidingWindow[index - panel->slidingWindowStartAt]);
-			}
-			else
-			{
-				return NULL;
-			}
+			return index >= panel->slidingWindowStartAt &&
+				index < panel->slidingWindowStartAt + SLIDING_WINDOW_SIZE?
+					&(panel->slidingWindow[index - panel->slidingWindowStartAt])
+					: NULL;
 		}
 	}
 
@@ -820,7 +790,7 @@ unsigned char  sendCommand(
 	struct panel_drive *panel,
 	unsigned char *command)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
 	char result;
 	unsigned char drive;
 
@@ -936,23 +906,11 @@ void  moveBottom(struct panel_drive *panel)
 	{
 		panel->currentIndex = panel->length - 2;
 
-		if(panel->length > 30)
-		{
-			panel->slidingWindowStartAt = panel->length - 30;
-		}
-		else
-		{
-			panel->slidingWindowStartAt = 0;
-		}
+		panel->slidingWindowStartAt =
+			panel->length > 30 ? panel->length - 30 : 0;
 
-		if(panel->length > l)
-		{
-			panel->displayStartAt = panel->length - l;
-		}
-		else
-		{
-			panel->displayStartAt = 0;
-		}
+		panel->displayStartAt =
+			panel->length > l ? panel->length - l : 0;
 
 		getDirectory(panel, panel->slidingWindowStartAt);
 		displayDirectory(panel);
@@ -960,19 +918,3 @@ void  moveBottom(struct panel_drive *panel)
 		writeCurrentFilename(panel);
 	}
 }
-
-//unsigned getDriveError(
-//	unsigned char channel, 
-//	unsigned char* message)
-//{
-//	unsigned char result;
-//
-//	result = cbm_read(channel, message, sizeof(message));
-//
-//	if(result > 0)
-//	{
-//		return strncmp(message, "00,", 3);
-//	}
-//
-//	return FALSE;
-//}

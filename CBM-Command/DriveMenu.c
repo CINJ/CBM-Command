@@ -170,15 +170,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void  rereadDrivePanel(enum menus menu)
 {
-	if(menu == left)
-	{
-		selectedPanel = &leftPanelDrive;
-	}
-	else
-	{
-		selectedPanel = &rightPanelDrive;
-	}
-
+	selectedPanel = (menu == left ? &leftPanelDrive : &rightPanelDrive);
 	rereadSelectedPanel();
 }
 
@@ -217,14 +209,7 @@ void  writeDriveSelectionPanel(enum menus menu)
 
 	rereadDrivePanel(menu);
 
-	if(menu == left)
-	{
-		selectedPanel = &leftPanelDrive;
-	}
-	else
-	{
-		selectedPanel = &rightPanelDrive;
-	}
+	selectedPanel = (menu == left ? &leftPanelDrive : &rightPanelDrive);
 }
 
 void selectCurrentPanelDrive()

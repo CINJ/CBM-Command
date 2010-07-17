@@ -47,8 +47,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "menus.h"
 #include "screen.h"
 
-unsigned char currentMenuX;
-unsigned char currentMenuLine;
+//unsigned char currentMenuX;
+//unsigned char currentMenuLine;
 
 //void  writeMenu(enum menus menu)
 //{

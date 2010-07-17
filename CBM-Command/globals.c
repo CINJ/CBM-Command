@@ -60,11 +60,9 @@ unsigned char startupDevice = 8;
 void initialize(void)
 {
 	screensize(&size_x, &size_y);
-#if defined(__C128__)
-	//getScreenSize(&size_x, &size_y);
-	if(size_x > 40) fast();
+#ifndef __PLUS4__
+	startupDevice = *(unsigned char*)0x00BA;
+#else
+	startupDevice = *(unsigned char*)174;
 #endif
-
-	//strncpy(blank_line, SPACES, size_x);
-	//blank_line[size_x] = '\0';
 }

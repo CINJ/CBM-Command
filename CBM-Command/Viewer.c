@@ -142,14 +142,13 @@ void viewFile(
 			cputsxy(0, currentLine, line);
 		}
 
-		writeStatusBarf("Done reading %s", filename);
-		waitForEnterEsc();
+		waitForEnterEscf("Done reading %s", filename);
 		retrieveScreen();
 	}
 	else
 	{
 		cbm_read(15, buffer, 40);
-		writeStatusBar(buffer); waitForEnterEsc();
+		waitForEnterEscf(buffer); 
 	}
 
 	cbm_close(2); cbm_close(15);

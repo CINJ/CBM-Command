@@ -51,7 +51,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "globals.h"
 #include "input.h"
 #include "screen.h"
-#include "menus.h"
 
 unsigned char drivesBuffer[80];
 

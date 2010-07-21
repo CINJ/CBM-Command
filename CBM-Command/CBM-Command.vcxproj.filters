@@ -66,8 +66,6 @@
     <None Include="res\common\driveRoutines.s">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="loadcbmcmd" />
-    <None Include="cbmcmd.help" />
     <None Include="cbmcommand_master.d64" />
     <None Include="res\pet\FileMenu.s">
       <Filter>Resource Files\PET</Filter>

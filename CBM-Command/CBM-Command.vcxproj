@@ -315,6 +315,10 @@
     <None Include="res\pet\OptionsMenu.s" />
     <None Include="res\pet\PlatformSpecific.s" />
     <None Include="res\pet\Text.s" />
+    <None Include="res\plus4\FileMenu.s" />
+    <None Include="res\plus4\OptionsMenu.s" />
+    <None Include="res\plus4\PlatformSpecific.s" />
+    <None Include="res\plus4\Text.s" />
     <None Include="res\vic20\FileMenu.s" />
     <None Include="res\vic20\OptionsMenu.s" />
     <None Include="res\vic20\PlatformSpecific.s" />

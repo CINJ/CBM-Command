@@ -25,6 +25,9 @@
     <Filter Include="Resource Files\PET">
       <UniqueIdentifier>{44b39402-9039-441f-ba59-ea5bbd9fd4ff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\PLUS4">
+      <UniqueIdentifier>{80573763-d241-45ab-82ac-5f2dcbcdc652}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\c64\Text.s">
@@ -89,6 +92,18 @@
     </None>
     <None Include="res\pet\Text.s">
       <Filter>Resource Files\PET</Filter>
+    </None>
+    <None Include="res\plus4\FileMenu.s">
+      <Filter>Resource Files\PLUS4</Filter>
+    </None>
+    <None Include="res\plus4\OptionsMenu.s">
+      <Filter>Resource Files\PLUS4</Filter>
+    </None>
+    <None Include="res\plus4\PlatformSpecific.s">
+      <Filter>Resource Files\PLUS4</Filter>
+    </None>
+    <None Include="res\plus4\Text.s">
+      <Filter>Resource Files\PLUS4</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

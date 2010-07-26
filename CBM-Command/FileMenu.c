@@ -223,7 +223,18 @@ unsigned char *quit_message[1] =
 
 void  writeHelpPanel(void)
 {
+#ifndef __VIC20__
 	viewFile(startupDevice,"cbmcmd.help");
+#else
+	unsigned char *message[] =
+	{
+		{ "For Help See:" },
+		{ "http://cbmcommand." },
+		{ "   codeplex.com/" },
+		{ "      documentation" }
+	};
+	drawDialog(message, 4, "Help", OK);
+#endif
 }
 
 unsigned char fileBuffer[COPY_BUFFER_SIZE];

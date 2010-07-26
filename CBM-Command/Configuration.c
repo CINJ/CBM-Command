@@ -120,7 +120,15 @@ void  load(void)
 #endif
 }
 
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__) || defined(__VIC20__)
+#if defined(__VIC20__)
+void loadCBM(void)
+{
+			defaultLeftDrive	= *(unsigned char *)0x9c5c;
+			defaultRightDrive	= *(unsigned char *)0x9c5d;
+}
+#endif
+
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__)// || defined(__VIC20__)
 void loadCBM(void)
 {
 	unsigned char r;	// Drive operation result

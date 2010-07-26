@@ -97,7 +97,9 @@ void  readKeyboard(void)
 	case '7':
 	case '8':
 	case '9':
+#ifndef __VIC20__
 		changeColor(result);
+#endif
 		break;
 	case 'l':
 		++defaultLeftDrive;
@@ -116,6 +118,7 @@ void  readKeyboard(void)
 	}
 }
 
+#ifndef __VIC20__
 void  changeColor(unsigned char key)
 {
 	unsigned char y, color;
@@ -154,7 +157,9 @@ void  changeColor(unsigned char key)
 	writeFunctionKeys();
 	writeMenu();
 }
+#endif
 
+#ifndef __VIC20__
 void  displayColor(
 	unsigned char x,
 	unsigned char y,
@@ -166,6 +171,7 @@ void  displayColor(
 	revers(FALSE);
 	textcolor(color_text_menus);
 }
+#endif
 
 void  incrementColor(unsigned char *color)
 {
@@ -235,6 +241,7 @@ void  writeMenu(void)
 	cputsxy(2, 5, "R - Def Rght Dr:"); cprintf("%d", defaultRightDrive);
 #endif
 
+#ifndef __VIC20__
 	cputsxy(1, 7, "Colors");
 	cputsxy(2, 8,  "1 - Background: "); displayColor(17,8,color_background);
 	cputsxy(2, 9,  "2 - Border    : "); displayColor(17,9,color_border);
@@ -245,7 +252,7 @@ void  writeMenu(void)
 	cputsxy(2, 14, "7 - Status Bar: "); displayColor(17,14,color_text_status);
 	cputsxy(2, 15, "8 - Highlight : "); displayColor(17,15,color_text_highlight);
 	cputsxy(2, 16, "9 - Other     : "); displayColor(17,16,color_text_other);
-
+#endif
 }
 
 void  writeFunctionKeys(void)
@@ -275,6 +282,17 @@ void  writeFunctionKeys(void)
 #endif
 }
 
+#ifdef __VIC20__
+void  save(void)
+{
+	*(int *)0x9c5c = defaultLeftDrive;
+	*(int *)0x9c5d = defaultRightDrive;
+
+	writeStatusBar("Wrote config to NVRAM");
+}
+#endif
+
+#ifndef __VIC20__
 void  save(void)
 {
 #if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
@@ -335,7 +353,9 @@ void  save(void)
 	free(buffer);
 #endif
 }
+#endif
 
+#ifndef __VIC20__
 unsigned char pickColor(unsigned char startColor)
 {
 	unsigned char i = 0, j = 0, k = 0;
@@ -410,3 +430,4 @@ unsigned char pickColor(unsigned char startColor)
 	retrieveScreen();
 	return startColor;
 }
+#endif

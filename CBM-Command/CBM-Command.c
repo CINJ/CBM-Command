@@ -44,6 +44,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constants.h"
 #include "drives.h"
 #include "globals.h"
+#include "globalInput.h"
 #include "menus.h"
 #include "screen.h"
 #include "input.h"

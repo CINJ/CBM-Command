@@ -194,7 +194,7 @@ void  listDrives(enum menus menu)
 
 	current = 0;
 
-	for(i=0; i<9; ++i)
+	for(i=0; i<8; ++i)
 	{
 		if( 
 			(currentLeft > 0 && drives[i].drive == currentLeft && menu == left) ||
@@ -280,11 +280,13 @@ void  listDrives(enum menus menu)
 	{
 		leftPanelDrive.drive = &(drives[current]);
 		currentLeft = leftPanelDrive.drive->drive;
+		*(int *)VIC_DRIVE_REGISTER = (*(unsigned char *)VIC_DRIVE_REGISTER &0xF0) + currentLeft;
 	}
 	else
 	{
 		rightPanelDrive.drive = &(drives[current]);
 		currentRight = rightPanelDrive.drive->drive;
+		*(int *)VIC_DRIVE_REGISTER = (*(unsigned char *)VIC_DRIVE_REGISTER &0x0F) + (currentRight << 4);
 	}
 }
 
@@ -305,6 +307,8 @@ int  getDirectory(
 
 	for(i=0; i<SLIDING_WINDOW_SIZE; ++i)
 	{
+		memset(drive->slidingWindow[0].name, '\0', sizeof(drive->slidingWindow[0].name));
+		drive->slidingWindow[i].index = 0;
 		drive->slidingWindow[i].size = 0u;
 		drive->slidingWindow[i].type = 0;
 	}

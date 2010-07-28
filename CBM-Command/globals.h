@@ -46,6 +46,7 @@ extern unsigned char buffer[41];
 
 extern unsigned char startupDevice;
 
+#define VIC_DRIVE_REGISTER 0x9c5d
 
 void initialize(void);
 #endif

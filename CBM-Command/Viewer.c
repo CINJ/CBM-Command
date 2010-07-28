@@ -27,8 +27,8 @@ void viewFile(
 	unsigned printLine = FALSE;
 
 	unsigned char file[22];
-	unsigned char line[81];
-	unsigned char word[81];
+	unsigned char line[23];
+	unsigned char word[23];
 	unsigned char character = 0, last = 0;
 
 	strcpy(file, filename);

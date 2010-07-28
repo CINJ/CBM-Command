@@ -123,8 +123,20 @@ void  load(void)
 #if defined(__VIC20__)
 void loadCBM(void)
 {
-			defaultLeftDrive	= *(unsigned char *)0x9c5c;
-			defaultRightDrive	= *(unsigned char *)0x9c5d;
+	defaultLeftDrive	= *(unsigned char *)VIC_DRIVE_REGISTER & 0x0F;
+	if(defaultLeftDrive < 8)
+	{
+		defaultLeftDrive = 8;
+		*(int *)VIC_DRIVE_REGISTER = (*(unsigned char *)VIC_DRIVE_REGISTER &0xF0) + 8;
+	}
+	//waitForEnterEscf("LeftDrive: %d", defaultLeftDrive);
+	defaultRightDrive	= (*(unsigned char *)VIC_DRIVE_REGISTER >> 4) & 0x0F;
+	if(defaultRightDrive < 8)
+	{
+		defaultRightDrive = 8;
+		*(int *)VIC_DRIVE_REGISTER = (*(unsigned char *)VIC_DRIVE_REGISTER &0x0F) + (8 << 4);
+	}
+	//waitForEnterEscf("RightDrive: %d", defaultRightDrive);
 }
 #endif
 

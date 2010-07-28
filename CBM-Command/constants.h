@@ -46,8 +46,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FALSE 0
 
 /* Drive Constants */
-#define SLIDING_WINDOW_SIZE	30		// Thirty directory entries are cached
-#define COPY_BUFFER_SIZE	1018	// The data of 4 CBM blocks, plus 2 bytes
+#define SLIDING_WINDOW_SIZE	28		// Thirty directory entries are cached
+#define COPY_BUFFER_SIZE	254	// The data of 4 CBM blocks, plus 2 bytes
 
 /* Count the number of cells in an array. */
 #define A_SIZE(a) (sizeof(a)/sizeof(a)[0])

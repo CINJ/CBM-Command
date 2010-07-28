@@ -305,6 +305,8 @@ int  getDirectory(
 
 	for(i=0; i<SLIDING_WINDOW_SIZE; ++i)
 	{
+		memset(drive->slidingWindow[0].name, '\0', sizeof(drive->slidingWindow[0].name));
+		drive->slidingWindow[i].index = 0;
 		drive->slidingWindow[i].size = 0u;
 		drive->slidingWindow[i].type = 0;
 	}

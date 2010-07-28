@@ -481,12 +481,14 @@ void drawProgressBar(
 	revers(TRUE);
 	for(i=0; i<solid; ++i)
 	{
-		cputcxy(x + i, y, 32);
+		cputcxy(x + i + 1, y, 32);
 	}
 	if(remainder < 6) { revers(FALSE); }
-	cputcxy(x + i, y, barSegments[remainder]);
+	cputcxy(x + i + 1, y, barSegments[remainder]);
 	revers(FALSE);
 
+	cputcxy(x, y, 179);
+	cputcxy(x + 11, y, 171);
 	gotoxy(x + 14, y); cprintf("%3u%%", (unsigned int)result);
 
 }

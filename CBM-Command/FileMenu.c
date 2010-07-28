@@ -232,7 +232,7 @@ void  copyFiles(void)
 {
 #if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
 	unsigned char i = 0, j = 0, sd = 0, td = 0, bit = 0, r = 0;
-	unsigned int index = 0, bytes = 0;
+	unsigned int index = 0, bytes = 0, test = 0;
 	unsigned RELOAD = FALSE;
 	unsigned char targetFilename[21], type[2], status[40];
 	struct dir_node *currentNode;
@@ -263,7 +263,7 @@ void  copyFiles(void)
 		{
 			bit = 1 << j;
 			r = selectedPanel->selectedEntries[i] & bit;
-			if(r != 0)
+			if(r != 0 && i*8+j < selectedPanel->length - 1)
 			{
 				currentNode = getSpecificNode(selectedPanel, i*8+j);
 				if(currentNode->type < 4)
@@ -301,6 +301,7 @@ void  copyFiles(void)
 
 							for(index=0; index < currentNode->size; index+=(COPY_BUFFER_SIZE/254))
 							{
+								drawProgressBar(currentNode->name, index, currentNode->size);
 								bytes = cbm_read(1, fileBuffer, COPY_BUFFER_SIZE);
 								if(bytes == -1)
 								{
@@ -334,8 +335,8 @@ void  copyFiles(void)
 
 								}
 
-								r = cbm_write(2, fileBuffer, bytes);
-								if(r == -1)
+								test = cbm_write(2, fileBuffer, bytes);
+								if(test == -1)
 								{
 									waitForEnterEscf("Problem (%d) writing %s", 
 										_oserror, 
@@ -345,7 +346,6 @@ void  copyFiles(void)
 									break;
 								}
 								//writeStatusBarf("%s %d/%d", currentNode->name, index, currentNode->size);
-								drawProgressBar(currentNode->name, index, currentNode->size);
 							}
 							RELOAD = TRUE;
 						}
@@ -364,6 +364,7 @@ void  copyFiles(void)
 						cbm_read(15, status, 40);
 						waitForEnterEscf(status);
 					}
+					drawProgressBar(currentNode->name, index, currentNode->size);
 					cbm_close(2); 
 					cbm_close(1);
 					cbm_close(15);

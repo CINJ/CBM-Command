@@ -226,14 +226,50 @@ void  writeHelpPanel(void)
 #ifndef __VIC20__
 	viewFile(startupDevice,"cbmcmd.help");
 #else
-	unsigned char *message[] =
-	{
-		{ "For Help See:" },
-		{ "http://cbmcommand." },
-		{ "   codeplex.com/" },
-		{ "      documentation" }
-	};
-	drawDialog(message, 4, "Help", OK);
+	//unsigned char *message[] =
+	//{
+	//	{ "bit.ly/cbmcmddocs" },
+	//	{ "http://cbmcommand." },
+	//	{ "   codeplex.com/" },
+	//	{ "      documentation" }
+	//};
+	//drawDialog(message, 4, "Help", OK);
+
+	saveScreen();
+
+	clrscr();
+	writeMenuBar();
+	
+	textcolor(color_text_highlight);
+	cputsxy(0, 0, "Drive Commands");
+	textcolor(color_text_menus);
+	cputsxy(0, 1, "SPACE      Select File");
+	cputsxy(0, 2, "A     Select All Files");
+	cputsxy(0, 3, "S     Clear Selections");
+	cputsxy(0, 4, "PLUS           Page Up");
+	cputsxy(0, 5, "MINUS        Page Down");
+	cputsxy(0, 6, "^                  Top");
+	cputsxy(0, 7, "SHIFT-^         Bottom");
+
+	textcolor(color_text_highlight);
+	cputsxy(0, 9, "Directory Commands");
+	textcolor(color_text_menus);
+	cputsxy(0, 10,"SHIFT-PLUS   Enter Dir");
+	cputsxy(0, 11,"SHIFT-MINUS  Leave Dir");
+
+	textcolor(color_text_highlight);
+	cputsxy(0, 13, "Disk Commands");
+	textcolor(color_text_menus);
+	cputsxy(0, 14,"D          Select Left");
+	cputsxy(0, 15,"C= D      Select Right");
+	cputsxy(0, 16,"E         Refresh Left");
+	cputsxy(0, 17,"C= E     Refresh Right");
+
+	textcolor(color_text_highlight);
+	cputsxy(0, 19,"  bit.ly/cbmcmddocs");
+	waitForEnterEsc();
+
+	retrieveScreen();
 #endif
 }
 
@@ -479,6 +515,7 @@ void  makeDirectory(void)
 	{
 			saveScreen();
 
+			filename[0] = '\0';
 			dialogResult = drawInputDialog(
 				2, 16,
 				dialogMessage,
@@ -713,7 +750,7 @@ void  inputCommand(void)
 	unsigned char command[77];
 	unsigned char* dialogMessage[] =
 	{
-		{ "Enter Command for drive:" }
+		{ "Command for drive:" }
 	};
 
 	if(selectedPanel != NULL)

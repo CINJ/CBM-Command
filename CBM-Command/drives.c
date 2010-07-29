@@ -470,32 +470,38 @@ void  displayDirectory(
 			}
 		}
 
-		shortenSize(size, currentNode->size);
-		fileType = getFileType(currentNode->type);
+		if(strlen(currentNode->name) > 0)
+		{
+			shortenSize(size, currentNode->size);
+			fileType = getFileType(currentNode->type);
 
-		textcolor(color_text_files);
-		ii =  (currentNode->index - 1) / 8;
-		mod =  (currentNode->index - 1) % 8;
-		bit = 1 << mod;
-		r = drive->selectedEntries[ii] & bit;
+			textcolor(color_text_files);
+			ii =  (currentNode->index - 1) / 8;
+			mod =  (currentNode->index - 1) % 8;
+			bit = 1 << mod;
+			r = drive->selectedEntries[ii] & bit;
 
-		revers(r != 0);
+			revers(r != 0);
 
-		y = i - start + 2;
+			y = i - start + 2;
 #if defined(__C64__) || defined(__PLUS4__)
-		cputsxy(x + 1, y, size);
-		cputsxy(x + 5, y, shortenString(currentNode->name));
-		cputcxy(x + 19, y, fileType);
+			cputsxy(x + 1, y, size);
+			cputsxy(x + 5, y, shortenString(currentNode->name));
+			cputcxy(x + 19, y, fileType);
 #elif defined(__VIC20__)
-		cputcxy(x + 1, y, fileType);
-		cputsxy(x + 2, y, size);
-		cputsxy(x + 6, y, shortenString(currentNode->name));
+			cputcxy(x + 1, y, fileType);
+			cputsxy(x + 2, y, size);
+			cputsxy(x + 6, y, shortenString(currentNode->name));
 #else
-		cputsxy(x + 1, y, size);
-		cputsxy(x + 5, y, shortenString(currentNode->name));
-		cputcxy(x + 22, y, fileType);
+			cputsxy(x + 1, y, size);
+			cputsxy(x + 5, y, shortenString(currentNode->name));
+			cputcxy(x + 22, y, fileType);
 #endif
-		
+		}
+		else
+		{
+			break;
+		}
 		revers(FALSE);
 
 #ifdef __VIC20__
@@ -618,13 +624,15 @@ unsigned char  getFileType(unsigned char type)
 
 void  shortenSize(unsigned char* buffer, unsigned int value)
 {
+	unsigned long result;
 	if(value < 1000)
 	{
 		sprintf(buffer, "%3d", value);
 	}
 	else
 	{
-		sprintf(buffer, "%2dK", (value + 512)/1024);
+		result = ((unsigned long)value + (unsigned long)512) / (unsigned long)1024;
+		sprintf(buffer, "%2dK", (unsigned int)result);
 	}
 }
 

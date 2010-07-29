@@ -176,7 +176,7 @@ unsigned char checkDrivePlus4(
 void  listDrives(enum menus menu)
 {
 	unsigned selected = FALSE;
-	unsigned char h = 14, w = 39;
+	unsigned char h = 14, w = 39, drivesFlag = 0x88;
 	unsigned char original=0;
 	unsigned char x=0, y=0, i=0;
 	unsigned char status, current, key;
@@ -266,7 +266,7 @@ void  listDrives(enum menus menu)
 			break;
 
 		case CH_CURS_DOWN:
-			if(current < 11)
+			if(current < 10)
 			{
 				gotoxy(x + 1, current + 2 + y); cputc(' ');
 				++current;
@@ -280,14 +280,18 @@ void  listDrives(enum menus menu)
 	{
 		leftPanelDrive.drive = &(drives[current]);
 		currentLeft = leftPanelDrive.drive->drive;
-		*(int *)VIC_DRIVE_REGISTER = (*(unsigned char *)VIC_DRIVE_REGISTER &0xF0) + currentLeft;
 	}
 	else
 	{
 		rightPanelDrive.drive = &(drives[current]);
 		currentRight = rightPanelDrive.drive->drive;
-		*(int *)VIC_DRIVE_REGISTER = (*(unsigned char *)VIC_DRIVE_REGISTER &0x0F) + (currentRight << 4);
 	}
+
+	if(currentLeft < 8 || currentLeft > 15) currentLeft = defaultLeftDrive;
+	if(currentRight < 8 || currentRight > 15) currentRight = defaultRightDrive;
+
+	drivesFlag = currentLeft + (currentRight << 4);
+	*(int *)VIC_DRIVE_REGISTER = drivesFlag;
 }
 
 int  getDirectory(

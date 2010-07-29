@@ -242,6 +242,7 @@ struct panel_drive *targetPanel = NULL, *tempPanel = NULL;
 void  copyFiles(void)
 {
 #if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
+	unsigned multipleSelected = FALSE;
 	unsigned char i = 0, j = 0, sd = 0, td = 0, bit = 0, r = 0;
 	unsigned int index = 0, bytes = 0, test = 0;
 	unsigned RELOAD = FALSE;
@@ -266,6 +267,16 @@ void  copyFiles(void)
 		waitForEnterEscf("Can't copy to the same drive");
 		retrieveScreen();
 		return;
+	}
+
+	for(i=0; i<selectedPanel->length / 8 + 1; ++i)
+	{
+		if(selectedPanel->selectedEntries[i] > 0) multipleSelected = TRUE;
+	}
+
+	if(multipleSelected == FALSE)
+	{
+		selectCurrentFile();
 	}
 
 	for(i=0; i<selectedPanel->length / 8 + 1; ++i)
@@ -613,15 +624,18 @@ void  go64(void)
 }
 #endif
 
-void  quit(void)
+void  quit(unsigned confirm)
 {
 	saveScreen();
 
-	if(writeYesNo("Confirm", quit_message, 1) == TRUE)
+	if(confirm == TRUE && writeYesNo("Confirm", quit_message, 1) == TRUE)
 	{
 		//clrscr();
 		//writeStatusBar("Goodbye!");
 		//exit(EXIT_SUCCESS);
+		*(int *)0x9e00 = 0;
+	} else if(confirm == FALSE)
+	{
 		*(int *)0x9e00 = 0;
 	}
 
@@ -635,6 +649,7 @@ void  writeAboutBox(void)
 
 void executeSelectedFile(void)
 {
+#ifndef __VIC20__
 	const struct dir_node *currentNode;
 	//int *ptr = NULL;
 	static const char* const message[] =
@@ -688,6 +703,7 @@ void executeSelectedFile(void)
 
 		}
 	}
+#endif
 }
 
 void  inputCommand(void)

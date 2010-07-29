@@ -76,14 +76,14 @@ unsigned char color_text_other	= COLOR_GRAY3;
 unsigned char color_text_highlight = COLOR_WHITE;
 #elif defined(__VIC20__)
 unsigned char color_background	= COLOR_WHITE;
-unsigned char color_border		= COLOR_CYAN;
+unsigned char color_border		= COLOR_WHITE;
 unsigned char color_selector	= COLOR_RED;
-unsigned char color_text_borders= COLOR_CYAN;
+unsigned char color_text_borders= COLOR_BLACK;
 unsigned char color_text_menus	= COLOR_BLUE;
 unsigned char color_text_files	= COLOR_BLUE;
 unsigned char color_text_status	= COLOR_BLUE;
 unsigned char color_text_other	= COLOR_BLACK;
-unsigned char color_text_highlight = COLOR_YELLOW;
+unsigned char color_text_highlight = COLOR_RED;
 #elif defined(__PLUS4__)
 unsigned char color_background	= COLOR_WHITE;
 unsigned char color_border		= (BCOLOR_BLUE | CATTR_LUMA6);

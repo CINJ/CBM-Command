@@ -59,7 +59,7 @@ static unsigned char SCREEN_BUFFER[2000];
 
 #if defined(__VIC20__)
 #define screenMemoryStart 4096
-#define colorMemoryStart 38400
+#define colorMemoryStart 0x9400
 static unsigned char SCREEN_BUFFER[506];
 static unsigned char COLOR_BUFFER[506];
 #endif

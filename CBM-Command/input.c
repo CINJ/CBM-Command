@@ -164,9 +164,11 @@ void readKeyboard(void)
 		break;
 #ifdef __CBM__
 	case HK_QUIT:
+		quit(FALSE);
+		break;
 #endif
 	case CH_F2:
-		quit();
+		quit(TRUE);
 		break;
 #ifdef __C128__
 	case HK_GO64:

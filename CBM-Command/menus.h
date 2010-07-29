@@ -144,7 +144,7 @@ void  deleteFiles(void);
 void  writeD64(void);
 void  createD64(void);
 #endif
-void  quit(void);
+void  quit(unsigned confirm);
 #ifdef __C128__
 void  go64(void);
 #endif

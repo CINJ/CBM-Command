@@ -266,6 +266,7 @@ void writeMenuBar(void)
 	cputsxy(0, bottom    , " QUIT  REFR  REN  DEL");
 
 	revers(TRUE);
+	textcolor(color_text_highlight);
 	gotoxy(0, bottom - 1); cputc('1');
 	gotoxy(0, bottom    ); cputc('2');
 	gotoxy(6, bottom - 1); cputc('3');

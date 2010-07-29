@@ -17,7 +17,7 @@ void viewFile(
 	unsigned char drive,
 	unsigned char *filename)
 {
-//#ifndef __VIC20__
+#ifndef __VIC20__
 	int r = 0, bufferSize = 0, i = 0;
 	
 	unsigned char 
@@ -152,5 +152,5 @@ void viewFile(
 	}
 
 	cbm_close(2); cbm_close(15);
-//#endif
+#endif
 }

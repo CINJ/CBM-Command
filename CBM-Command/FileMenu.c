@@ -231,6 +231,7 @@ struct panel_drive *targetPanel = NULL, *tempPanel = NULL;
 void  copyFiles(void)
 {
 #if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
+	unsigned multipleSelected = FALSE;
 	unsigned char i = 0, j = 0, sd = 0, td = 0, bit = 0, r = 0;
 	unsigned int index = 0, bytes = 0, test = 0;
 	unsigned RELOAD = FALSE;
@@ -255,6 +256,16 @@ void  copyFiles(void)
 		waitForEnterEscf("Can't copy to the same drive");
 		retrieveScreen();
 		return;
+	}
+
+	for(i=0; i<selectedPanel->length / 8 + 1; ++i)
+	{
+		if(selectedPanel->selectedEntries[i] > 0) multipleSelected = TRUE;
+	}
+
+	if(multipleSelected == FALSE)
+	{
+		selectCurrentFile();
 	}
 
 	for(i=0; i<selectedPanel->length / 8 + 1; ++i)
@@ -457,6 +468,7 @@ void  makeDirectory(void)
 	{
 			saveScreen();
 
+			filename[0] = '\0';
 			dialogResult = drawInputDialog(
 				2, 16,
 				dialogMessage,
@@ -638,7 +650,7 @@ void executeSelectedFile(void)
 			switch (currentNode->type)
 			{
 			case CBM_T_PRG:
-				//saveScreen();
+				saveScreen();
 				if(!writeYesNo(currentNode->name, (char**)message, A_SIZE(message)))
 				{
 #if defined(__C64__) || defined (__C128__)
@@ -725,7 +737,7 @@ unsigned char l[] =
 	17,17,17,17,17
 };
 
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__)// || defined(__VIC20__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__) || defined(__VIC20__)
 void  createD64(void)
 {
 	unsigned int r = 0, p = 0, pp = 0;
@@ -733,8 +745,8 @@ void  createD64(void)
 	unsigned char name[17];
 	unsigned char *message[] =
 	{
-		{ "Enter a name for the" },
-		{ "new disk image." }
+		{ "Enter a name for" },
+		{ "the disk image." }
 	};
 	unsigned char sd, td,  i, j, t;
 	struct dir_node *currentNode;
@@ -759,8 +771,8 @@ void  createD64(void)
 
 			saveScreen();
 			result = drawInputDialog(
-				2, 30,
-				message, "Create Disk Image",
+				2, 17,
+				message, "Create Image",
 				name);
 			retrieveScreen();
 
@@ -851,7 +863,7 @@ void  createD64(void)
 						cbm_close(15); cbm_close(14); cbm_close(2); cbm_close(3);
 						retrieveScreen();
 						reloadPanels();
-						writeStatusBar("Finished writing image.");
+						writeStatusBar("Finished writing image");
 					}
 					else
 					{
@@ -886,8 +898,9 @@ void  writeD64(void)
 	unsigned confirmed = FALSE;
 	unsigned char *message[] =
 	{
-		{ "Is a formatted, blank disk" },
-		{ "in the target drive?" }
+		{ "Is a blank disk" },
+		{ "in the target " },
+		{ "drive?" }
 	};
 	unsigned char sd, td,  i, j, t;
 	struct dir_node *currentNode;
@@ -920,7 +933,7 @@ void  writeD64(void)
 			}
 
 			saveScreen();
-			confirmed = writeYesNo("Write Image?", message, 2);
+			confirmed = writeYesNo("Write Image?", message, 3);
 			retrieveScreen();
 
 			if(confirmed == TRUE)
@@ -995,7 +1008,7 @@ void  writeD64(void)
 					cbm_close(15);
 					retrieveScreen();
 					reloadPanels();
-					writeStatusBarf("Done writing %s.", currentNode->name); //waitForEnterEsc();
+					writeStatusBarf("Done writing %s", currentNode->name); //waitForEnterEsc();
 				}
 				else
 				{

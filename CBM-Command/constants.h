@@ -65,7 +65,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#define KEY_F8				0x8C
 
 #define KEY_SH_SPACE		(' '|0x80)
-#define KEY_SH_RETURN		('\n'|0x80)
+#define KEY_SH_RETURN		(13|0x80)
 #define KEY_SH_PLUS			0xDB
 #define KEY_SH_MINUS		0xDD
 #define KEY_ALT_D			0xAC

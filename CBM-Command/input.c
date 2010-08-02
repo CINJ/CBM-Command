@@ -211,14 +211,14 @@ void readKeyboard(void)
 	case HK_PAGE_DOWN:
 		movePageDown(selectedPanel);
 		break;
-#ifndef __VIC20__
+//#ifndef __VIC20__
 	case KEY_SH_SPACE:
 		writeD64();
 		break;
 	case HK_CREATE_D64:
 		createD64();
 		break;
-#endif
+//#endif
 	default:
 		//writeStatusBarf("%c", key);
 		break;

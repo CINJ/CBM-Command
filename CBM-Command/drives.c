@@ -85,6 +85,9 @@ void  initializeDrives(void)
 		leftPanelDrive.currentIndex = 0;
 		leftPanelDrive.displayStartAt = 0;
 		leftPanelDrive.position = left;
+#ifdef __VIC20__
+		leftPanelDrive.selectedEntries = (void *)0xA100;
+#endif
 		
 		for(i=0; i<SLIDING_WINDOW_SIZE; ++i)
 		{
@@ -97,6 +100,9 @@ void  initializeDrives(void)
 		rightPanelDrive.currentIndex = 0;
 		rightPanelDrive.displayStartAt = 0;
 		rightPanelDrive.position = right;
+#ifdef __VIC20__
+		rightPanelDrive.selectedEntries = (void *)0xA500;
+#endif
 		
 		for(i=0; i<SLIDING_WINDOW_SIZE; ++i)
 		{
@@ -368,11 +374,15 @@ int  getDirectory(
 
 void  resetSelectedFiles(struct panel_drive *panel)
 {
+#ifndef __VIC20__
 	free(panel->selectedEntries);
 			
 	panel->selectedEntries = 
 		calloc((panel->length)/8 + 1, 
 			sizeof(unsigned char));
+#else
+	memset(panel->selectedEntries, 0, 0x0400);
+#endif
 }
 
 void  displayDirectory(

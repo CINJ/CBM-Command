@@ -7,7 +7,7 @@ C1541 := c:\winvice\c1541.exe
 X64 := c:\winvice\x64.exe -autostart
 X128 := c:\winvice\x128.exe -autostart
 T := c128
-VIC_CONFIG := vic20-32k.cfg
+VIC_CONFIG := vic20-32k-big.cfg
 
 CONFIG_SOURCES = \
 	ConfigurationManager.c \

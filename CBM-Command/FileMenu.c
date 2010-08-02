@@ -790,7 +790,7 @@ unsigned char l[] =
 	17,17,17,17,17
 };
 
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__)// || defined(__VIC20__)
+#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__) || defined(__VIC20__)
 void  createD64(void)
 {
 	unsigned int r = 0, p = 0, pp = 0;
@@ -798,8 +798,8 @@ void  createD64(void)
 	unsigned char name[17];
 	unsigned char *message[] =
 	{
-		{ "Enter a name for the" },
-		{ "new disk image." }
+		{ "Enter a name for" },
+		{ "the disk image." }
 	};
 	unsigned char sd, td,  i, j, t;
 	struct dir_node *currentNode;
@@ -824,8 +824,8 @@ void  createD64(void)
 
 			saveScreen();
 			result = drawInputDialog(
-				2, 30,
-				message, "Create Disk Image",
+				2, 17,
+				message, "Create Image",
 				name);
 			retrieveScreen();
 
@@ -916,7 +916,7 @@ void  createD64(void)
 						cbm_close(15); cbm_close(14); cbm_close(2); cbm_close(3);
 						retrieveScreen();
 						reloadPanels();
-						writeStatusBar("Finished writing image.");
+						writeStatusBar("Finished writing image");
 					}
 					else
 					{
@@ -951,8 +951,9 @@ void  writeD64(void)
 	unsigned confirmed = FALSE;
 	unsigned char *message[] =
 	{
-		{ "Is a formatted, blank disk" },
-		{ "in the target drive?" }
+		{ "Is a blank disk" },
+		{ "in the target " },
+		{ "drive?" }
 	};
 	unsigned char sd, td,  i, j, t;
 	struct dir_node *currentNode;
@@ -985,7 +986,7 @@ void  writeD64(void)
 			}
 
 			saveScreen();
-			confirmed = writeYesNo("Write Image?", message, 2);
+			confirmed = writeYesNo("Write Image?", message, 3);
 			retrieveScreen();
 
 			if(confirmed == TRUE)
@@ -1060,7 +1061,7 @@ void  writeD64(void)
 					cbm_close(15);
 					retrieveScreen();
 					reloadPanels();
-					writeStatusBarf("Done writing %s.", currentNode->name); //waitForEnterEsc();
+					writeStatusBarf("Done writing %s", currentNode->name); //waitForEnterEsc();
 				}
 				else
 				{

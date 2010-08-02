@@ -85,6 +85,9 @@ void  initializeDrives(void)
 		leftPanelDrive.currentIndex = 0;
 		leftPanelDrive.displayStartAt = 0;
 		leftPanelDrive.position = left;
+#ifdef __VIC20__
+		leftPanelDrive.selectedEntries = (void *)0xA100;
+#endif
 		
 		for(i=0; i<SLIDING_WINDOW_SIZE; ++i)
 		{
@@ -97,6 +100,9 @@ void  initializeDrives(void)
 		rightPanelDrive.currentIndex = 0;
 		rightPanelDrive.displayStartAt = 0;
 		rightPanelDrive.position = right;
+#ifdef __VIC20__
+		rightPanelDrive.selectedEntries = (void *)0xA500;
+#endif
 		
 		for(i=0; i<SLIDING_WINDOW_SIZE; ++i)
 		{
@@ -374,11 +380,15 @@ int  getDirectory(
 
 void  resetSelectedFiles(struct panel_drive *panel)
 {
+#ifndef __VIC20__
 	free(panel->selectedEntries);
 			
 	panel->selectedEntries = 
 		calloc((panel->length)/8 + 1, 
 			sizeof(unsigned char));
+#else
+	memset(panel->selectedEntries, 0, 0x0400);
+#endif
 }
 
 void  displayDirectory(
@@ -446,6 +456,12 @@ void  displayDirectory(
 		cclearxy(x + 1, i+2, w);
 	}
 
+#ifdef __C128__
+	cvlinexy(x + 6, 2, panelHeight - 2);
+	cvlinexy(x + 26, 2, panelHeight - 2);
+	cvlinexy(x + 30, 2, panelHeight - 2);
+#endif
+
 	start = drive->displayStartAt;
 
 	for(i=start; i<start + (panelHeight - 2) && i < drive->length - 1; i++)
@@ -493,15 +509,16 @@ void  displayDirectory(
 			cputsxy(x + 2, y, size);
 			cputsxy(x + 6, y, shortenString(currentNode->name));
 #else
-			cputsxy(x + 1, y, size);
-			cputsxy(x + 5, y, shortenString(currentNode->name));
-			cputcxy(x + 22, y, fileType);
+			cputsxy(x + 2, y, size);
+			cputsxy(x + 8, y, shortenString(currentNode->name));
+			cputcxy(x + 28, y, fileType);
 #endif
 		}
 		else
 		{
 			break;
 		}
+		
 		revers(FALSE);
 
 #ifdef __VIC20__

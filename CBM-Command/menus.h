@@ -140,10 +140,10 @@ void  copyFiles(void);
 void  renameFile(void);
 void  makeDirectory(void);
 void  deleteFiles(void);
-#ifndef __VIC20__
+//#ifndef __VIC20__
 void  writeD64(void);
 void  createD64(void);
-#endif
+//#endif
 void  quit(unsigned confirm);
 #ifdef __C128__
 void  go64(void);

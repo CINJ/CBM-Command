@@ -39,6 +39,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <string.h>
 #include <conio.h>
+#include <_heap.h>
 
 #include "Configuration.h"
 #include "constants.h"
@@ -63,6 +64,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 int main(void)
 {
+#if defined(__VIC20__)
+	//_heapptr = _heaporg = 0xA100;
+	//_heapend = 0xBFFF;
+#endif
+
 #if defined(__C128__)
 	// Set screen to 80 columns.
 	// 40 columns is not supported

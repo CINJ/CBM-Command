@@ -118,7 +118,7 @@ void  readKeyboard(void)
 
 void  changeColor(unsigned char key)
 {
-	unsigned char y, color;
+	unsigned char y;
 	y = 8 + (key - 49);
 	switch((int)key)
 	{

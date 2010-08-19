@@ -336,7 +336,9 @@ void  copyFiles(void)
 								{
 									break;
 								}
+#ifndef __VIC20__
 								totalBytes += (long)bytes;
+#endif
 
 								if(kbhit())
 								{

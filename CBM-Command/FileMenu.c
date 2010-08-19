@@ -40,6 +40,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <conio.h>
 #include <string.h>
 #include <errno.h>
+#ifndef __VIC20__
+#include <time.h>
+#endif
 #ifdef __C128__
 #include <c128.h>
 #endif
@@ -231,6 +234,9 @@ struct panel_drive *targetPanel = NULL, *tempPanel = NULL;
 void  copyFiles(void)
 {
 #if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
+#ifndef __VIC20__
+	long timeStart = 0, timeEnd = 0, totalBytes=0;
+#endif
 	unsigned multipleSelected = FALSE;
 	unsigned char i = 0, j = 0, sd = 0, td = 0, bit = 0, r = 0;
 	unsigned int index = 0, bytes = 0, test = 0;
@@ -268,6 +274,9 @@ void  copyFiles(void)
 		selectCurrentFile();
 	}
 
+#ifndef __VIC20__
+	timeStart = time(NULL);
+#endif
 	for(i=0; i<selectedPanel->length / 8 + 1; ++i)
 	{
 		for(j=0; j<8; ++j)
@@ -327,6 +336,7 @@ void  copyFiles(void)
 								{
 									break;
 								}
+								totalBytes += (long)bytes;
 
 								if(kbhit())
 								{
@@ -347,6 +357,13 @@ void  copyFiles(void)
 								}
 
 								test = cbm_write(2, fileBuffer, bytes);
+#ifndef __VIC20__
+								timeEnd = time(NULL);
+								writeStatusBarf("%d:%02d e.t. %u B/s", 
+									(unsigned int)(timeEnd - timeStart)/60u, 
+									(unsigned int)(timeEnd - timeStart)%60u,
+									(unsigned int)(totalBytes/(timeEnd - timeStart)));
+#endif
 								if(test == -1)
 								{
 									waitForEnterEscf("Problem (%d) writing %s", 
@@ -383,10 +400,20 @@ void  copyFiles(void)
 				}
 			}
 		}
+#ifndef __VIC20__
+		timeEnd = time(NULL);
+#endif
 	}
 	if(RELOAD == TRUE)
 	{
 		reloadPanels();
+#ifndef __VIC20__
+		writeStatusBarf("%d:%02d e.t. %u B/s", 
+			(unsigned int)(timeEnd - timeStart)/60u, 
+			(unsigned int)(timeEnd - timeStart)%60u,
+			(unsigned int)(totalBytes/(timeEnd - timeStart)));
+#endif
+
 	}
 #endif
 }
@@ -630,7 +657,7 @@ void  quit(void)
 
 void  writeAboutBox(void)
 {
-	writeStatusBarf("Thank You for using CBM-Command Alpa");
+	writeStatusBarf("Thank You for using CBM-Command.");
 }
 
 void executeSelectedFile(void)
@@ -740,15 +767,18 @@ unsigned char l[] =
 #if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__) || defined(__VIC20__)
 void  createD64(void)
 {
-	unsigned int r = 0, p = 0, pp = 0;
+#ifndef __VIC20__
+	long timeStart, timeEnd, timeLeft;
+#endif
+	unsigned int r = 0, p = 0, pp = 0, size = D64_SIZE;
 	unsigned confirmed = FALSE, isD64 = TRUE;
-	unsigned char name[17];
+	unsigned char name[22];
 	unsigned char *message[] =
 	{
 		{ "Enter a name for" },
 		{ "the disk image." }
 	};
-	unsigned char sd, td,  i, j, t;
+	unsigned char sd, td,  i, j, t, sectorsThisTrack, tracks;
 	struct dir_node *currentNode;
 	enum results result;
 
@@ -770,6 +800,7 @@ void  createD64(void)
 			currentNode = getSelectedNode(selectedPanel);
 
 			saveScreen();
+			name[0]='\0';
 			result = drawInputDialog(
 				2, 17,
 				message, "Create Image",
@@ -802,12 +833,13 @@ void  createD64(void)
 						else
 						{
 							isD64 = FALSE;
-							waitForEnterEscf("Creating D81.");
+							size=D81_SIZE;
+							waitForEnterEscf("Creating D81. %u", size);
 						}
 					}
 					else
 					{
-						waitForEnterEscf("Creating D64.");
+						waitForEnterEscf("Creating D64. %u  %u", size, isD64);
 					}
 				}
 				else
@@ -815,6 +847,7 @@ void  createD64(void)
 					waitForEnterEscf("Error opening drive.");
 					return;
 				}
+
 				r=cbm_open(2, sd, 2, "#");
 				if(r == 0)
 				{
@@ -828,15 +861,20 @@ void  createD64(void)
 						color_text_borders, 
 						FALSE);
 
+#ifndef __VIC20__
+					timeStart = time(NULL);
+#endif
 					cbm_open(14,td,15,"");
 					strcat(name,",p,w");
 					r = cbm_open(3,td,3,name);
 					if(r == 0)
 					{
 						p = 0;
-						for(i=0;i<(isD64 == TRUE ? 35 : 80);++i)
+						tracks = isD64 == TRUE ? 35 : 80;
+						for(i=0;i<tracks;++i)
 						{
-							for(j=0;j<(isD64 == TRUE ? l[i] : 40);++j)
+							sectorsThisTrack = isD64 == TRUE ? l[i] : 40;
+							for(j=0;j<sectorsThisTrack;++j)
 							{
 								if(kbhit())
 								{
@@ -849,11 +887,26 @@ void  createD64(void)
 								}
 								++p; 
 
-								drawProgressBar("Creating image..", p, (isD64 == TRUE ? D64_SIZE : D81_SIZE));
+								drawProgressBar("Creating image..", p, size);
 
 								sprintf(buffer,"u1:2,0,%d,%d\n", i+1, j);
 								cbm_write(15, buffer, strlen(buffer));
-								writeStatusBar(buffer);
+#ifndef __VIC20__
+								timeEnd = time(NULL);
+
+								timeLeft = 
+									(((long)size - (long)p) * (long)256) // bytes remaining
+									/ (((long)p * (long)256)/(timeEnd - timeStart));
+
+							writeStatusBarf("%d:%02d et %d Bs %d:%02d rem %4u/%4u", 
+								(unsigned int)(timeEnd - timeStart)/60u, 
+								(unsigned int)(timeEnd - timeStart)%60u,
+								(unsigned int)(((long)p * (long)256)/(timeEnd - timeStart)),
+								(unsigned int)(timeLeft/60u),
+								(unsigned int)(timeLeft%60u),
+								p, size);
+#endif
+								//writeStatusBar(buffer);
 
 								r = cbm_read(2,fileBuffer, 256);
 
@@ -861,9 +914,17 @@ void  createD64(void)
 							}
 						}
 						cbm_close(15); cbm_close(14); cbm_close(2); cbm_close(3);
+#ifndef __VIC20__
+						timeEnd = time(NULL);
+#endif
 						retrieveScreen();
 						reloadPanels();
-						writeStatusBar("Finished writing image");
+#ifndef __VIC20__
+						writeStatusBarf("%d:%02d e.t. %d B/s", 
+							(unsigned int)(timeEnd - timeStart)/60u, 
+							(unsigned int)(timeEnd - timeStart)%60u,
+							(unsigned int)(((long)size * (long)256)/(timeEnd - timeStart)));
+#endif
 					}
 					else
 					{
@@ -894,6 +955,9 @@ void  createD64(void)
 
 void  writeD64(void)
 {
+#ifndef __VIC20__
+	long timeStart, timeEnd, timeLeft;
+#endif
 	unsigned int r = 0, p = 0, pp = 0;
 	unsigned confirmed = FALSE;
 	unsigned char *message[] =
@@ -968,6 +1032,9 @@ void  writeD64(void)
 						FALSE);
 
 					writeStatusBar("Writing D64...");
+#ifndef __VIC20__
+					timeStart = time(NULL);
+#endif
 
 					textcolor(color_text_other);
 					for(i=0;i<(currentNode->size == D64_SIZE ? 35 : 80);++i)
@@ -979,7 +1046,7 @@ void  writeD64(void)
 								t = cgetc();
 								if(t == CH_STOP || t == CH_ESC)
 								{
-									i=41;
+									i=81;
 									break;
 								}
 							}
@@ -993,22 +1060,40 @@ void  writeD64(void)
 							temp[r-1] = fileBuffer[0];
 
 							cbm_write(3,temp,256);
-
+							
 							sprintf(buffer, "u2 3 0 %d %d", i+1, j);
 							cbm_write(14,buffer,strlen(buffer));
 
-							sprintf(buffer, "u1 3 0 %d %d", i+1, j);
-							cbm_write(14,buffer,strlen(buffer));
-							cbm_read(3,fileBuffer,256);
+#ifndef __VIC20__
+							timeEnd = time(NULL);
+							timeLeft = 
+									(((long)currentNode->size - (long)p) * (long)256) // bytes remaining
+									/ (((long)p * (long)256)/(timeEnd - timeStart));
+
+							writeStatusBarf("%d:%02d e.t. %d B/s  %d:%02d rem", 
+								(unsigned int)(timeEnd - timeStart)/60u, 
+								(unsigned int)(timeEnd - timeStart)%60u,
+								(unsigned int)(((long)p * (long)256)/(timeEnd - timeStart)),
+								(unsigned int)(timeLeft/60u),
+								(unsigned int)(timeLeft%60u));
+#endif
 						}
 					}
 					cbm_close(2);
 					cbm_close(3);
 					cbm_close(14);
 					cbm_close(15);
+#ifndef __VIC20__
+					timeEnd = time(NULL);
+#endif
 					retrieveScreen();
 					reloadPanels();
-					writeStatusBarf("Done writing %s", currentNode->name); //waitForEnterEsc();
+#ifndef __VIC20__
+					writeStatusBarf("%d:%02d e.t. %d B/s", 
+						(unsigned int)(timeEnd - timeStart)/60u, 
+						(unsigned int)(timeEnd - timeStart)%60u,
+						(unsigned int)(((long)currentNode->size * (long)256u)/(timeEnd - timeStart))); //waitForEnterEsc();
+#endif
 				}
 				else
 				{

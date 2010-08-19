@@ -109,7 +109,7 @@ int main(void)
 #ifndef __VIC20__
 	writeStatusBarf("CBM-Command Build: %s %s", __DATE__, __TIME__);
 #else
-	writeStatusBarf("%s %s", __DATE__, __TIME__);
+	writeStatusBar("CBM-Command 4 MegaCart");
 #endif
 
 	// Main Loop

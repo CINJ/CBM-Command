@@ -322,6 +322,17 @@ int  getDirectory(
 		drive->slidingWindow[i].size = 0u;
 		drive->slidingWindow[i].type = 0;
 	}
+	
+	if(drives[dr-8].message == NULL ||
+		strlen(drives[dr-8].message) == 0)
+	{
+		result = cbm_open(15,dr,15,"ui");
+		cbm_close(15);
+		if(result != 0) 
+		{
+			return 0;
+		}
+	}
 
 	result = cbm_opendir(dr, dr);
 	if(result == 0)

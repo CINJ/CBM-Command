@@ -40,6 +40,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <conio.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 #ifdef __C128__
 #include <c128.h>
 #endif
@@ -241,7 +242,7 @@ void  writeHelpPanel(void)
 	writeMenuBar();
 	
 	textcolor(color_text_highlight);
-	cputsxy(0, 0, "Drive Commands");
+	cputsxy(0, 0, "      Commands");
 	textcolor(color_text_menus);
 	cputsxy(0, 1, "SPACE      Select File");
 	cputsxy(0, 2, "A     Select All Files");
@@ -250,16 +251,12 @@ void  writeHelpPanel(void)
 	cputsxy(0, 5, "MINUS        Page Down");
 	cputsxy(0, 6, "^                  Top");
 	cputsxy(0, 7, "SHIFT-^         Bottom");
+	cputsxy(0, 8, "SHIFT-SPACE  Creat Img");
+	cputsxy(0, 9, "X          Write Image");
 
-	textcolor(color_text_highlight);
-	cputsxy(0, 9, "Directory Commands");
-	textcolor(color_text_menus);
-	cputsxy(0, 10,"SHIFT-PLUS   Enter Dir");
-	cputsxy(0, 11,"SHIFT-MINUS  Leave Dir");
+	cputsxy(0, 11,"SHIFT-PLUS   Enter Dir");
+	cputsxy(0, 12,"SHIFT-MINUS  Leave Dir");
 
-	textcolor(color_text_highlight);
-	cputsxy(0, 13, "Disk Commands");
-	textcolor(color_text_menus);
 	cputsxy(0, 14,"D          Select Left");
 	cputsxy(0, 15,"C= D      Select Right");
 	cputsxy(0, 16,"E         Refresh Left");
@@ -793,9 +790,9 @@ unsigned char l[] =
 #if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__PLUS4__) || defined(__VIC20__)
 void  createD64(void)
 {
-	unsigned int r = 0, p = 0, pp = 0;
+	unsigned int r = 0, p = 0, pp = 0, size = D64_SIZE;
 	unsigned confirmed = FALSE, isD64 = TRUE;
-	unsigned char name[17];
+	unsigned char name[22];
 	unsigned char *message[] =
 	{
 		{ "Enter a name for" },
@@ -823,6 +820,7 @@ void  createD64(void)
 			currentNode = getSelectedNode(selectedPanel);
 
 			saveScreen();
+			name[0]='\0';
 			result = drawInputDialog(
 				2, 17,
 				message, "Create Image",
@@ -855,6 +853,7 @@ void  createD64(void)
 						else
 						{
 							isD64 = FALSE;
+							size=D81_SIZE;
 							waitForEnterEscf("Creating D81.");
 						}
 					}
@@ -902,7 +901,7 @@ void  createD64(void)
 								}
 								++p; 
 
-								drawProgressBar("Creating image..", p, (isD64 == TRUE ? D64_SIZE : D81_SIZE));
+								drawProgressBar("Creating image..", p, size);
 
 								sprintf(buffer,"u1:2,0,%d,%d\n", i+1, j);
 								cbm_write(15, buffer, strlen(buffer));
@@ -947,6 +946,9 @@ void  createD64(void)
 
 void  writeD64(void)
 {
+#ifndef __VIC20__
+	long timeStart, timeEnd;
+#endif
 	unsigned int r = 0, p = 0, pp = 0;
 	unsigned confirmed = FALSE;
 	unsigned char *message[] =
@@ -1021,6 +1023,9 @@ void  writeD64(void)
 						FALSE);
 
 					writeStatusBar("Writing D64...");
+#ifndef __VIC20__
+					timeStart = time(NULL);
+#endif
 
 					textcolor(color_text_other);
 					for(i=0;i<(currentNode->size == D64_SIZE ? 35 : 80);++i)
@@ -1032,7 +1037,7 @@ void  writeD64(void)
 								t = cgetc();
 								if(t == CH_STOP || t == CH_ESC)
 								{
-									i=41;
+									i=81;
 									break;
 								}
 							}
@@ -1049,9 +1054,10 @@ void  writeD64(void)
 
 							sprintf(buffer, "u2 3 0 %d %d", i+1, j);
 							cbm_write(14,buffer,strlen(buffer));
+							writeStatusBarf("%d: %s", td, buffer);
 
-							sprintf(buffer, "u1 3 0 %d %d", i+1, j);
-							cbm_write(14,buffer,strlen(buffer));
+							//sprintf(buffer, "u1 3 0 %d %d", i+1, j);
+							//cbm_write(14,buffer,strlen(buffer));
 							cbm_read(3,fileBuffer,256);
 						}
 					}
@@ -1059,9 +1065,14 @@ void  writeD64(void)
 					cbm_close(3);
 					cbm_close(14);
 					cbm_close(15);
+#ifndef __VIC20__
+					timeEnd = time(NULL);
+#endif
 					retrieveScreen();
 					reloadPanels();
-					writeStatusBarf("Done writing %s", currentNode->name); //waitForEnterEsc();
+#ifndef __VIC20__
+					writeStatusBarf("%d e.t.", (unsigned int)(timeEnd - timeStart)); //waitForEnterEsc();
+#endif
 				}
 				else
 				{

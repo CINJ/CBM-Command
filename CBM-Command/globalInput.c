@@ -77,5 +77,5 @@ unsigned char waitForEnterEscf(unsigned char* pattern, ...)
 	vsprintf(buffer, pattern, ap);
 	va_end(ap);
 	writeStatusBar(buffer);
-	waitForEnterEsc();
+	return waitForEnterEsc();
 }

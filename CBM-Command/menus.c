@@ -1,40 +1,41 @@
-/**************************************************************
+/***************************************************************
 Copyright (c) 2010, Payton Byrd
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or 
-without modification, are permitted provided that the following 
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following
 conditions are met:
 
-* Redistributions of source code must retain the above 
-  copyright notice, this list of conditions and the following 
+* Redistributions of source code must retain the above
+  copyright notice, this list of conditions and the following
   disclaimer.
 
-* Redistributions in binary form must reproduce the above 
-  copyright notice, this list of conditions and the following 
-  disclaimer in the documentation and/or other materials 
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following
+  disclaimer in the documentation and/or other materials
   provided with the distribution.
 
-* Neither the name of Payton Byrd nor the names of its 
-  contributors may be used to endorse or promote products 
-  derived from this software without specific prior written 
+* Neither the name of Payton Byrd nor the names of its
+  contributors may be used to endorse or promote products
+  derived from this software without specific prior written
   permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND 
-CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <conio.h>
@@ -50,277 +51,227 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //unsigned char currentMenuX;
 //unsigned char currentMenuLine;
 
-//void  writeMenu(enum menus menu)
+//void __fastcall__ writeMenu(enum menus menu)
 //{
-//	unsigned char x;
-//
-//	if(menu == left)
+//	currentMenuLine = 0;
+//	switch (menu)
 //	{
-//		x = size_x * LEFT_MENU_X / 100;
-//		currentMenuLine = 0;
-//		drawDriveMenu(x);
+//	  case left:
+//		drawDriveMenu(LEFT_MENU_X * size_x / 100);
 //		handleDriveMenu(left);
-//	}
-//	else if(menu == right)
-//	{
-//		x = RIGHT_MENU_X * size_x / 100;
-//		currentMenuLine = 0;
-//		drawDriveMenu(x);
+//		break;
+//	  case right:
+//		drawDriveMenu(size_x * RIGHT_MENU_X / 100);
 //		handleDriveMenu(right);
-//	}
-//	else if(menu == file)
-//	{
-//		x = FILE_MENU_X * size_x / 100;
-//		currentMenuLine = 0;
-//		drawFileMenu(x);
+//		break;
+//	  case file:
+//		drawFileMenu(size_x * FILE_MENU_X / 100);
 //		handleFileMenu();
-//	}
-//	else if(menu == command)
-//	{
-//		x = COMMAND_MENU_X * size_x / 100;
-//		currentMenuLine = 0;
-//		drawCommandMenu(x);
+//		break;
+//	  case command:
+//		drawCommandMenu(size_x * COMMAND_MENU_X / 100);
 //		handleCommandMenu();
-//	}
-//	else if(menu == options)
-//	{
-//		x = OPTIONS_MENU_X * size_x / 100;
-//		currentMenuLine = 0;
-//		drawOptionsMenu(x);
+//		break;
+//	  case options:
+//		drawOptionsMenu(size_x * OPTIONS_MENU_X / 100);
 //		handleOptionMenu();
-//	}	
+//	}
 //}
 //
-//void  drawFileMenu(unsigned char x)
+//void __fastcall__ drawFileMenu(unsigned char x)
 //{
-//	int i = 0;
-//	unsigned char oldColor;
+//	//unsigned char i = 0;
 //	//unsigned char buffer[79];
-//	
+//
 //	initFileMenu();
-//	
-//	//revers(TRUE);
-//	oldColor = textcolor(color_text_menus);
 //
 //	drawMenu(x,
-//		FILE_MENU_WIDTH, 
-//		FILE_MENU_COUNT, 
+//		FILE_MENU_WIDTH,
+//		FILE_MENU_COUNT,
 //		FILE_MENU_LABELS,
 //		FILE_MENU_KEYS);
-//
-//	//revers(FALSE);
-//	textcolor(oldColor);
 //}
 //
-//void  drawDriveMenu(unsigned char x)
+//void __fastcall__ drawDriveMenu(unsigned char x)
 //{
-//	int i = 0;
-//	unsigned char oldColor;
+//	//unsigned char i = 0;
 //	//unsigned char buffer[79];
-//	
+//
 //	initDriveMenu();
-//	
-//	//revers(TRUE);
-//	oldColor = textcolor(color_text_menus);
 //
 //	drawMenu(x,
-//		DRIVE_MENU_WIDTH, 
-//		DRIVE_MENU_COUNT, 
+//		DRIVE_MENU_WIDTH,
+//		DRIVE_MENU_COUNT,
 //		DRIVE_MENU_LABELS,
 //		DRIVE_MENU_KEYS);
-//
-//	//revers(FALSE);
-//	textcolor(oldColor);
 //}
 //
 //
-//void  drawCommandMenu(unsigned char x)
+//void __fastcall__ drawCommandMenu(unsigned char x)
 //{
-//	int i = 0;
-//	unsigned char oldColor;
+//	//unsigned char i = 0;
 //	//unsigned char buffer[79];
-//	
+//
 //	initCommandMenu();
-//	
-//	//revers(TRUE);
-//	oldColor = textcolor(color_text_menus);
 //
 //	drawMenu(x,
-//		COMMAND_MENU_WIDTH, 
-//		COMMAND_MENU_COUNT, 
+//		COMMAND_MENU_WIDTH,
+//		COMMAND_MENU_COUNT,
 //		COMMAND_MENU_LABELS,
 //		COMMAND_MENU_KEYS);
-//
-//	//revers(FALSE);
-//	textcolor(oldColor);
 //}
 //
-//void  drawOptionsMenu(unsigned char x)
+//void __fastcall__ drawOptionsMenu(unsigned char x)
 //{
-//	int i = 0;
-//	unsigned char oldColor;
+//	//unsigned char i = 0;
 //	//unsigned char buffer[79];
 //
 //	initOptionMenu();
-//	
-//	//revers(TRUE);
-//	oldColor = textcolor(color_text_menus);
 //
 //	drawMenu(x,
-//		OPTION_MENU_WIDTH, 
-//		OPTION_MENU_COUNT, 
+//		OPTION_MENU_WIDTH,
+//		OPTION_MENU_COUNT,
 //		OPTION_MENU_LABELS,
 //		OPTION_MENU_KEYS);
-//
-//	//revers(FALSE);
-//	textcolor(oldColor);
 //}
 //
-//void  drawMenu(
+//static void __fastcall__ drawMenu(
 //	unsigned char x,
-//	unsigned char width, 
-//	unsigned char count, 
-//	char* labels[],
-//	unsigned char keys[])
+//	unsigned char width,
+//	unsigned char count,
+//	const char* const labels[],
+//	const char keys[])
 //{
-//	unsigned int i=0, j=0;
-//	const unsigned char offset = 0x80;
-//	//unsigned test;
+//	unsigned char i;
+//	//static const unsigned char offset = 0x80;
+//	//bool test;
+//	unsigned char oldColor = textcolor(color_text_menus);
+//
+//	//revers(true);
 //
 //	currentMenuX = x;
 //	//currentMenuLine = 0;
 //
 //	saveScreen();
 //
-//	drawBox(x, 1, width + 1, 
-//		count + 1, color_text_borders, FALSE);
+//	drawBox(x, 1, width + 1,
+//		count + 1, color_text_borders, false);
 //
-//	for(i=0; i < count; ++i)
+//	for(i=0; i < count; i++)
 //	{
 //		drawMenuLine(
-//			(i==currentMenuLine), 
-//			keys[i], labels[i], 
+//			(i==currentMenuLine),
+//			keys[i], labels[i],
 //			x + 1, i + 2);
 //	}
+//
+//	//revers(false);
+//	textcolor(oldColor);
 //}
 //
-//void  drawMenuLine(
-//	unsigned reverse, 
-//	unsigned char key, 
-//	char* label, 
-//	unsigned char x, 
+//static void __fastcall__ drawMenuLine(
+//	bool reverse,
+//	char key,
+//	const char* label,
+//	unsigned char x,
 //	unsigned char y)
 //{
-//	int j;
-//	const unsigned char offset = 0x80;
-//	unsigned test;
-//	revers(reverse);
+//	unsigned char j;
+//	bool test;
+//	unsigned char originalReverse = revers(reverse);
 //
 //	for(j=0; j<strlen(label); j++)
 //	{
-//		test = 
-//			(unsigned char)(key + offset) == 
-//			(unsigned char)(label[j]);
-//
+//		test = ((char)(key ^ ('a' ^ 'A')) == label[j]);
 //		if(test)
 //		{
 //			textcolor(color_text_highlight);
 //		}
 //
-//		gotoxy(x + j, y);
-//		cputc(label[j]);
+//		cputcxy(x + j, y, label[j]);
 //
 //		if(test)
 //		{
 //			textcolor(color_text_menus);
 //		}
 //	}
+//
+//	revers(originalReverse);
 //}
 
-// Writes the menu bar at the top of the screen
-// which is scaled to the current screen size.
+// Writes the function menu bar at the bottom of the screen;
+// it is scaled to the screen size.
 void writeMenuBar(void)
 {
-	unsigned char bottom = 0;
-	//textcolor(color_text_menus);
-	//revers(TRUE);
+	//static const unsigned char bottom = size_y - 1;
+
+	(void)textcolor(color_text_menus);
+	//revers(true);
 
 	//cclearxy(0, 0, size_x);
 
-	//cputsxy(LEFT_MENU_X * size_x / 100, 0, LEFT_MENU);
-
-	//cputsxy(FILE_MENU_X  *size_x / 100, 0, FILE_MENU);
-
+	//cputsxy(   LEFT_MENU_X * size_x / 100, 0, LEFT_MENU);
+	//cputsxy(   FILE_MENU_X * size_x / 100, 0, FILE_MENU);
 	//cputsxy(COMMAND_MENU_X * size_x / 100, 0, COMMAND_MENU);
-
 	//cputsxy(OPTIONS_MENU_X * size_x / 100, 0, OPTIONS_MENU);
+	//cputsxy(  RIGHT_MENU_X * size_x / 100, 0, RIGHT_MENU);
 
-	//cputsxy(RIGHT_MENU_X  *size_x / 100, 0, RIGHT_MENU);
-	//	
-	//revers(FALSE);
+	//revers(false);
+#if size_x == 22
+	cputsxy(1, size_y - 2, "HELP  DRIV  CPY  MKD\r\n"
+		" QUIT  REFR  REN  DEL");
 
-	bottom = size_y - 1;
-	cclearxy(0, bottom, size_x);
-#ifdef __VIC20__
-	cputsxy(0, bottom - 1, " HELP  DRIV  CPY  MKD");
-	cputsxy(0, bottom    , " QUIT  REFR  REN  DEL");
-
-	revers(TRUE);
-	gotoxy(0, bottom - 1); cputc('1');
-	gotoxy(0, bottom    ); cputc('2');
-	gotoxy(6, bottom - 1); cputc('3');
-	gotoxy(6, bottom    ); cputc('4');
-	gotoxy(12, bottom - 1); cputc('5');
-	gotoxy(12, bottom    ); cputc('6');
-	gotoxy(17, bottom - 1); cputc('7');
-	gotoxy(17, bottom    ); cputc('8');
-
-	revers(FALSE);
+	revers(true);
+	//textcolor(color_text_highlight);
+	cputcxy(0, size_y - 2, '1');
+	gotox(6); cputc('3');
+	gotox(12); cputc('5');
+	gotox(17); cputc('7');
+	cputcxy(0, size_y - 1, '2');
+	gotox(6); cputc('4');
+	gotox(12); cputc('6');
+	gotox(17); cputc('8');
 #endif
-#if defined(__C64__) || defined(__PLUS4__)
-	cputsxy(0, bottom, " HLP  QUIT  DRV  REF  CPY  REN  MDR  DEL");
+#if size_x == 40
+	cputsxy(1, size_y - 1, "HLP  QUIT  DRV  REF  CPY  REN  MDR  DEL");
 
-	revers(TRUE);
-	gotoxy(0, bottom); cputc('1');
-	gotoxy(5, bottom); cputc('2');
-	gotoxy(11, bottom); cputc('3');
-	gotoxy(16, bottom); cputc('4');
-	gotoxy(21, bottom); cputc('5');
-	gotoxy(26, bottom); cputc('6');
-	gotoxy(31, bottom); cputc('7');
-	gotoxy(36, bottom); cputc('8');
-
-	revers(FALSE);
+	revers(true);
+	//(void)textcolor(color_text_highlight);
+	cputcxy(0, size_y - 1, '1');
+	gotox(5);  cputc('2');
+	gotox(11); cputc('3');
+	gotox(16); cputc('4');
+	gotox(21); cputc('5');
+	gotox(26); cputc('6');
+	gotox(31); cputc('7');
+	gotox(36); cputc('8');
 #endif
-#ifdef __C128__
-	cputsxy(0, bottom, "  HELP     QUIT    DRIVE    REFRESH   COPY    RENAME    MAKE DIRECTORY    DELETE");
+#if size_x == 80
+	cputsxy(2, size_y - 1,
+		"HELP     QUIT    DRIVE    REFRESH   COPY    RENAME    MAKE DIRECTORY    DELETE");
 
-	revers(TRUE);
-	gotoxy(0, bottom); cputc('F'); cputc('1');
-	gotoxy(9, bottom); cputc('F'); cputc('2');
-	gotoxy(17, bottom); cputc('F'); cputc('3');
-	gotoxy(26, bottom); cputc('F'); cputc('4');
-	gotoxy(36, bottom); cputc('F'); cputc('5');
-	gotoxy(44, bottom); cputc('F'); cputc('6');
-	gotoxy(54, bottom); cputc('F'); cputc('7');
-	gotoxy(72, bottom); cputc('F'); cputc('8');
-
-	revers(FALSE);
-#endif
+	revers(true);
+	//(void)textcolor(color_text_highlight);
 #ifdef __PET__
-	cputsxy(0, bottom, "  HELP     QUIT    DRIVE    REFRESH   COPY    RENAME    MAKE DIRECTORY    DELETE");
-
-	revers(TRUE);
-	gotoxy(0, bottom); cputc('S'); cputc('1');
-	gotoxy(9, bottom); cputc('S'); cputc('2');
-	gotoxy(17, bottom); cputc('S'); cputc('3');
-	gotoxy(26, bottom); cputc('S'); cputc('4');
-	gotoxy(36, bottom); cputc('S'); cputc('5');
-	gotoxy(44, bottom); cputc('S'); cputc('6');
-	gotoxy(54, bottom); cputc('S'); cputc('7');
-	gotoxy(72, bottom); cputc('S'); cputc('8');
-
-	revers(FALSE);
+	cputcxy(1, size_y - 1, '1');
+	gotox(10); cputc('2');
+	gotox(18); cputc('3');
+	gotox(27); cputc('4');
+	gotox(37); cputc('5');
+	gotox(45); cputc('6');
+	gotox(55); cputc('7');
+	gotox(73); cputc('8');
+#else
+	cputsxy(0, size_y - 1, "F1");
+	gotox(9);  cputs("F2");
+	gotox(17); cputs("F3");
+	gotox(26); cputs("F4");
+	gotox(36); cputs("F5");
+	gotox(44); cputs("F6");
+	gotox(54); cputs("F7");
+	gotox(72); cputs("F8");
 #endif
-}
+#endif
 
+	revers(false);
+}

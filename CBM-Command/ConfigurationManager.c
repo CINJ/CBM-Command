@@ -1,44 +1,48 @@
-/**************************************************************
+/***************************************************************
 Copyright (c) 2010, Payton Byrd
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or 
-without modification, are permitted provided that the following 
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following
 conditions are met:
 
-* Redistributions of source code must retain the above 
-  copyright notice, this list of conditions and the following 
+* Redistributions of source code must retain the above
+  copyright notice, this list of conditions and the following
   disclaimer.
 
-* Redistributions in binary form must reproduce the above 
-  copyright notice, this list of conditions and the following 
-  disclaimer in the documentation and/or other materials 
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following
+  disclaimer in the documentation and/or other materials
   provided with the distribution.
 
-* Neither the name of Payton Byrd nor the names of its 
-  contributors may be used to endorse or promote products 
-  derived from this software without specific prior written 
+* Neither the name of Payton Byrd nor the names of its
+  contributors may be used to endorse or promote products
+  derived from this software without specific prior written
   permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND 
-CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
+
 #include <conio.h>
-#include <stdio.h>
+#include <stdbool.h>
+//#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-//#include <peekpoke.h>
+//#include <string.h>
+#ifdef __C128__
+#include <c128.h>
+#endif
 
 #include "ConfigurationManager.h"
 #include "Configuration.h"
@@ -47,37 +51,35 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "globals.h"
 #include "screen.h"
 
-
-unsigned int main(void)
+static void refreshScreen(void)
 {
-#if defined(__C128__)
+	setupScreen();
+
+	writeFunctionKeys();
+	writeMenu();
+}
+
+void main(void)
+{
+#ifdef __C128__
 	videomode(VIDEOMODE_80COL);
 	fast();
 #endif
 
 	initialize();
-#ifndef __PET__	
-	load();
-#endif
-	setupScreen();
-	writeFunctionKeys();
-	writeMenu();
+	refreshScreen();
 
-	while(TRUE)
+	while(true)
 	{
 		readKeyboard();
 	}
-
-	return EXIT_SUCCESS;
 }
 
-void  readKeyboard(void)
+static void readKeyboard(void)
 {
-	unsigned char result;
+	char key = cgetc();
 
-	result = cgetc();
-
-	switch((int)result)
+	switch(key)
 	{
 	case CH_F1:
 		help();
@@ -88,6 +90,7 @@ void  readKeyboard(void)
 	case CH_F3:
 		save();
 		break;
+#ifdef COLOR_RED
 	case '1':
 	case '2':
 	case '3':
@@ -97,217 +100,200 @@ void  readKeyboard(void)
 	case '7':
 	case '8':
 	case '9':
-		changeColor(result);
+		changeColor(key);
 		break;
+#endif
 	case 'l':
-		++defaultLeftDrive;
-		if(defaultLeftDrive == 16) defaultLeftDrive = 8;
-		setupScreen();
-		writeFunctionKeys();
-		writeMenu();
+		if(++defaultLeftDrive > 15) defaultLeftDrive = 8;
+		refreshScreen();
 		break;
 	case 'r':
-		++defaultRightDrive;
-		if(defaultRightDrive == 16) defaultRightDrive = 8;
-		setupScreen();
-		writeFunctionKeys();
-		writeMenu();
+		if(++defaultRightDrive > 15) defaultRightDrive = 8;
+		refreshScreen();
 		break;
 	}
 }
 
-void  changeColor(unsigned char key)
+#ifdef COLOR_RED
+static void __fastcall__ changeColor(char key)
 {
-	unsigned char y;
-	y = 8 + (key - 49);
-	switch((int)key)
+	switch(key)
 	{
 	case '1':
-		color_background = pickColor(color_background);
+		pickColor(&color_background);
 		break;
 	case '2':
-		color_border = pickColor(color_border);
+		pickColor(&color_border);
 		break;
 	case '3':
-		color_selector = pickColor(color_selector);
+		pickColor(&color_selector);
 		break;
 	case '4':
-		color_text_borders = pickColor(color_text_borders);
+		pickColor(&color_text_borders);
 		break;
 	case '5':
-		color_text_menus = pickColor(color_text_menus);
+		pickColor(&color_text_menus);
 		break;
 	case '6':
-		color_text_files = pickColor(color_text_files);
+		pickColor(&color_text_files);
 		break;
 	case '7':
-		color_text_status = pickColor(color_text_status);
+		pickColor(&color_text_status);
 		break;
 	case '8':
-		color_text_highlight = pickColor(color_text_highlight);
+		pickColor(&color_text_highlight);
 		break;
 	case '9':
-		color_text_other = pickColor(color_text_other);
+		pickColor(&color_text_other);
 		break;
 	}
-	setupScreen();
-	writeFunctionKeys();
-	writeMenu();
+	refreshScreen();
 }
 
-void  displayColor(
-	unsigned char x,
-	unsigned char y,
-	unsigned char color)
+static void __fastcall__ displayColor(unsigned char color)
 {
-	textcolor(color);
-	revers(TRUE);
-	cputsxy(x, y, " ");
-	revers(FALSE);
-	textcolor(color_text_menus);
+	gotox(14);
+	cputc(':');
+	(void)textcolor(color);
+	revers(true);
+	cputc(' ');
+	revers(false);
+	(void)textcolor(color_text_menus);
 }
-
-void  incrementColor(unsigned char *color)
-{
-#if defined(__C128__) || defined(__C64__)
-	if((unsigned)(*color) == COLOR_GRAY3) (*color) = (unsigned char)COLOR_BLACK;
-#else
-	if((unsigned)(*color) == 7) (*color) = 0;
 #endif
-	else { ++(*color); }
-	
-	return;
-}
 
-void  help(void)
+static void help(void)
 {
-	unsigned char *help_message[] =
+	static const char *const help_message[] =
 	{
 		{ "Please visit:" },
+#if size_x < 40
+		{ "cbmcommand.codeplex" },
+		{ " .com/documentation" }
+#else
 		{ "http://cbmcommand.codeplex.com/" },
 		{ "        /documentation" }
+#endif
 	};
 
-	saveScreen();
+	//saveScreen();
 
-	drawDialog(help_message, 3, "Help", OK);
+	drawDialog(help_message, A_SIZE(help_message), "Help", OK);
 
 	retrieveScreen();
 }
 
-void  quit(void)
+static void quit(void)
 {
-	unsigned result;
-	unsigned char *quit_message[] =
+	static const char *const quit_message[] =
 	{
-		{ "Are you sure you" },
-		{ "want to quit?" }
+		{ "Are you sure" },
+		{ "you want to quit?" }
 	};
 
-	saveScreen();
+	//saveScreen();
 
-	result = writeYesNo("Confirm", quit_message, 2);
-	
-	if(result == TRUE)
+	if(writeYesNo("Confirm", quit_message, A_SIZE(quit_message)))
 	{
 		clrscr();
 		writeStatusBar("Goodbye!");
+		(void)bordercolor(outsideFrame);
+		(void)bgcolor(outsideScreen);
+		(void)textcolor(outsideText);
 		exit(EXIT_SUCCESS);
 	}
 
 	retrieveScreen();
 }
 
-void  writeMenu(void)
+static void writeMenu(void)
 {
-	writePanel(TRUE, FALSE, color_text_borders,
-		0, 0, size_y - 3, size_x - 1,
-		"Config Manager",
+	writePanel(true, false, color_text_borders,
+		0, 1, size_y - 3, size_x - 1,
+#if size_x < 40
+		"Config. Manager",
+#else
+		"CBM-Command Configuration Manager",
+#endif
 		NULL, NULL);
 
-	textcolor(color_text_menus);
-	cputsxy(1, 3, "Drives");
-#ifndef __VIC20__
-	cputsxy(2, 4, "L - Default Left Drive : "); gotoxy(27,4); cprintf("%d", defaultLeftDrive);
-	cputsxy(2, 5, "R - Default Right Drive: "); gotoxy(27,5); cprintf("%d", defaultRightDrive);
+	(void)textcolor(color_text_menus);
+	cputsxy(1, 4, "Drives:");
+#if size_x > 22
+	gotox(2); cprintf("\nL - Default  Left Drive:%3u", defaultLeftDrive);
+	gotox(2); cprintf("\nR - Default Right Drive:%3u", defaultRightDrive);
 #else
-	cputsxy(2, 4, "L - Def Lft Dr :"); cprintf("%d", defaultLeftDrive);
-	cputsxy(2, 5, "R - Def Rght Dr:"); cprintf("%d", defaultRightDrive);
+	gotox(2); cprintf("\nL - Def  Lft Dr:%2u", defaultLeftDrive);
+	gotox(2); cprintf("\nR - Def Rght Dr:%2u", defaultRightDrive);
 #endif
 
-	cputsxy(1, 7, "Colors");
-	cputsxy(2, 8,  "1 - Background: "); displayColor(17,8,color_background);
-	cputsxy(2, 9,  "2 - Border    : "); displayColor(17,9,color_border);
-	cputsxy(2, 10, "3 - Selector  : "); displayColor(17,10,color_selector);
-	cputsxy(2, 11, "4 - Box Brders: "); displayColor(17,11,color_text_borders);
-	cputsxy(2, 12, "5 - Menus     : "); displayColor(17,12,color_text_menus);
-	cputsxy(2, 13, "6 - Filenames : "); displayColor(17,13,color_text_files);
-	cputsxy(2, 14, "7 - Status Bar: "); displayColor(17,14,color_text_status);
-	cputsxy(2, 15, "8 - Highlight : "); displayColor(17,15,color_text_highlight);
-	cputsxy(2, 16, "9 - Other     : "); displayColor(17,16,color_text_other);
-
-}
-
-void  writeFunctionKeys(void)
-{
-	unsigned char bottom = 0;
-	bottom = size_y - 1;
-	cclearxy(0, bottom, size_x);
-#if defined(__C64__) || defined(__PLUS4__) || defined(__VIC20__)
-	cputsxy(0, bottom," HELP  QUIT  SAVE");
-
-	revers(TRUE);
-	gotoxy(0, bottom); cputc('1');
-	gotoxy(6, bottom); cputc('2');
-	gotoxy(12, bottom); cputc('3');
-
-	revers(FALSE);
-#endif
-#if defined(__C128__) || defined(__PET__)
-	cputsxy(0, bottom, "  HELP     QUIT    SAVE");
-
-	revers(TRUE);
-	gotoxy(0, bottom); cputc('F'); cputc('1');
-	gotoxy(9, bottom); cputc('F'); cputc('2');
-	gotoxy(17, bottom); cputc('F'); cputc('3');
-
-	revers(FALSE);
+#ifdef COLOR_RED
+	cputsxy(1, 8, "Colors:");
+	gotox(2); cputs("\n1 Background"); displayColor(color_background);
+	gotox(2); cputs("\n2 Border"); displayColor(color_border);
+	gotox(2); cputs("\n3 Selector"); displayColor(color_selector);
+	gotox(2); cputs("\n4 Box Border"); displayColor(color_text_borders);
+	gotox(2); cputs("\n5 Menues"); displayColor(color_text_menus);
+	gotox(2); cputs("\n6 Filenames"); displayColor(color_text_files);
+	gotox(2); cputs("\n7 Status Bar"); displayColor(color_text_status);
+	gotox(2); cputs("\n8 Highlight"); displayColor(color_text_highlight);
+	gotox(2); cputs("\n9 Other"); displayColor(color_text_other);
 #endif
 }
 
-void  save(void)
+static void writeFunctionKeys(void)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
-	unsigned char r, d;
-	unsigned char *buffer;
-	buffer = calloc(1, sizeof(unsigned char));
-#ifndef __PLUS4__
-	d = *(unsigned char*)0x00BA;
+#define bottom size_y - 1
+
+	(void)textcolor(color_text_other);
+	//cclearxy(0, bottom, size_x);
+	cputsxy(2, bottom, "HELP    QUIT    SAVE");
+
+	revers(true);
+#ifdef __PET__
+	cputcxy(1, bottom, '1');
+	gotox(9); cputc('2');
+	gotox(17); cputc('3');
 #else
-	d = *(unsigned char*)174;
+	cputsxy(0, bottom, "F1");
+	gotox(8); cputs("F2");
+	gotox(16); cputs("F3");
 #endif
-	cbm_open(15,d,15,"");
+	revers(false);
+}
+
+static void save(void)
+{
+#ifdef __CBM__
+	unsigned char d;
+	signed char r;
+
+	cbm_open(15,_curunit,15,"");	// open the status channel
+	d = cbm_open(1, _curunit, 3, "@0:cbmcmd-cfg."
 #ifdef __C64__
-	r = cbm_open(1,d,2,"@0:cbmcmd-cfg.c64,s,w");
+		"c64"
 #endif
 #ifdef __C128__
-	r = cbm_open(1,d,2,"@0:cbmcmd-cfg.c128,s,w");
+		"c128"
 #endif
 #ifdef __VIC20__
-	r = cbm_open(1,d,2,"@0:cbmcmd-cfg.vic20,s,w");
+		"vic20"
 #endif
 #ifdef __PET__
-	r = cbm_open(1,d,2,"@0:cbmcmd-cfg.pet,s,w");
+		"pet"
 #endif
 #ifdef __PLUS4__
-	r = cbm_open(1,d,2,"@0:cbmcmd-cfg.plus4,s,w");
+		"plus4"
 #endif
-
-	if(r == 0)
+		",s,w");
+	if(d == 0)			// XXX: success means only that the drive exists
 	{
 		cbm_write(1, &defaultLeftDrive, 1);
 		cbm_write(1, &defaultRightDrive, 1);
 
+// The CBM/Pet clan (except the CBM510) doesn't support color.
+// Don't save colors if only black and white are defined.
+#ifdef COLOR_RED
 		cbm_write(1, &color_background, 1);
 		cbm_write(1, &color_border, 1);
 		cbm_write(1, &color_selector, 1);
@@ -317,69 +303,68 @@ void  save(void)
 		cbm_write(1, &color_text_status, 1);
 		cbm_write(1, &color_text_other, 1);
 		cbm_write(1, &color_text_highlight, 1);
+#endif
 
-		writeStatusBar("Wrote configuration.");
+		r = cbm_read(15, buffer, (sizeof buffer) - 1);
+		buffer[r < 0 ? 0 : r] = '\0';
+		if (buffer[0] != '0')
+		{
+			writeStatusBar(buffer);
+			waitForEnterEsc();
+		}
+		else
+		{
+			writeStatusBar("Wrote configuration.");
+		}
 	}
 	else
 	{
-		free(buffer);
-		buffer = calloc(41, sizeof(unsigned char));
-		waitForEnterEscf("Error %d writing cfg", r);
-		r = cbm_read(15,buffer,39);
-		buffer[r] = '\0';
-		waitForEnterEscf(buffer);
+		waitForEnterEscf("Error %u openning cfg", d);
+		r = cbm_read(15,buffer,(sizeof buffer) - 1);
+		buffer[r < 0 ? 0 : r] = '\0';
+		writeStatusBar(buffer);
+		waitForEnterEsc();
 	}
 
 	cbm_close(1);
 	cbm_close(15);
-	free(buffer);
 #endif
 }
 
-unsigned char pickColor(unsigned char startColor)
+#ifdef COLOR_RED
+static void __fastcall__ pickColor(unsigned char *color)
 {
-	unsigned char i = 0, j = 0, k = 0;
-#ifdef __VIC20__
+	unsigned char k, j, i;
+#if defined(__VIC20__)
 #define NUM_COLORS 8
-	unsigned char colors[NUM_COLORS];
-#elif __C64__
+#elif defined(__C64__) || defined(__C128__) || defined(__CBM510__)
 #define NUM_COLORS 16
-	unsigned char colors[NUM_COLORS];
-#elif __C128__
-#define NUM_COLORS 16
-	unsigned char colors[NUM_COLORS];
-#elif __PLUS4__
+#elif defined(__PLUS4__)
 #define NUM_COLORS 128
-	unsigned char colors[NUM_COLORS];
 #endif
 
-	for(;i<NUM_COLORS;++i)
-	{
-		colors[i] = i;
-	}
+	writePanel(true, false, color_text_borders, 0, 0, size_y-1, size_x-1,
+		"Pick a Color", "Cancel", "OK");
 
-	saveScreen();
-	writePanel(TRUE, FALSE, color_text_borders, 0, 0, size_y-1, size_x-1, "Pick Color", "Cancel", "OK");
-
-	revers(TRUE);
+	revers(true);
 	for(i=0; i<NUM_COLORS; i += 16)
 	{
-		for(j=0; j<16 && i + j < NUM_COLORS; ++j)
+		for(j=0; j<16 && (unsigned char)(i + j) < NUM_COLORS; ++j)
 		{
-			textcolor(colors[j + i]);
-			cputcxy(2+j*2, 2+(i/16)*2, ' ');
+			textcolor(j + i);
+			cputcxy(2+j*2, 2+i/(16/2), ' ');
 		}
 	}
-	revers(FALSE);
+	revers(false);
 	textcolor(color_selector);
 
-	i=startColor / 16; 
-	j=startColor % 16;
+	i = *color / 16;
+	j = *color % 16;
 
-	while(k != CH_ENTER && k != CH_STOP)
+	for (;;)
 	{
 		cputcxy(2+j*2, 3+i*2, '^');
-		k=cgetc();
+		k=getKey();
 		cputcxy(2+j*2, 3+i*2, ' ');
 		switch(k)
 		{
@@ -400,13 +385,10 @@ unsigned char pickColor(unsigned char startColor)
 			break;
 
 		case CH_ENTER:
-			return colors[i*16 + j];
-			break;
+			*color = j + i*16;
+		case CH_STOP:
+			return;
 		}
 	}
-
-	//waitForEnterEsc();
-
-	retrieveScreen();
-	return startColor;
 }
+#endif

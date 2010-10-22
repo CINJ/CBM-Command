@@ -1,45 +1,46 @@
-/**************************************************************
+/***************************************************************
 Copyright (c) 2010, Payton Byrd
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or 
-without modification, are permitted provided that the following 
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following
 conditions are met:
 
-* Redistributions of source code must retain the above 
-  copyright notice, this list of conditions and the following 
+* Redistributions of source code must retain the above
+  copyright notice, this list of conditions and the following
   disclaimer.
 
-* Redistributions in binary form must reproduce the above 
-  copyright notice, this list of conditions and the following 
-  disclaimer in the documentation and/or other materials 
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following
+  disclaimer in the documentation and/or other materials
   provided with the distribution.
 
-* Neither the name of Payton Byrd nor the names of its 
-  contributors may be used to endorse or promote products 
-  derived from this software without specific prior written 
+* Neither the name of Payton Byrd nor the names of its
+  contributors may be used to endorse or promote products
+  derived from this software without specific prior written
   permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND 
-CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
 
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)
+#ifdef __CBM__
 #include <cbm.h>
 #endif
 #include <conio.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -51,331 +52,309 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "globals.h"
 #include "input.h"
 #include "screen.h"
+//#include "menus.h"
 
-unsigned char drivesBuffer[80];
+//static unsigned char drivesBuffer[80];
 
-struct drive_status drives[9] =
+#ifdef __CBM__
+static struct drive_status drives[] =
 {
-	{ 8, "" },	// 0
-	{ 9, "" },	// 1
-	{ 10, "" },	// 2
-	{ 11, "" },	// 3
-	{ 12, "" },	// 4
-	{ 13, "" },	// 5
-	{ 14, "" },	// 6
-	{ 15, "" },	// 7
-	{ 16, "" }	// 8
+	{ 8 },	// 0
+	{ 9 },	// 1
+	{ 10 },	// 2
+	{ 11 },	// 3
+	{ 12 },	// 4
+	{ 13 },	// 5
+	{ 14 },	// 6
+	{ 15 },	// 7
+//	{ 16 }	// 8	(VICE sometimes jams on this device number)
 };
+#endif
 
-unsigned areDrivesInitialized = FALSE;
-struct panel_drive leftPanelDrive; 
+struct panel_drive  leftPanelDrive;
 struct panel_drive rightPanelDrive;
 struct panel_drive *selectedPanel;
 
-unsigned char currentLeft = 0;
-unsigned char currentRight = 0;
+static unsigned char currentLeft;
+static unsigned char currentRight;
 
-void  initializeDrives(void)
+void initializeDrives(void)
 {
-	unsigned char i = 0;
-	if(!areDrivesInitialized)
-	{
-		leftPanelDrive.visible = FALSE;
-		leftPanelDrive.drive = &(drives[defaultLeftDrive - 8]);
-		leftPanelDrive.currentIndex = 0;
-		leftPanelDrive.displayStartAt = 0;
-		leftPanelDrive.position = left;
-#ifdef __VIC20__
-		leftPanelDrive.selectedEntries = (void *)0xA100;
-#endif
-		
-		for(i=0; i<SLIDING_WINDOW_SIZE; ++i)
-		{
-			leftPanelDrive.slidingWindow[i].size = 0u;
-			leftPanelDrive.slidingWindow[i].type = 0;
-		}
+	memset(& leftPanelDrive, 0, sizeof  leftPanelDrive);
+	memset(&rightPanelDrive, 0, sizeof rightPanelDrive);
 
-		rightPanelDrive.visible = FALSE;
-		rightPanelDrive.drive = &(drives[defaultRightDrive - 8]);
-		rightPanelDrive.currentIndex = 0;
-		rightPanelDrive.displayStartAt = 0;
-		rightPanelDrive.position = right;
-#ifdef __VIC20__
-		rightPanelDrive.selectedEntries = (void *)0xA500;
-#endif
-		
-		for(i=0; i<SLIDING_WINDOW_SIZE; ++i)
-		{
-			rightPanelDrive.slidingWindow[i].size = 0u;
-			rightPanelDrive.slidingWindow[i].type = 0;
-		}
+	 leftPanelDrive.drive = &(drives[currentLeft  = defaultLeftDrive  - 8]);
+	rightPanelDrive.drive = &(drives[currentRight = defaultRightDrive - 8]);
 
-		areDrivesInitialized = TRUE;
-		selectedPanel = &leftPanelDrive;
-	}
+#ifdef __VIC20__
+	 leftPanelDrive.selectedEntries = (unsigned char *) 0xA100;
+	rightPanelDrive.selectedEntries = (unsigned char *)(0xA100 + 8192 / 8);
+#endif
+
+	// XXX: This field is obsolete -- remove it.
+	// leftPanelDrive.position =  left;
+	//rightPanelDrive.position = right;
+
+	selectedPanel = &leftPanelDrive;
 }
 
-int  getDriveStatus(
+static int __fastcall__ getDriveStatus(
 	struct drive_status *drive)
 {
-	int result;
 	int size;
-	unsigned char dr;
-	dr = drive->drive;
+	//unsigned char dr = drive->drive;
 
-	if(dr < 8 || dr > 15)
+	//if(dr < 8 || dr > 15)
+	//{
+	//	return -1;
+	//}
+
+	if(cbm_open(15, drive->drive, 15, "") != 0)
 	{
-		return -1;
-	}
-
-	result = cbm_open(15, dr, 15, "");
-
-	if(_oserror != 0)
-	{
-		waitForEnterEscf("_oserror: %d", _oserror);
+		waitForEnterEscf("_oserror: %u", _oserror);
 		cbm_close(15);
 
 		return -1;
 	}
 
-	if(result == 0 && _oserror == 0)
+	size = cbm_read(15, drive->message, sizeof drive->message);
+	//drive->message[size < 0 ? 0 : size] = '\0';
+	if(size > 0)
 	{
-		size = cbm_read(15, drive->message, 38);
-		if(size >=0) drive->message[size] = '\0';
-		else drive->message[0] = '\0';
-		
-		if(strlen(drive->message) > 0)
-		{
-			cbm_write(15, "ui", 2); 
+		cbm_write(15, "ui", 2);
 
-			size = cbm_read(15, drive->message, 38);
-			if(size >=0) drive->message[size] = '\0';
-			else drive->message[0] = '\0';
-		}
-
-		cbm_close(15);
-
-		return size;
+		size = cbm_read(15, drive->message, (sizeof drive->message) - 1);
+		drive->message[size < 0 ? 0 : size] = '\0';
 	}
-	else
-	{
-		waitForEnterEscf("Error: %d", result);
-	}
-
 
 	cbm_close(15);
-	return result;
+	return size;
 }
 
-#ifdef __PLUS4__
-unsigned char checkDrivePlus4(
-	unsigned char* file,
-	unsigned char drive)
+//#ifdef __PLUS4__
+//static unsigned char __fastcall__ checkDrivePlus4(unsigned char drive)
+//{
+//	unsigned char result = cbm_open(15, drive, 15, "ui");
+//
+//	cbm_close(15);
+//	return result;
+//}
+//#endif
+
+void __fastcall__ listDrives(enum menus menu)
 {
-	unsigned char result = 0;
-	result = cbm_open(drive, drive, 15, file);
-	cbm_close(drive);
-	return result;
-}
-#endif
+	static const unsigned char h = A_SIZE(drives) + 6;
+	static const unsigned char w = size_x - 1u;
+	unsigned char x = getCenterX(w) + 1, y = getCenterY(h);
+	unsigned char current = 0, original = 0, i;
 
-void  listDrives(enum menus menu)
-{
-	unsigned selected = FALSE;
-	unsigned char h = 14, w = 39;
-	unsigned char original=0;
-	unsigned char x=0, y=0, i=0;
-	unsigned char status, current, key;
-
-	w = size_x - 1;
-	x = getCenterX(w);
-	y = getCenterY(h);
-
-	writePanel(TRUE, FALSE,
-		color_text_borders, 
-		x, y, h, w,
+	writePanel(true, false,
+		color_text_borders,
+		x - 1, y, h, w,
 		"Drives", NULL, NULL);
 
-	textcolor(color_text_other);
+	(void)textcolor(color_text_other);
 
-	current = 0;
+	y += 2;
 
-	for(i=0; i<9; ++i)
+	for(i=0; i<A_SIZE(drives); ++i)
 	{
-		if( 
-			(currentLeft > 0 && drives[i].drive == currentLeft && menu == left) ||
-			(currentRight > 0 && drives[i].drive == currentRight && menu == right)
+		if(
+			(i == currentLeft  && menu ==  left) ||
+			(i == currentRight && menu == right)
 		)
 		{
-			revers(TRUE);
+			revers(true);
 			original = current = i;
 		}
 
-		gotoxy(x + 2, i + 2 + y);
-		cprintf("%d", i + 8);
+		gotoxy(x, i + y);
+		cprintf("%3u ", i + 8);
 
-#ifndef __PLUS4__
-		status = checkDrive(2, "ui", i + 8);
-#else
-		status = checkDrivePlus4("ui", i + 8);
-#endif
-
-		gotoxy(x + 5, i + 2 + y);
-
-		if(status !=5)
+		drives[i].message[0] = '\0';
+		if(
+//#ifndef __PLUS4__
+			checkDrive(i + 8)
+//#else
+//			checkDrivePlus4(i + 8)
+//#endif
+			== 0)
 		{
 			getDriveStatus(&(drives[i]));
 			cputs(drives[i].message);
 		}
 		else
 		{
-			cputs("No device present.");
+			cputs("No device");
 		}
 
-		revers(FALSE);
+		revers(false);
 	}
 
+	(void)textcolor(color_text_highlight);
+	cputsxy(x, y + 10, "Use Up/Down & RETURN to pick drive");
 
-	textcolor(color_text_highlight);
-	cputsxy(x + 1, y + 12, 
-		"Use arrow keys & enter to select drive");
-	textcolor(color_selector);
-
-	gotoxy(x + 1, current + 2 + y); cputc('>');
-
-	selected = FALSE;
-	while(!selected)
+	(void)textcolor(color_selector);
+	for (;;)
 	{
-		key = cgetc();
+		cputcxy(x, current + y, '>');
+		i = getKey();
+		cputcxy(x, current + y, ' ');
 
-		switch((int)key)
+		switch (i)
 		{
-#ifdef __C128__
-		case CH_ESC: 
-#endif
 		case CH_STOP:
-			selected = TRUE;
 			current = original;
 			break;
 
 		case CH_ENTER:
-			selected = strlen(drives[current].message) != 0;
-			break;
+			if (drives[current].message[0] != '\0')
+			{
+				break;
+			}
+			continue;
 
 		case CH_CURS_UP:
 			if(current > 0)
 			{
-				gotoxy(x + 1, current + 2 + y); cputc(' ');
 				--current;
-				gotoxy(x + 1, current + 2 + y); cputc('>');
 			}
-			break;
+			continue;
 
 		case CH_CURS_DOWN:
-			if(current < 11)
+			if (current < A_SIZE(drives) - 1)
 			{
-				gotoxy(x + 1, current + 2 + y); cputc(' ');
 				++current;
-				gotoxy(x + 1, current + 2 + y); cputc('>');
 			}
-			break;
+			continue;
+
+		default:
+			continue;
 		}
+		break;
 	}
 
 	if(menu == left)
 	{
-		leftPanelDrive.drive = &(drives[current]);
-		currentLeft = leftPanelDrive.drive->drive;
+		leftPanelDrive.drive = &(drives[currentLeft = current]);
+		//currentLeft = leftPanelDrive.drive->drive - 8;
 	}
 	else
 	{
-		rightPanelDrive.drive = &(drives[current]);
-		currentRight = rightPanelDrive.drive->drive;
+		rightPanelDrive.drive = &(drives[currentRight = current]);
+		//currentRight = rightPanelDrive.drive->drive - 8;
 	}
 }
 
-int  getDirectory(
+unsigned int __fastcall__ getDirectory(
 	struct panel_drive *drive,
 	int slidingWindowStartAt)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__)	|| defined(__PLUS4__)
-	unsigned int counter=0, read=0;
-	unsigned char result, dr, i;
+#ifdef __CBM__
 	struct cbm_dirent currentDE;
-	
+	unsigned char dr;
+	int i;
+	unsigned int read=0, counter=0;
 
-	drive->length = 0;
 	drive->slidingWindowStartAt = slidingWindowStartAt;
+
+	drive->header.name[0] = '\0';
+	//for(i=0; i<SLIDING_WINDOW_SIZE; ++i)
+	//{
+	//	drive->slidingWindow[i].name[0] = '\0';
+	//	drive->slidingWindow[i].index = 0;
+	//	drive->slidingWindow[i].size = 0u;
+	//	drive->slidingWindow[i].type = 0;
+	//}
+	memset(drive->slidingWindow, 0, sizeof drive->slidingWindow);
 
 	dr = drive->drive->drive;
 
-	for(i=0; i<SLIDING_WINDOW_SIZE; ++i)
-	{
-		memset(drive->slidingWindow[0].name, '\0', sizeof(drive->slidingWindow[0].name));
-		drive->slidingWindow[i].index = 0;
-		drive->slidingWindow[i].size = 0u;
-		drive->slidingWindow[i].type = 0;
-	}
+	//if (drive->drive->message[0] == '\0')
+	//{
+	//	if (checkDrive(dr) != 0)
+	//	{
+	//		return 0;
+	//	}
+	//}
 
-	if(drives[dr-8].message == NULL ||
-		strlen(drives[dr-8].message) == 0)
+	writeStatusBar("Reading directory...");
+	if (cbm_opendir(2, dr) == 0)
 	{
-		result = cbm_open(15,dr,15,"ui");
-		cbm_close(15);
-		if(result != 0) 
+		while (!(dr = cbm_readdir(2, &currentDE)))
 		{
-			return 0;
-		}
-	}
-
-	result = cbm_opendir(dr, dr);
-	if(result == 0)
-	{
-		writeStatusBar("Reading directory...");
-		counter = 0;
-		while(!cbm_readdir(dr, &currentDE))
-		{
-			if(currentDE.type == 10 && counter==0)
+			if(counter == 0 && currentDE.type == CBM_T_HEADER)
 			{
 				strcpy(drive->header.name, currentDE.name);
-				drive->header.size = currentDE.size;
-				drive->header.type = currentDE.type;
-				drive->header.index = 0;
+ 				////strncat(drive->header.name, currentDE.name,
+				////	(sizeof drive->header.name) - 1);
+				//drive->header.type = CBM_T_HEADER;
+				//drive->header.index = 0;
 			}
 			else if(counter >= slidingWindowStartAt &&
-				read < SLIDING_WINDOW_SIZE)
+				++read <= SLIDING_WINDOW_SIZE)
+			// XXX: The if() above is redundant. The one below is enough.
 			{
-				++read;
-				i = counter - 1;
-				if(i - slidingWindowStartAt >= 0 && 
-					i - slidingWindowStartAt < SLIDING_WINDOW_SIZE)
+				i = (signed int)(counter - 1 - slidingWindowStartAt);
+				if(i >= 0 &&
+					i < SLIDING_WINDOW_SIZE)
 				{
-					strcpy(drive->slidingWindow[i - slidingWindowStartAt].name, currentDE.name);
-					drive->slidingWindow[i - slidingWindowStartAt].size = currentDE.size;
-					drive->slidingWindow[i - slidingWindowStartAt].type = currentDE.type;
-					drive->slidingWindow[i - slidingWindowStartAt].index = counter;
+					strcpy(drive->slidingWindow[i].name,
+						currentDE.name);
+ 					//strncat(drive->slidingWindow[i].name, currentDE.name,
+					//	(sizeof drive->slidingWindow[i].name) - 1);
+					drive->slidingWindow[i].size = currentDE.size;
+					drive->slidingWindow[i].type = currentDE.type;
+					drive->slidingWindow[i].index = counter;
 				}
 			}
 			++counter;
 		}
-		cbm_closedir(dr);
-
-		drive->length = counter;
-		if(drive->currentIndex >= drive->length)
+		if (dr == 2)
 		{
-			drive->currentIndex = drive->length - 1;
+			/* "blocks free/used" line was read. */
+			drive->header.size = currentDE.size;
 		}
+		//cbm_closedir(2);
 
-		cbm_open(2,drive->drive->drive,0,"$:'y/%&");
-		cbm_read(2,buffer,34); // skip unwanted data
-		cbm_read(2,buffer,2);
-		drive->header.size = buffer[1]*256 + buffer[0];
+		//// Open the directory again; but this time, make sure that
+		//// only the header and the "blocks free." lines are produced.
+		////
+		//cbm_open(2, dr, CBM_READ, "$:'y-%&?");
+		//cbm_read(2, buffer, 32); // skip unwanted data
+		//if (buffer[31] != 0x00)
+		//{
+		//	// Find the end of an extended directory header.
+		//	cbm_k_chkin(2);
+		//	do ; while (cbm_k_basin() != 0x00);
+		//	cbm_k_clrch();
+		//}
+		//cbm_read(2, buffer, 4);
+		////drive->header.size = buffer[3]*256 + buffer[2];
+		//drive->header.size = ((unsigned*)buffer)[1];
+		//
+		//cbm_close(2);
 
-		cbm_close(2);
+		writeStatusBarf("Read %d names", counter - 1);
+	}
+	cbm_closedir(2);
 
-		writeStatusBarf("Read %u files.", counter - 1);
+	// Other functions assume that a directory header always was counted!
+	if (counter == 0)
+	{
+		counter = 1;
 	}
 
+	// Make sure that the selector won't point past the end of a directory,
+	// in case a disk was swapped, and the new directory is shorter,
+	// but the panel wasn't refreshed.
+	if (drive->currentIndex >= (drive->length = counter) - 1)
+	{
+		if ((drive->currentIndex = counter - 2) < 0)
+		{
+			drive->currentIndex = 0;
+		}
+	}
 
 	return counter;
 #else
@@ -383,192 +362,194 @@ int  getDirectory(
 #endif
 }
 
-void  resetSelectedFiles(struct panel_drive *panel)
+void __fastcall__ resetSelectedFiles(struct panel_drive *panel)
 {
 #ifndef __VIC20__
 	free(panel->selectedEntries);
-			
-	panel->selectedEntries = 
-		calloc((panel->length)/8 + 1, 
-			sizeof(unsigned char));
+
+	// This is a kludge.
+	// If a directory is too long for the heap, then reduce its apparent size
+	// by a screen page, until it fits.
+	while ((panel->selectedEntries =
+		// (This "- 1" is because "length" counted the directory header.)
+		calloc((panel->length + (7 - 1)) / 8u, sizeof(unsigned char))) == NULL)
+	{
+		if ((panel->length -= size_y - 6u) < 1)
+		{
+			panel->length = 1;
+			break;
+		}
+	}
 #else
-	memset(panel->selectedEntries, 0, 0x0400);
+	memset(panel->selectedEntries, 0x00, 8192 / 8);
 #endif
 }
 
-void  displayDirectory(
+void __fastcall__ displayDirectory(
 	struct panel_drive *drive)
 {
-	unsigned char w = 19, x = 0, y = 0;
-	unsigned char i = 0, start=0, ii = 0, mod = 0, bit = 0, r = 0;
-	unsigned char fileType, panelHeight;
-	struct dir_node *currentNode;
-	unsigned char size[4];
+	const unsigned char w = size_x /
+#if size_x < 40
+		1u;						// only one panel at-a-time, on a VIC-20
+#else
+		2u;
+#endif
+#define panelHeight (size_y - 3u)
+	unsigned char x = 0;
+	unsigned int i, start;
+	char fileType;
+	const struct dir_node *currentNode;
+	char size[4];
 
-#ifdef __VIC20__
-	w = 21;
+	//if(drive->drive == NULL)
+	//{
+	//	drive->drive = &(drives[_curunit - 8]);
+	//	getDirectory(drive, 0);
+	//	resetSelectedFiles(drive);
+	//}
+
+	if(drive->header.name[0] == '\0')
+	{
+		getDirectory(drive, 0);
+		resetSelectedFiles(drive);
+	}
+
+	drive->visible = true;
+
+	//if(size_x > 40) w=40;
+
+#if size_x > 22
+	if(drive == &rightPanelDrive) x=w;
 #endif
 
-	panelHeight = size_y - 3;
-
-	if(drive->drive == NULL)
+	//writePanel(true, false, color_text_borders, x, 1, 21, w - 1,
+	//	drive->header.name, NULL, NULL);
+	(void)textcolor(color_text_borders);
+	for(i=1; i<panelHeight; ++i)
 	{
-		drive->drive = &(drives[startupDevice - 8]);
-		getDirectory(drive, 0);
-		resetSelectedFiles(drive);
+		cclearxy(x, i, w);
 	}
+	cvlinexy(0, 1, panelHeight);
+#if size_x > 22
+	cvlinexy(w, 1, panelHeight);
+#endif
+	chlinexy(x+1, panelHeight, w - 1u);
 
-	if(drive->length == 0)
-	{
-		getDirectory(drive, 0);
-		resetSelectedFiles(drive);
-	}
+	gotoxy(x+1, 1); cprintf("[%s]", drive->header.name);
+	gotoxy(x+1, panelHeight); cprintf("[%2u]", drive->drive->drive);
+#if size_x < 40
+	gotox(getCenterX(5)); cputs((drive == &leftPanelDrive) ? "Left" : "Right");
+#endif
 
-	if(drive->header.name == NULL)
+	if(drive->header.name[0] == '\0')
 	{
-		getDirectory(drive, 0);
-		resetSelectedFiles(drive);
-	}
-
-	if(drive->header.name == NULL)
-	{
+		// The disk isn't formatted, the drive is empty, or it failed.
+		// Don't show things that can't be known.
 		return;
 	}
 
-	drive->visible = TRUE;
-
-	if(size_x > 40) w=39;
-
-#ifndef __VIC20__
-	if(drive->position == right) x=w + 1;
-#endif
-	
-	textcolor(color_text_borders);
-	cvlinexy(0, 1, panelHeight);
-#ifndef __VIC20__
-	cvlinexy(w+1, 1, panelHeight);
-#endif
-	chlinexy(x+1, panelHeight, w);
-
-	gotoxy(x+1, panelHeight); cprintf("[%2d]", drive->drive->drive);
-	gotoxy(x + w - 6, panelHeight); cprintf("[%5u]", drive->header.size);
-	gotoxy(x+1, 1); cprintf("[%s ]", drive->header.name);
-#ifdef __VIC20__
-	cputsxy(getCenterX(5), panelHeight, (drive == &leftPanelDrive ? "Left" : "Right"));
-#endif
-	for(i=0; i<panelHeight - 2; ++i)
-	{
-		cclearxy(x + 1, i+2, w);
-	}
-
-#ifdef __C128__
-	cvlinexy(x + 6, 2, panelHeight - 2);
-	cvlinexy(x + 26, 2, panelHeight - 2);
-	cvlinexy(x + 30, 2, panelHeight - 2);
-#endif
+	gotox(x + w - 7); cprintf("[%5u]", drive->header.size);
 
 	start = drive->displayStartAt;
-
-	for(i=start; i<start + (panelHeight - 2) && i < drive->length - 1; i++)
+	for(i=start; i<start + (panelHeight - 2u) && i < drive->length - 1; i++)
 	{
 		currentNode = getSpecificNode(drive, i);
 		if(currentNode == NULL ||
-			currentNode->name == NULL)
+			currentNode->name[0] == '\0')
 		{
-			if(i == drive->length - 1) break;
-			if(i > start)
+			//if(i == drive->length - 1) break;
+			if(i != start)
 			{
-				// we are at bottom and scrollable
-				drive->slidingWindowStartAt += 5;
-				getDirectory(drive, drive->slidingWindowStartAt);
-				currentNode = getSpecificNode(drive, i);
+				// We are at bottom, and scrollable.
+				getDirectory(drive, drive->slidingWindowStartAt + 5);
 			}
 			else
 			{
-				drive->slidingWindowStartAt = (drive->slidingWindowStartAt > 5 ? i - 5: 0);
-				getDirectory(drive, drive->slidingWindowStartAt);
-				currentNode = getSpecificNode(drive, i);
+				getDirectory(drive, (i > 5) ? i - 5 : 0);
 			}
+			currentNode = getSpecificNode(drive, i);
 		}
+		//if (currentNode->name[0] == '\0')
+		//{
+		//	break;
+		//}
 
-		if(strlen(currentNode->name) > 0)
-		{
-			shortenSize(size, currentNode->size);
-			fileType = getFileType(currentNode->type);
+		shortenSize(size, currentNode->size);
+		fileType = getFileType(currentNode->type);
 
-			textcolor(color_text_files);
-			ii =  (currentNode->index - 1) / 8;
-			mod =  (currentNode->index - 1) % 8;
-			bit = 1 << mod;
-			r = drive->selectedEntries[ii] & bit;
+		(void)textcolor(color_text_files);
+		revers(drive->selectedEntries[(currentNode->index - 1) / 8u]
+			& (unsigned char)(1 << ((currentNode->index - 1) % 8u)));
 
-			revers(r != 0);
-
-			y = i - start + 2;
-#if defined(__C64__) || defined(__PLUS4__)
-			cputsxy(x + 1, y, size);
-			cputsxy(x + 5, y, shortenString(currentNode->name));
-			cputcxy(x + 19, y, fileType);
-#elif defined(__VIC20__)
-			cputcxy(x + 1, y, fileType);
-			cputsxy(x + 2, y, size);
-			cputsxy(x + 6, y, shortenString(currentNode->name));
+		gotoxy(x + 1, i - start + 2);
+		cprintf(
+#if size_x < 40
+			"%c%3s %s",
+#elif size_x == 40
+			"%3s %-14s%c",
 #else
-			cputsxy(x + 2, y, size);
-			cputsxy(x + 8, y, shortenString(currentNode->name));
-			cputcxy(x + 28, y, fileType);
+			// 80 columns
+			"%4s   %-20s%c ",
 #endif
-		}
-		else
-		{
-			break;
-		}
-		
-		revers(FALSE);
+#if size_x < 40
+			fileType,
+			size,
+			shortenString(currentNode->name)
+#else
+			size,
+			shortenString(currentNode->name),
+			fileType
+#endif
+			);
 
-#ifdef __VIC20__
-		writeMenuBar();
-#endif
-		
+		revers(false);
+
 	}
-	
+
+#if size_x > 40
+	(void)textcolor(color_text_borders);
+	cputcxy(x + 6, 22, CH_BTEE);
+	gotox(x + 26); cputc(CH_BTEE);
+	gotox(x + 30); cputc(CH_BTEE);
+	cvlinexy(x +  6, 2, panelHeight - 2);
+	cvlinexy(x + 26, 2, panelHeight - 2);
+	cvlinexy(x + 30, 2, panelHeight - 2);
+#endif
 }
 
-void  writeSelectorPosition(struct panel_drive *panel,
-	unsigned char character)
+void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
+	char character)
 {
-	unsigned char x, y;
-	y = (panel->currentIndex - panel->displayStartAt) + 2;
-#ifndef __VIC20__
-	x = (panel == &leftPanelDrive ? 0 : size_x / 2);
-#else
-	x = 0;
-#endif
-	gotoxy(x, y);
-	textcolor(color_selector);
-	revers(FALSE);
+	revers(false);
+	(void)textcolor(color_selector);
 	if(character == ' ')
 	{
-		textcolor(color_text_borders);
+		(void)textcolor(color_text_borders);
 		character = CH_VLINE;
 	}
-	cputc(character);
+	cputcxy(
+#if size_x < 40
+		0u,
+#else
+		panel == &leftPanelDrive ? 0u : size_x / 2u,
+#endif
+		panel->currentIndex - panel->displayStartAt + 2,
+		character);
 }
 
-void  writeCurrentFilename(struct panel_drive *panel)
+void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
 {
-	struct dir_node *currentDirNode;
+	const struct dir_node *currentDirNode;
 
-	if(panel != NULL)
+	//if(panel != NULL)
 	{
-		if(panel->drive != NULL)
+		//if(panel->drive != NULL)
 		{
 			currentDirNode = getSelectedNode(panel);
 
-			if(currentDirNode != NULL &&
-				currentDirNode->name != NULL)
+			if(currentDirNode != NULL)
 			{
-				writeStatusBarf("%16s %5u",
+				writeStatusBarf("%16s%6u",
 					currentDirNode->name,
 					currentDirNode->size);
 			}
@@ -576,53 +557,51 @@ void  writeCurrentFilename(struct panel_drive *panel)
 	}
 }
 
-void  moveSelectorUp(struct panel_drive *panel)
+void __fastcall__ moveSelectorUp(struct panel_drive *panel)
 {
-	unsigned char diff;
-	unsigned firstPage;
-
 	writeSelectorPosition(panel, ' ');
-	firstPage = panel->displayStartAt == 0;
-	diff = panel->currentIndex - panel->displayStartAt;
 
-	if(!firstPage && diff == 1)
+	if (panel->currentIndex > 0)
 	{
-		--(panel->displayStartAt);
-		--(panel->currentIndex);
-		displayDirectory(panel);
+		if (--(panel->currentIndex) < panel->displayStartAt)
+		{
+			--(panel->displayStartAt);
+			displayDirectory(panel);
+		}
 	}
-	else if(diff > 0)
-	{
-		--(panel->currentIndex);
-	}
-	
+
 	writeSelectorPosition(panel, '>');
 	writeCurrentFilename(panel);
 }
 
-void  moveSelectorDown(struct panel_drive *panel)
+void __fastcall__ moveSelectorDown(struct panel_drive *panel)
 {
-#ifndef __VIC20__
-	const unsigned char offset = 19;
+#if 1
+	writeSelectorPosition(panel, ' ');
+
+	if (panel->currentIndex < panel->length - 2)
+	{
+		if (++(panel->currentIndex) >= panel->displayStartAt + (size_y - 5))
+		{
+			++(panel->displayStartAt);
+			displayDirectory(panel);
+		}
+	}
 #else
-	const unsigned char offset = 17;
-#endif
-	unsigned char diff;
-	unsigned lastPage;
+	static const unsigned char offset = size_y - 6u;
+	bool lastPage;
 
 	writeSelectorPosition(panel, ' ');
 
-	lastPage = panel->displayStartAt + offset + 2 >= panel->length;
-	diff = panel->length - panel->displayStartAt;
+	lastPage = panel->displayStartAt + (offset + 2) >= panel->length;
 
-	if(!lastPage && diff > offset &&
-		((panel->currentIndex - panel->displayStartAt) == offset))
+	if(!lastPage && ((panel->currentIndex - panel->displayStartAt) == offset))
 	{
 		++(panel->displayStartAt);
 		++(panel->currentIndex);
 		displayDirectory(panel);
 	}
-	else if(lastPage && 
+	else if(lastPage &&
 		(panel->currentIndex - panel->displayStartAt) < offset &&
 		(panel->currentIndex + 2) < panel->length)
 	{
@@ -632,233 +611,193 @@ void  moveSelectorDown(struct panel_drive *panel)
 	{
 		++(panel->currentIndex);
 	}
+#endif
 
-	if(panel->currentIndex < 0) panel->currentIndex=0;
+	//if(panel->currentIndex < 0) panel->currentIndex=0;
 	writeSelectorPosition(panel, '>');
 	writeCurrentFilename(panel);
 }
 
-unsigned char  getFileType(unsigned char type)
+char __fastcall__ getFileType(unsigned char type)
 {
-	if(type < 7) return "DSPURCD"[type];
+	if(type < CBM_T_OTHER) return "dSPURCDLV"[type];
 	return 'O';
 }
 
-void  shortenSize(unsigned char* buffer, unsigned int value)
+static void __fastcall__ shortenSize(char* buffer, unsigned int value)
 {
-	unsigned long result;
-	if(value < 1000)
+	if(value < 1000u)
 	{
-		sprintf(buffer, "%3d", value);
+		sprintf(buffer, "%u", value);
 	}
 	else
 	{
-		result = ((unsigned long)value + (unsigned long)512) / (unsigned long)1024;
-		sprintf(buffer, "%2dK", (unsigned int)result);
+		sprintf(buffer, "%uK", (unsigned int)((value + 1024uL/2)/1024uL));
 	}
 }
 
-unsigned char*  shortenString(unsigned char* source)
+static char* __fastcall__ shortenString(char* source)
 {
-#ifndef __VIC20__
-	const int targetLength = 13;
-#else
-	const int targetLength = 16;
-#endif
+#if size_x == 40
+#define targetLength 13u
+	// buffer[] must be static because it's passed back to the caller.
+	static char buffer[targetLength + 1];
 
-	unsigned char buffer[18];
-
-	if(size_x <= 40)
-	{
+	//if(size_x == 40)
+	//{
 		if(strlen(source) > targetLength)
 		{
-			strncpy(buffer, source, targetLength - 2);
-			buffer[targetLength - 2] = '.';
-			buffer[targetLength - 1] = '.';
-			buffer[targetLength] = '\0';
+			sprintf(buffer, "%.11s..", source);
+			return buffer;
 		}
-		else
-		{
-			return source;
-		}
-	}
-	else
-	{
-		return source;
-	}
+	//}
+#endif
 
-	return buffer;
+	return source;
 }
 
-void  selectCurrentFile(void)
+void selectCurrentFile(void)
 {
-	unsigned char index = 0, bit = 0, mod = 0, 
-		r = 0, nbit = 0, v = 0, o = 0;
-
 	struct dir_node *currentDirNode;
 
-	if(selectedPanel != NULL)
+	//if(selectedPanel != NULL)
 	{
-		if(selectedPanel->drive != NULL)
+		if(selectedPanel->selectedEntries != NULL)
 		{
 			currentDirNode = getSelectedNode(selectedPanel);
-
 			if(currentDirNode != NULL)
-			{	
-				index = (currentDirNode->index - 1) / 8;
-				mod = (currentDirNode->index - 1) % 8;
-				bit = 1 << mod;
-				nbit = (0xFF ^ bit);
-				o = selectedPanel->selectedEntries[index];
-				r = o & bit;
-				if(r != 0)
-				{
-					v = o & nbit;
-					selectedPanel->selectedEntries[index] = v;
-				}
-				else 
-				{
-					selectedPanel->selectedEntries[index] |= bit;
-				}
+			{
+				/* Toggle the selected entry. */
+				selectedPanel->selectedEntries[(currentDirNode->index - 1) / 8u]
+					^= 1 << ((currentDirNode->index - 1) % 8u);
 
 				displayDirectory(selectedPanel);
-				moveSelectorDown(selectedPanel);
+				//moveSelectorDown(selectedPanel);
+				//writeSelectorPosition(selectedPanel, '>');
 			}
 		}
 	}
 }
 
-void  enterDirectory(struct panel_drive *panel)
+void __fastcall__ enterDirectory(struct panel_drive *panel)
 {
-	unsigned char command[40];
-	struct dir_node *node;
-
-	node = getSelectedNode(panel);
+	char command[41];
 
 	if(isDiskImage(panel) || isDirectory(panel))
 	{
-		strcpy(command, "cd:");
-		strcat(command, node->name);
+		sprintf(command, "cd:%s", getSelectedNode(panel)->name);
 		sendCommand(panel, command);
-		panel->currentIndex = 0;
-		panel->displayStartAt = 0;
+		//panel->currentIndex = panel->displayStartAt = 0;
 		rereadSelectedPanel();
 	}
 }
 
-void  leaveDirectory(struct panel_drive *panel)
+void __fastcall__ leaveDirectory(struct panel_drive *panel)
 {
-	unsigned char buffer[4];
-	buffer[0] = 'c';
-	buffer[1] = 'd';
-	buffer[2] = 95;
-	buffer[3] = '\0';
+	static const char buffer[] =
+	{
+		'c',
+		'd',
+		0x5f,					// PetSCII left-arrow
+		'\0'
+	};
 
 	sendCommand(panel, buffer);
-	panel->currentIndex = 0;
-	panel->displayStartAt = 0;
+	//panel->currentIndex = panel->displayStartAt = 0;
 	rereadSelectedPanel();
 }
 
-unsigned  isDiskImage(struct panel_drive *panel)
+static bool __fastcall__ isDiskImage(struct panel_drive *panel)
 {
-	unsigned result = FALSE;
-	unsigned char name[17];
-	struct dir_node *currentDirNode = NULL;
-
-	currentDirNode = getSelectedNode(panel);
-
-	strcpy(name, currentDirNode->name);
-	strlower(name);
+	char name[17];
+	const struct dir_node *currentDirNode =
+		getSelectedNode(panel);
 
 	if(currentDirNode != NULL)
 	{
-		result  = strstr(name, ".d64") > 0
-			|| strstr(name, ".d81") > 0
-			|| strstr(name, ".d71") > 0
-			|| strstr(name, ".dnp") > 0
-				? TRUE: FALSE;
+		return strstr(
+				// Make a copy of the name, and make that copy all lower-case.
+				// Then, only half as many suffix tests are needed.
+				strlower(strcpy(name, currentDirNode->name)), ".d64") != NULL
+			|| strstr(name, ".d41") != NULL
+			|| strstr(name, ".d71") != NULL
+			|| strstr(name, ".d81") != NULL
+			|| strstr(name, ".dnp") != NULL;
 	}
 
-	return result;
+	return false;
 }
 
-unsigned  isDirectory(struct panel_drive *panel)
+static bool __fastcall__ isDirectory(struct panel_drive *panel)
 {
-	unsigned result = FALSE;
-	struct dir_node *currentDirNode = NULL;
+	const struct dir_node *currentDirNode = getSelectedNode(panel);
 
-	currentDirNode = getSelectedNode(panel);
-
-	if(currentDirNode != NULL)
-	{
-		result = 
-			currentDirNode->type == 6 ? TRUE: FALSE;
-	}
-
-	return result;
+	return currentDirNode != NULL && currentDirNode->type == CBM_T_DIR;
 }
 
-struct dir_node*  getSelectedNode(struct panel_drive *panel)
+struct dir_node* __fastcall__ getSelectedNode(struct panel_drive *panel)
 {
 	return getSpecificNode(panel, panel->currentIndex);
 }
 
-struct dir_node*  getSpecificNode(
+struct dir_node* __fastcall__ getSpecificNode(
 	struct panel_drive *panel, int index)
 {
-	struct dir_node *currentDirNode = NULL;
+	int offset = index - panel->slidingWindowStartAt;
 
-	if(panel != NULL)
+	//if(panel != NULL)
 	{
-		if(panel->drive != NULL)
+		//if(panel->drive != NULL)
 		{
-			return index >= panel->slidingWindowStartAt &&
-				index < panel->slidingWindowStartAt + SLIDING_WINDOW_SIZE?
-					&(panel->slidingWindow[index - panel->slidingWindowStartAt])
-					: NULL;
+			return (offset >= 0 && offset < SLIDING_WINDOW_SIZE) ?
+				&(panel->slidingWindow[offset]) : NULL;
 		}
 	}
-
-	return currentDirNode;
+	//return NULL;
 }
 
-unsigned char  sendCommand(
-	struct panel_drive *panel,
-	unsigned char *command)
+signed char __fastcall__ sendCommand(
+	const struct panel_drive *panel,
+	const char *command)
 {
-#if defined(__C128__) || defined(__C64__) || defined(__PET__) || defined(__VIC20__) || defined(__PLUS4__)
-	char result;
-	unsigned char drive;
+#ifdef __CBM__
+	signed char result;
 
-	drive = panel->drive->drive;
+	cbm_open(15, panel->drive->drive, 15, command);
 
-	result = cbm_open(drive, drive, 15, NULL);
+	result = cbm_read(15, buffer, (sizeof buffer) - 1);
+	buffer[result < 0 ? 0 : result] = '\0';
 
-	result = cbm_write(drive, command, strlen(command));
+	cbm_close(15);
 
-	cbm_read(drive, buffer, 39);
-	writeStatusBarf(buffer);
-
-	cbm_close(drive);
-	
-	return result;
-#else
-	return 0;
-#endif
-}
-
-void  selectAllFiles(struct panel_drive *panel, 
-	unsigned select)
-{
-	unsigned int i = 0;
-	if(panel != NULL)
+	// Show error messages.
+	if (buffer[0] != '0')
 	{
-		for(;i< panel->length / 8 + 1; ++i)
+		writeStatusBar(buffer);
+		waitForEnterEsc();
+		return -1;		// A negative return-value means that command failed.
+	}
+#endif
+	return 0;
+}
+
+void __fastcall__ selectAllFiles(struct panel_drive *panel,
+	unsigned char select)
+{
+	unsigned int i;
+
+	if(panel->selectedEntries != NULL)
+	{
+		for (i = 0; i < (panel->length + (7 - 1)) / 8u; ++i)
 		{
-			panel->selectedEntries[i] = 
-				(select == TRUE ? 0xFF : 0x00);
+			panel->selectedEntries[i] = select;
 		}
+		//// Deselect bits that don't represent entries.
+		//if (i > 0)
+		//{
+		//	panel->selectedEntries[i - 1] &=
+		//		(unsigned char)((1 << ((panel->length - 2) % 8u + 1)) - 1);
+		//}
 	}
 
 	displayDirectory(panel);
@@ -866,37 +805,35 @@ void  selectAllFiles(struct panel_drive *panel,
 	writeCurrentFilename(panel);
 }
 
-void  moveTop(struct panel_drive *panel)
+void __fastcall__ moveTop(struct panel_drive *panel)
 {
-	if(panel != NULL)
+	//if(panel != NULL)
 	{
-		panel->slidingWindowStartAt = 0;
-		panel->currentIndex = 0;
-		panel->displayStartAt = 0;
+		getDirectory(panel,
+			//panel->slidingWindowStartAt =
+			panel->currentIndex =
+			panel->displayStartAt = 0);
 
-		getDirectory(panel, panel->slidingWindowStartAt);
 		displayDirectory(panel);
 		writeSelectorPosition(panel, '>');
 		writeCurrentFilename(panel);
 	}
 }
 
-void  movePageUp(struct panel_drive *panel)
+void __fastcall__ movePageUp(struct panel_drive *panel)
 {
-	if(panel != NULL)
+	//if(panel != NULL)
 	{
-		if(panel->currentIndex < 20) 
+		if(panel->currentIndex < size_y - 6u)
 		{
 			moveTop(panel);
-			return;
 		}
 		else
 		{
-			panel->currentIndex -= 19;
-			panel->displayStartAt = panel->currentIndex;
-			panel->slidingWindowStartAt = panel->currentIndex;
-
-			getDirectory(panel, panel->slidingWindowStartAt);
+			getDirectory(panel,
+				//panel->slidingWindowStartAt =
+				panel->displayStartAt =
+				panel->currentIndex -= size_y - 6u);
 			displayDirectory(panel);
 			writeSelectorPosition(panel, '>');
 			writeCurrentFilename(panel);
@@ -904,27 +841,21 @@ void  movePageUp(struct panel_drive *panel)
 	}
 }
 
-void  movePageDown(struct panel_drive *panel)
+void __fastcall__ movePageDown(struct panel_drive *panel)
 {
-	if(panel != NULL)
+	//if(panel != NULL)
 	{
-#ifndef __VIC20__
-		const unsigned char l = 19;
-#else
-		const unsigned char l = 17;
-#endif
-		panel->currentIndex += l;
-		if(panel->currentIndex > panel->length - 2) 
+		if(panel->currentIndex + (size_y - 6u + 2) > panel->length)
 		{
 			moveBottom(panel);
-			return;
 		}
 		else
 		{
-			panel->displayStartAt = panel->currentIndex - l;
-			panel->slidingWindowStartAt = panel->currentIndex - l;
+			//panel->slidingWindowStartAt =
+				panel->displayStartAt = panel->currentIndex;
+			panel->currentIndex += size_y - 6u;
 
-			getDirectory(panel, panel->slidingWindowStartAt);
+			getDirectory(panel, panel->displayStartAt);
 			displayDirectory(panel);
 			writeSelectorPosition(panel, '>');
 			writeCurrentFilename(panel);
@@ -932,24 +863,21 @@ void  movePageDown(struct panel_drive *panel)
 	}
 }
 
-void  moveBottom(struct panel_drive *panel)
+void __fastcall__ moveBottom(struct panel_drive *panel)
 {
-#ifndef __VIC20__
-	const unsigned char l = 21;
-#else
-	const unsigned char l = 19;
-#endif
-	if(panel != NULL)
+	//if(panel != NULL)
 	{
-		panel->currentIndex = panel->length - 2;
-
-		panel->slidingWindowStartAt =
-			panel->length > 30 ? panel->length - 30 : 0;
-
+		if ((panel->currentIndex = panel->length - 2) < 0)
+		{
+			panel->currentIndex = 0;
+		}
 		panel->displayStartAt =
-			panel->length > l ? panel->length - l : 0;
+			(panel->length >  size_y - 4u) ?
+			 panel->length - (size_y - 4u) : 0;
 
-		getDirectory(panel, panel->slidingWindowStartAt);
+		getDirectory(panel,
+			(panel->length > SLIDING_WINDOW_SIZE) ?
+			 panel->length - SLIDING_WINDOW_SIZE  : 0);
 		displayDirectory(panel);
 		writeSelectorPosition(panel, '>');
 		writeCurrentFilename(panel);

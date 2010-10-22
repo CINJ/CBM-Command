@@ -3,8 +3,8 @@
 #ifndef __VIEWER_H
 #define __VIEWER_H
 
-void viewFile(
+void __fastcall__ viewFile(
 	unsigned char drive,
-	unsigned char *filename);
+	const char *filename);
 
 #endif

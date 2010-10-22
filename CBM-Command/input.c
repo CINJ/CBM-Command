@@ -37,7 +37,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //#include <stdio.h>
 //#include <stdlib.h>
-#include <stdbool.h>
+//#include <stdbool.h>
 #include <conio.h>
 
 //#include "constants.h"
@@ -68,7 +68,7 @@ void readKeyboard(void)
 		break;
 	case HK_SELECT:
 		selectCurrentFile();
-		break; // don't fall through -- yet
+		// fall through
 	case CH_CURS_DOWN:
 		moveSelectorDown(selectedPanel);
 		break;
@@ -78,34 +78,34 @@ void readKeyboard(void)
 	case CH_CURS_LEFT:
 		if(selectedPanel == &rightPanelDrive
 			&& leftPanelDrive.visible
-			&& arePanelsOn)
+			/*&& arePanelsOn*/)
 		{
 			selectedPanel = &leftPanelDrive;
-#ifdef __VIC20__
+#if size_x < 40
 			displayDirectory(selectedPanel);
 #endif
 			writeCurrentFilename(selectedPanel);
-			writeSelectorPosition(&leftPanelDrive, '>');
-#ifndef __VIC20__
+			writeSelectorPosition(& leftPanelDrive, '>');
+#if size_x > 22
 			writeSelectorPosition(&rightPanelDrive, ' ');
 #endif
 		}
 		break;
 	case CH_CURS_RIGHT:
 		if(selectedPanel == &leftPanelDrive
-#ifndef __VIC20__
+#if size_x > 22
 			&& rightPanelDrive.visible
 #endif
-			&& arePanelsOn)
+			/*&& arePanelsOn*/)
 		{
 			selectedPanel = &rightPanelDrive;
-#ifdef __VIC20__
+#if size_x < 40
 			displayDirectory(selectedPanel);
 #endif
 			writeCurrentFilename(selectedPanel);
 			writeSelectorPosition(&rightPanelDrive, '>');
-#ifndef __VIC20__
-			writeSelectorPosition(&leftPanelDrive, ' ');
+#if size_x > 22
+			writeSelectorPosition(& leftPanelDrive, ' ');
 #endif
 		}
 		break;
@@ -148,23 +148,20 @@ void readKeyboard(void)
 	//	togglePanels();
 	//	break;
 	case HK_SELECT_ALL:
-		selectAllFiles(selectedPanel, true);
+		selectAllFiles(selectedPanel, 0xFF);
 		break;
 	case HK_DESELECT_ALL:
-		selectAllFiles(selectedPanel, false);
+		selectAllFiles(selectedPanel, 0x00);
 		break;
 #ifdef __C128__
 	case HK_HELP_128:
 #endif
 	case CH_F1:
 		writeHelpPanel();
-#ifdef __VIC20__
-		rereadSelectedPanel();
-#endif
 		break;
-#ifdef __CBM__
+//#ifdef __CBM__
 	case HK_QUIT:
-#endif
+//#endif
 	case CH_F2:
 		quit();
 		break;
@@ -181,21 +178,16 @@ void readKeyboard(void)
 	case CH_F6:
 		renameFile();
 		break;
-//	case HK_DELETE:
+	case HK_DELETE:
 	case CH_F8:
 		deleteFiles();
 		break;
-//#ifdef __C64__
-	//case HK_FILE_INFO:
-	//	writeFileInfoPanel();
-	//	break;
-//#endif
 	case KEY_AT:
 		inputCommand();
 		break;
-#ifdef __CBM__
+//#ifdef __CBM__
 	case HK_MAKE_DIRECTORY:
-#endif
+//#endif
 	case CH_F7:
 		makeDirectory();
 		break;
@@ -211,14 +203,14 @@ void readKeyboard(void)
 	case HK_PAGE_DOWN:
 		movePageDown(selectedPanel);
 		break;
-//#ifndef __VIC20__
+#if defined(__CBM__) //&& ! defined(__VIC20__)
 	case KEY_SH_SPACE:
 		writeD64();
 		break;
 	case HK_CREATE_D64:
 		createD64();
 		break;
-//#endif
+#endif
 	default:
 		//writeStatusBarf("%c", key);
 		break;

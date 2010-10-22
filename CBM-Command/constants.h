@@ -40,19 +40,18 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <conio.h>
 
-// (This will be replaced by <stdbool.h>.)
-/* System BOOLEAN Values */
-#define TRUE 1
-#define FALSE 0
+#ifndef NULL
+#define NULL 0
+#endif
 
 /* Drive Constants */
-#define SLIDING_WINDOW_SIZE	28		// Thirty directory entries are cached
-#define COPY_BUFFER_SIZE	254	// The data of 4 CBM blocks, plus 2 bytes
+#define SLIDING_WINDOW_SIZE	28		// Twenty-eight directory entries are cached
+#define COPY_BUFFER_SIZE	254
 
 /* Count the number of cells in an array. */
 #define A_SIZE(a) (sizeof(a)/sizeof(a)[0])
 
-/* Keyboad Constants */
+/* Keyboard Constants */
 #define KEY_AT				'@'
 #ifdef __CBM__
 //#define KEY_F1				0x85
@@ -65,25 +64,26 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#define KEY_F8				0x8C
 
 #define KEY_SH_SPACE		(' '|0x80)
-#define KEY_SH_RETURN		('\n'|0x80)
+#define KEY_SH_RETURN		(CH_ENTER|0x80)
 #define KEY_SH_PLUS			0xDB
 #define KEY_SH_MINUS		0xDD
-#define KEY_ALT_D			0xAC
-#define KEY_ALT_E			0xB1
+#define KEY_ALT_D			'D'	//0xAC
+#define KEY_ALT_E			'E'	//0xB1
 #endif
 
 #ifndef CH_F1
-#define CH_F1				'!'
-#define CH_F2				'\"'
-#define CH_F3				'#'
-#define CH_F4				'$'
-#define CH_F5				'%'
-#define CH_F6				'&'
-#define CH_F7				'\''
-#define CH_F8				'('
+// Pretend function-keys on Pet/CBM keyboards
+#define CH_F1				'1'
+#define CH_F2				'2'
+#define CH_F3				'3'
+#define CH_F4				'4'
+#define CH_F5				'5'
+#define CH_F6				'6'
+#define CH_F7				'7'
+#define CH_F8				'8'
 #endif
 
-//#define KEY_CTRL(c)			(c) // & 0x1F)
+//#define KEY_CTRL(c)			(c) //& 0x1F)
 
 #define KEY_CTRL_A			'a' //KEY_CTRL('A')
 #define KEY_CTRL_B			'b' //KEY_CTRL('B')

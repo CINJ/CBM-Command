@@ -42,25 +42,24 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Global Hotkeys
 #define HK_REREAD_LEFT		KEY_CTRL_E
-#define HK_REREAD_RIGHT		KEY_ALT_E	// C=-E
+#define HK_REREAD_RIGHT		KEY_ALT_E	// SHIFT-E
 #define HK_DRIVE_LEFT		KEY_CTRL_D
-#define HK_DRIVE_RIGHT		KEY_ALT_D	// C=-D
+#define HK_DRIVE_RIGHT		KEY_ALT_D	// SHIFT-D
 #define HK_TOGGLE_PANELS	KEY_CTRL_T
 #define HK_SELECT_ALL		KEY_CTRL_A
 #define HK_DESELECT_ALL		KEY_CTRL_S
-#define HK_QUIT				95
+#define HK_QUIT				95			// left-arrow
 #define HK_COPY				KEY_CTRL_C
 #define HK_RENAME			KEY_CTRL_R
-#ifdef __CBM__
-#define HK_DELETE			KEY_CTRL('^')
-#else
+//#ifdef __CBM__
+//#define HK_DELETE			KEY_CTRL('^')
+//#else
 #define HK_DELETE			KEY_CTRL_L
-#endif
-//#define HK_FILE_INFO		KEY_CTRL_I
-#define HK_MAKE_DIRECTORY	KEY_CTRL_K
+//#endif
+#define HK_MAKE_DIRECTORY	'm'			// KEY_CTRL_K
 #ifdef __CBM__
 #define HK_TO_TOP			'^'
-#define HK_TO_BOTTOM		('^'|0x80)	// SHIFT-^
+#define HK_TO_BOTTOM		('^'|0x80)	// SHIFT-^ (Pi)
 #else
 #define HK_TO_TOP			'{'
 #define HK_TO_BOTTOM		'}'

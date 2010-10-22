@@ -1,156 +1,184 @@
+/***************************************************************
+Copyright (c) 2010, Payton Byrd
+All rights reserved.
 
-#include <stdlib.h>
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following
+conditions are met:
+
+* Redistributions of source code must retain the above
+  copyright notice, this list of conditions and the following
+  disclaimer.
+
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following
+  disclaimer in the documentation and/or other materials
+  provided with the distribution.
+
+* Neither the name of Payton Byrd nor the names of its
+  contributors may be used to endorse or promote products
+  derived from this software without specific prior written
+  permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+***************************************************************/
+
+#ifndef __VIC20__
+#include <stdbool.h>
+//#include <stdlib.h>
 #include <stdio.h>
 #include <conio.h>
+#ifdef __CBM__
 #include <cbm.h>
+#endif
 #include <string.h>
 
 #include "Viewer.h"
-#include "constants.h"
+#include "Configuration.h"
+//#include "constants.h"
 #include "globalInput.h"
 #include "globals.h"
-#include "drives.h"
+//#include "drives.h"
 #include "screen.h"
 #include "menus.h"
 
-void viewFile(
+#define BUFFERSIZE (sizeof fileBuffer)
+
+void __fastcall__ viewFile(
 	unsigned char drive,
-	unsigned char *filename)
+	const char *filename)
 {
-#ifndef __VIC20__
-	int r = 0, bufferSize = 0, i = 0;
-	
-	unsigned char 
-		currentLine = 1, 
-		counter = 0;
+	char file[22];
+	char line[81];
+	char word[81];
+	int r, i;
+	char last, character = '\0';
+	bool printLine = false;
+	unsigned char
+		counter = 0,
+		currentLine = 1;
 
-	unsigned printLine = FALSE;
-
-	unsigned char file[22];
-	unsigned char line[23];
-	unsigned char word[23];
-	unsigned char character = 0, last = 0;
-
-	strcpy(file, filename);
-	strcat(file, ",s,r");
+#ifdef __CBM__
+	//strcpy(file, filename);
+	//strcat(file, ",s,r");
+	sprintf(file, ":%s", filename);
 
 	cbm_open(15,drive,15,"");
 
-	r = cbm_open(2,drive,2,file);
+	saveScreen();
 
-	if(r == 0)
+	if(cbm_open(2,drive,2,file) == 0)
 	{
-		saveScreen();
-
+		(void)textcolor(color_text_other);
 		clrscr();
 
-		counter = 0;
-		memset(word, '\0', 81);
-		memset(line, '\0', 81);
-		bufferSize = sizeof(fileBuffer);
+		memset(word, line[0] = '\0', sizeof word);
 		do
 		{
-			memset(fileBuffer, '\0', bufferSize);
+			//memset(fileBuffer, '\0', BUFFERSIZE);
+			r = cbm_read(2, fileBuffer, BUFFERSIZE);
 
-			r = cbm_read(2, fileBuffer, bufferSize);
-
-			if(r > 0)
+			for(i=0; i<r; i++)
 			{
-				for(i=0; i<r; ++i)
+				last = character;
+				character = fileBuffer[i];
+				if(character == '\n' ||
+					character == '\r')
 				{
-					last = character;
-					character = fileBuffer[i];
-					if(character == ' ' || 
-						character == '\r' || 
-						character == '\n')
+					if(
+						(character == '\n' && last != '\r') ||
+						(character == '\r' && last != '\n'))
 					{
+						printLine = true;
 
-						if(character == ' ')
+						strcat(line, word);
+						memset(word, counter = 0, sizeof word);
+					}
+				}
+				else
+				{
+					if ((word[counter] = character) == ' ')
+					{
+						strcat(line, word);
+						memset(word, counter = 0, sizeof word);
+					}
+					else if (strlen(line) + (++counter) >= size_x)
+					{
+						printLine = true;
+
+						if (line[0] == '\0')
 						{
 							strcat(line, word);
-							line[strlen(line)] = ' ';
-							memset(word, '\0', 81);
-							counter = 0;
-						}
-						else if(
-							(character == '\r' && last != '\n') ||
-							(character == '\n' && last != '\r'))
-						{
-							strcat(line, word);
-							memset(word, '\0', 81);
-							counter = 0;
-
-							printLine = TRUE;
+							memset(word, counter = 0, sizeof word);
 						}
 					}
-					else
+				}
+
+				if(printLine)
+				{
+					cputsxy(0, currentLine, line);
+					printLine = false;
+					line[0] = '\0';
+
+					if(++currentLine == size_y)
 					{
-						word[counter] = character;
-						++counter;
-
-						if(strlen(line) + counter > size_x - 1)
-						{
-							printLine = TRUE;
-						}
-					}
-
-					if(printLine == TRUE)
-					{
-						cputsxy(0, currentLine, line);
-						++currentLine;
-						printLine = FALSE;
-						memset(line, '\0', 81);
-
-						if(currentLine == size_y - 1)
-						{
-#ifndef __VIC20__
-							writeStatusBar("RETURN to cont, STOP/ESC to end.");
-#else
-							writeStatusBar("STOP to end.");
+						writeStatusBar(
+#if size_x > 22
+							"RETURN to cont., ESC/"
 #endif
-							if(waitForEnterEsc() == CH_ENTER)
-							{
-								clrscr();
-								currentLine = 1;
-							}
-							else
-							{
-								cbm_close(2); cbm_close(15);
-								retrieveScreen();
-								return;
-							}
+							"STOP to end");
+						if(waitForEnterEsc() == CH_STOP)
+						{
+							retrieveScreen();
+							cbm_close(2); cbm_close(15);
+							return;
+						}
+						else
+						{
+							(void)textcolor(color_text_other);
+							clrscr();
+							currentLine = 1;
 						}
 					}
-				} // FOR
-			}
+				}
+			} // FOR
 		}
-		while(r == bufferSize);
+		while(r == BUFFERSIZE);
 
-		if(strlen(word) > 0)
-		{
-			strcat(line, word);
-		}
+		// Flush the last line.
+		cputsxy(0, currentLine, line);
+		cputs(word);
 
-		if(strlen(line) > 0)
-		{
-			if(currentLine >= size_y)
-			{
-				clrscr();
-				currentLine = 1;
-			}
-
-			cputsxy(0, currentLine, line);
-		}
-
-		waitForEnterEscf("Done reading %s", filename);
-		retrieveScreen();
+#if size_x < 40
+		writeStatusBar("Done reading");
+		waitForEnterEsc();
+#else
+		waitForEnterEscf("Done reading :%s", filename);
+#endif
 	}
 	else
 	{
-		cbm_read(15, buffer, 40);
-		waitForEnterEscf(buffer); 
+		r = cbm_read(15, buffer, (sizeof buffer) - 1);
+		buffer[r < 0 ? 0 : r] = '\0';
+		writeStatusBar(buffer);
+		waitForEnterEsc();
 	}
+
+	retrieveScreen();
 
 	cbm_close(2); cbm_close(15);
 #endif
 }
+#endif

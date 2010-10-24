@@ -120,19 +120,19 @@ enum menus
 //void handleOptionMenu(void);
 //void handleFileMenu(void);
 //void handleCommandMenu(void);
-//void __fastcall__ handleDriveMenu(enum menus);
+//void handleDriveMenu(enum menus);
 
 // Menu actions
 void inputCommand(void);
 void executeSelectedFile(void);
-void __fastcall__ rereadDrivePanel(enum menus menu);
+void rereadDrivePanel(enum menus menu);
 void rereadSelectedPanel(void);
 void reloadPanels(void);
-void __fastcall__ writeDriveSelectionPanel(enum menus menu);
+void writeDriveSelectionPanel(enum menus menu);
 void selectCurrentPanelDrive(void);
 //void writeAboutBox(void);
 //void displayPanels(void);
-//void __fastcall__ writeMenu(enum menus);
+//void writeMenu(enum menus);
 //void writeOptionsPanel(void);
 //void saveOptions(void);
 //void togglePanels(void);
@@ -151,11 +151,11 @@ void go64(void);
 extern unsigned char fileBuffer[COPY_BUFFER_SIZE];
 
 // Menu drawing
-//void __fastcall__ drawFileMenu(unsigned char);
-//void __fastcall__ drawDriveMenu(unsigned char);
-//void __fastcall__ drawCommandMenu(unsigned char);
-//void __fastcall__ drawOptionsMenu(unsigned char);
-//void __fastcall__ drawMenu(unsigned char, unsigned char, unsigned char, const char* const[], const char[]);
-//void __fastcall__ drawMenuLine(bool, char, const char*, unsigned char, unsigned char);
+//void drawFileMenu(unsigned char);
+//void drawDriveMenu(unsigned char);
+//void drawCommandMenu(unsigned char);
+//void drawOptionsMenu(unsigned char);
+//void drawMenu(unsigned char, unsigned char, unsigned char, const char* const[], const char[]);
+//void drawMenuLine(bool, char, const char*, unsigned char, unsigned char);
 void writeMenuBar(void);
 #endif

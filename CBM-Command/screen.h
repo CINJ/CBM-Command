@@ -49,11 +49,11 @@ enum buttons { OK = 1, CANCEL = 2, YES = 4, NO = 8 };	// bit-masks
 
 void setupScreen(void);
 
-void __fastcall__ writeStatusBar(const char[]);
-void __fastcall__ vwriteStatusBarf(const char[], va_list);
+void writeStatusBar(const char[]);
+void vwriteStatusBarf(const char[], va_list);
 void writeStatusBarf(const char[], ...);
 
-void __fastcall__ writePanel(
+void writePanel(
 	bool drawBorder,
 	bool reverse,
 	unsigned char color,
@@ -63,30 +63,30 @@ void __fastcall__ writePanel(
 	const char *cancel,
 	const char *ok);
 
-void __fastcall__ drawBox(
+void drawBox(
 	unsigned char x, unsigned char y,
 	unsigned char w, unsigned char h,
 	unsigned char color, bool reverse);
 
-enum results __fastcall__ drawDialog(
+enum results drawDialog(
 	const char* const message[],
 	unsigned char lineCount,
 	const char* title,
 	enum buttons button);
 
-bool __fastcall__ writeYesNo(
+bool writeYesNo(
 	const char *title,
 	const char *const message[],
 	unsigned char lineCount);
 
-enum results __fastcall__ drawInputDialog(
+enum results drawInputDialog(
 	unsigned char lineCount,
 	unsigned char length,
 	const char *const message[],
 	const char *title,
 	char *resultText);
 
-void __fastcall__ drawProgressBar(
+void drawProgressBar(
 	const char* message,
 	unsigned int currentValue,
 	unsigned int maxValue);
@@ -96,6 +96,6 @@ void retrieveScreen(void);
 
 //void notImplemented(void);
 
-unsigned char __fastcall__ getCenterX(unsigned char w);
-unsigned char __fastcall__ getCenterY(unsigned char h);
+unsigned char getCenterX(unsigned char w);
+unsigned char getCenterY(unsigned char h);
 #endif

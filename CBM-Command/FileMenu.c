@@ -522,7 +522,7 @@ void makeDirectory(void)
 	}
 }
 
-static signed char __fastcall__ removeFile(const struct dir_node *selectedNode)
+static signed char removeFile(const struct dir_node *selectedNode)
 {
 	char command[41];
 

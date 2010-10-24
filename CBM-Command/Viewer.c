@@ -55,7 +55,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define BUFFERSIZE (sizeof fileBuffer)
 
-void __fastcall__ viewFile(
+void viewFile(
 	unsigned char drive,
 	const char *filename)
 {

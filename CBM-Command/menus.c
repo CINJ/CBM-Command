@@ -51,7 +51,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //unsigned char currentMenuX;
 //unsigned char currentMenuLine;
 
-//void __fastcall__ writeMenu(enum menus menu)
+//void writeMenu(enum menus menu)
 //{
 //	currentMenuLine = 0;
 //	switch (menu)
@@ -78,7 +78,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //	}
 //}
 //
-//void __fastcall__ drawFileMenu(unsigned char x)
+//void drawFileMenu(unsigned char x)
 //{
 //	//unsigned char i = 0;
 //	//unsigned char buffer[79];
@@ -92,7 +92,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //		FILE_MENU_KEYS);
 //}
 //
-//void __fastcall__ drawDriveMenu(unsigned char x)
+//void drawDriveMenu(unsigned char x)
 //{
 //	//unsigned char i = 0;
 //	//unsigned char buffer[79];
@@ -107,7 +107,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //}
 //
 //
-//void __fastcall__ drawCommandMenu(unsigned char x)
+//void drawCommandMenu(unsigned char x)
 //{
 //	//unsigned char i = 0;
 //	//unsigned char buffer[79];
@@ -121,7 +121,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //		COMMAND_MENU_KEYS);
 //}
 //
-//void __fastcall__ drawOptionsMenu(unsigned char x)
+//void drawOptionsMenu(unsigned char x)
 //{
 //	//unsigned char i = 0;
 //	//unsigned char buffer[79];
@@ -135,7 +135,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //		OPTION_MENU_KEYS);
 //}
 //
-//static void __fastcall__ drawMenu(
+//static void drawMenu(
 //	unsigned char x,
 //	unsigned char width,
 //	unsigned char count,
@@ -169,7 +169,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //	textcolor(oldColor);
 //}
 //
-//static void __fastcall__ drawMenuLine(
+//static void drawMenuLine(
 //	bool reverse,
 //	char key,
 //	const char* label,

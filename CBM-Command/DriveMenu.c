@@ -69,7 +69,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //	}
 //}
 //
-//void __fastcall__ handleDriveMenu(enum menus menu)
+//void handleDriveMenu(enum menus menu)
 //{
 //	bool finalRetrieve = true;
 //	char key;
@@ -157,7 +157,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //	if(finalRetrieve) retrieveScreen();
 //}
 
-void __fastcall__ rereadDrivePanel(enum menus menu)
+void rereadDrivePanel(enum menus menu)
 {
 	selectedPanel = (menu == left) ? &leftPanelDrive : &rightPanelDrive;
 	rereadSelectedPanel();
@@ -184,7 +184,7 @@ void rereadSelectedPanel(void)
 	writeCurrentFilename(selectedPanel);
 }
 
-void __fastcall__ writeDriveSelectionPanel(enum menus menu)
+void writeDriveSelectionPanel(enum menus menu)
 {
 	listDrives(menu);
 	retrieveScreen();

@@ -21,6 +21,10 @@
       <Configuration>C64</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="PET40|Win32">
+      <Configuration>PET40</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="PET|Win32">
       <Configuration>PET</Configuration>
       <Platform>Win32</Platform>
@@ -87,6 +91,10 @@
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PET40|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64_Config|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -125,6 +133,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='PET|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='PET40|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='C64_Config|Win32'" Label="PropertySheets">
@@ -213,6 +224,15 @@
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
     <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PET40|Win32'">
+    <NMakeBuildCommandLine>make T:=pet</NMakeBuildCommandLine>
+    <NMakeOutput />
+    <NMakeCleanCommandLine>make clean T:=pet</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make T:=pet</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>__PET__; __CBM__; __fastcall__=__fastcall</NMakePreprocessorDefinitions>
+    <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
+    <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64_Config|Win32'">
     <NMakeBuildCommandLine>make T:=c64</NMakeBuildCommandLine>
     <NMakeOutput />
@@ -281,6 +301,11 @@
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PET|Win32'">
+    <BuildLog>
+      <Path>$(Configuration).log</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PET40|Win32'">
     <BuildLog>
       <Path>$(Configuration).log</Path>
     </BuildLog>

@@ -47,7 +47,7 @@ command:.byte	"ui"
 
 .code
 ;
-; unsigned char __fastcall__ checkDrive(unsigned char drive);
+; unsigned char checkDrive(unsigned char drive);
 ;
 .proc _checkDrive
 		; Prepare for SETLFS.

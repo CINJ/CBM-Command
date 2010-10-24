@@ -115,7 +115,7 @@ static void readKeyboard(void)
 }
 
 #ifdef COLOR_RED
-static void __fastcall__ changeColor(char key)
+static void changeColor(char key)
 {
 	switch(key)
 	{
@@ -150,7 +150,7 @@ static void __fastcall__ changeColor(char key)
 	refreshScreen();
 }
 
-static void __fastcall__ displayColor(unsigned char color)
+static void displayColor(unsigned char color)
 {
 	gotox(14);
 	cputc(':');
@@ -332,7 +332,7 @@ static void save(void)
 }
 
 #ifdef COLOR_RED
-static void __fastcall__ pickColor(unsigned char *color)
+static void pickColor(unsigned char *color)
 {
 	unsigned char k, j, i;
 #if defined(__VIC20__)

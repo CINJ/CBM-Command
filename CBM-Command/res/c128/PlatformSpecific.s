@@ -44,7 +44,7 @@
 .export	_readVdcRegister
 .export	_clearVdcScreen
 .endif
-.export	_copyVdcScreen	; void __fastcall__ copyScreen(
+.export	_copyVdcScreen	; void copyScreen(
 						;		unsigned char srcHi,
 						;		unsigned char trgHi)
 

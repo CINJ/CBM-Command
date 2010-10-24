@@ -98,7 +98,7 @@ void initializeDrives(void)
 	selectedPanel = &leftPanelDrive;
 }
 
-static int __fastcall__ getDriveStatus(
+static int getDriveStatus(
 	struct drive_status *drive)
 {
 	int size;
@@ -132,7 +132,7 @@ static int __fastcall__ getDriveStatus(
 }
 
 //#ifdef __PLUS4__
-//static unsigned char __fastcall__ checkDrivePlus4(unsigned char drive)
+//static unsigned char checkDrivePlus4(unsigned char drive)
 //{
 //	unsigned char result = cbm_open(15, drive, 15, "ui");
 //
@@ -141,7 +141,7 @@ static int __fastcall__ getDriveStatus(
 //}
 //#endif
 
-void __fastcall__ listDrives(enum menus menu)
+void listDrives(enum menus menu)
 {
 	static const unsigned char h = A_SIZE(drives) + 6;
 	static const unsigned char w = size_x - 1u;
@@ -246,7 +246,7 @@ void __fastcall__ listDrives(enum menus menu)
 	}
 }
 
-unsigned int __fastcall__ getDirectory(
+unsigned int getDirectory(
 	struct panel_drive *drive,
 	int slidingWindowStartAt)
 {
@@ -362,7 +362,7 @@ unsigned int __fastcall__ getDirectory(
 #endif
 }
 
-void __fastcall__ resetSelectedFiles(struct panel_drive *panel)
+void resetSelectedFiles(struct panel_drive *panel)
 {
 #ifndef __VIC20__
 	free(panel->selectedEntries);
@@ -385,7 +385,7 @@ void __fastcall__ resetSelectedFiles(struct panel_drive *panel)
 #endif
 }
 
-void __fastcall__ displayDirectory(
+void displayDirectory(
 	struct panel_drive *drive)
 {
 	const unsigned char w = size_x /
@@ -517,7 +517,7 @@ void __fastcall__ displayDirectory(
 #endif
 }
 
-void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
+void writeSelectorPosition(struct panel_drive *panel,
 	char character)
 {
 	revers(false);
@@ -537,7 +537,7 @@ void __fastcall__ writeSelectorPosition(struct panel_drive *panel,
 		character);
 }
 
-void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
+void writeCurrentFilename(struct panel_drive *panel)
 {
 	const struct dir_node *currentDirNode;
 
@@ -557,7 +557,7 @@ void __fastcall__ writeCurrentFilename(struct panel_drive *panel)
 	}
 }
 
-void __fastcall__ moveSelectorUp(struct panel_drive *panel)
+void moveSelectorUp(struct panel_drive *panel)
 {
 	writeSelectorPosition(panel, ' ');
 
@@ -574,7 +574,7 @@ void __fastcall__ moveSelectorUp(struct panel_drive *panel)
 	writeCurrentFilename(panel);
 }
 
-void __fastcall__ moveSelectorDown(struct panel_drive *panel)
+void moveSelectorDown(struct panel_drive *panel)
 {
 #if 1
 	writeSelectorPosition(panel, ' ');
@@ -618,13 +618,13 @@ void __fastcall__ moveSelectorDown(struct panel_drive *panel)
 	writeCurrentFilename(panel);
 }
 
-char __fastcall__ getFileType(unsigned char type)
+char getFileType(unsigned char type)
 {
 	if(type < CBM_T_OTHER) return "dSPURCDLV"[type];
 	return 'O';
 }
 
-static void __fastcall__ shortenSize(char* buffer, unsigned int value)
+static void shortenSize(char* buffer, unsigned int value)
 {
 	if(value < 1000u)
 	{
@@ -636,7 +636,7 @@ static void __fastcall__ shortenSize(char* buffer, unsigned int value)
 	}
 }
 
-static char* __fastcall__ shortenString(char* source)
+static char* shortenString(char* source)
 {
 #if size_x == 40
 #define targetLength 13u
@@ -679,7 +679,7 @@ void selectCurrentFile(void)
 	}
 }
 
-void __fastcall__ enterDirectory(struct panel_drive *panel)
+void enterDirectory(struct panel_drive *panel)
 {
 	char command[41];
 
@@ -692,7 +692,7 @@ void __fastcall__ enterDirectory(struct panel_drive *panel)
 	}
 }
 
-void __fastcall__ leaveDirectory(struct panel_drive *panel)
+void leaveDirectory(struct panel_drive *panel)
 {
 	static const char buffer[] =
 	{
@@ -707,7 +707,7 @@ void __fastcall__ leaveDirectory(struct panel_drive *panel)
 	rereadSelectedPanel();
 }
 
-static bool __fastcall__ isDiskImage(struct panel_drive *panel)
+static bool isDiskImage(struct panel_drive *panel)
 {
 	char name[17];
 	const struct dir_node *currentDirNode =
@@ -728,19 +728,19 @@ static bool __fastcall__ isDiskImage(struct panel_drive *panel)
 	return false;
 }
 
-static bool __fastcall__ isDirectory(struct panel_drive *panel)
+static bool isDirectory(struct panel_drive *panel)
 {
 	const struct dir_node *currentDirNode = getSelectedNode(panel);
 
 	return currentDirNode != NULL && currentDirNode->type == CBM_T_DIR;
 }
 
-struct dir_node* __fastcall__ getSelectedNode(struct panel_drive *panel)
+struct dir_node* getSelectedNode(struct panel_drive *panel)
 {
 	return getSpecificNode(panel, panel->currentIndex);
 }
 
-struct dir_node* __fastcall__ getSpecificNode(
+struct dir_node* getSpecificNode(
 	struct panel_drive *panel, int index)
 {
 	int offset = index - panel->slidingWindowStartAt;
@@ -756,7 +756,7 @@ struct dir_node* __fastcall__ getSpecificNode(
 	//return NULL;
 }
 
-signed char __fastcall__ sendCommand(
+signed char sendCommand(
 	const struct panel_drive *panel,
 	const char *command)
 {
@@ -781,7 +781,7 @@ signed char __fastcall__ sendCommand(
 	return 0;
 }
 
-void __fastcall__ selectAllFiles(struct panel_drive *panel,
+void selectAllFiles(struct panel_drive *panel,
 	unsigned char select)
 {
 	unsigned int i;
@@ -805,7 +805,7 @@ void __fastcall__ selectAllFiles(struct panel_drive *panel,
 	writeCurrentFilename(panel);
 }
 
-void __fastcall__ moveTop(struct panel_drive *panel)
+void moveTop(struct panel_drive *panel)
 {
 	//if(panel != NULL)
 	{
@@ -820,7 +820,7 @@ void __fastcall__ moveTop(struct panel_drive *panel)
 	}
 }
 
-void __fastcall__ movePageUp(struct panel_drive *panel)
+void movePageUp(struct panel_drive *panel)
 {
 	//if(panel != NULL)
 	{
@@ -841,7 +841,7 @@ void __fastcall__ movePageUp(struct panel_drive *panel)
 	}
 }
 
-void __fastcall__ movePageDown(struct panel_drive *panel)
+void movePageDown(struct panel_drive *panel)
 {
 	//if(panel != NULL)
 	{
@@ -863,7 +863,7 @@ void __fastcall__ movePageDown(struct panel_drive *panel)
 	}
 }
 
-void __fastcall__ moveBottom(struct panel_drive *panel)
+void moveBottom(struct panel_drive *panel)
 {
 	//if(panel != NULL)
 	{

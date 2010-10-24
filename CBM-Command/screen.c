@@ -116,7 +116,7 @@ void retrieveScreen(void)
 }
 #endif
 
-void __fastcall__ writeStatusBar(
+void writeStatusBar(
 	const char message[])
 {
 	unsigned char oldX = wherex(), oldY = wherey();
@@ -134,7 +134,7 @@ void __fastcall__ writeStatusBar(
 // The "color" parameter isn't used by the Pet library.
 //#pragma warn(unused-param, push, off)
 
-void __fastcall__ drawBox(
+void drawBox(
 	unsigned char x,
 	unsigned char y,
 	unsigned char w,
@@ -169,17 +169,17 @@ void __fastcall__ drawBox(
 }
 //#pragma warn(unused-param, pop)
 
-unsigned char __fastcall__ getCenterX(unsigned char w)
+unsigned char getCenterX(unsigned char w)
 {
 	return (size_x - w) / 2u /*- 1u*/;
 }
 
-unsigned char __fastcall__ getCenterY(unsigned char h)
+unsigned char getCenterY(unsigned char h)
 {
 	return (size_y - h) / 2u /*- 1u*/;
 }
 
-void __fastcall__ writePanel(
+void writePanel(
 	bool drawBorder,
 	bool reverse,
 	unsigned char color,
@@ -258,7 +258,7 @@ void __fastcall__ writePanel(
 //	retrieveScreen();
 //}
 
-enum results __fastcall__ drawDialog(
+enum results drawDialog(
 	const char* const message[],
 	unsigned char lineCount,
 	const char* title,
@@ -357,7 +357,7 @@ enum results __fastcall__ drawDialog(
 	return CANCEL_RESULT;
 }
 
-enum results __fastcall__ drawInputDialog(
+enum results drawInputDialog(
 	unsigned char lineCount,
 	unsigned char length,
 	const char *const message[],
@@ -428,7 +428,7 @@ enum results __fastcall__ drawInputDialog(
 	return CANCEL_RESULT;
 }
 
-bool __fastcall__ writeYesNo(
+bool writeYesNo(
 	const char *title,
 	const char *const message[],
 	unsigned char lineCount)
@@ -440,7 +440,7 @@ bool __fastcall__ writeYesNo(
 		== YES_RESULT) ? true : false;
 }
 
-void __fastcall__ vwriteStatusBarf(const char format[], va_list ap)
+void vwriteStatusBarf(const char format[], va_list ap)
 {
 	char buffer[81];
 
@@ -457,7 +457,7 @@ void writeStatusBarf(const char format[], ...)
 	va_end(ap);
 }
 
-void __fastcall__ drawProgressBar(
+void drawProgressBar(
 	const char* message,
 	unsigned int currentValue,
 	unsigned int maxValue)

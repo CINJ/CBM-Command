@@ -42,7 +42,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //void writeVdcRegister(unsigned char data, unsigned char address);
 //unsigned char readVdcRegister(unsigned char);
 //void clearVdcScreen(unsigned char hi, unsigned char lo);
-void copyVdcScreen(unsigned char srcHi, unsigned char desHi);
+void __fastcall__ copyVdcScreen(unsigned char srcHi, unsigned char desHi);
 #endif
 
 #endif

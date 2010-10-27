@@ -205,10 +205,10 @@ void readKeyboard(void)
 		break;
 #if defined(__CBM__) //&& ! defined(__VIC20__)
 	case KEY_SH_SPACE:
-		writeD64();
+		writeDiskImage();
 		break;
 	case HK_CREATE_D64:
-		createD64();
+		createDiskImage();
 		break;
 #endif
 	default:

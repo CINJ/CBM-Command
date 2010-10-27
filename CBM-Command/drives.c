@@ -131,15 +131,15 @@ static int getDriveStatus(
 	return size;
 }
 
-//#ifdef __PLUS4__
-//static unsigned char checkDrivePlus4(unsigned char drive)
-//{
-//	unsigned char result = cbm_open(15, drive, 15, "ui");
-//
-//	cbm_close(15);
-//	return result;
-//}
-//#endif
+#ifdef __PLUS4__
+static unsigned char checkDrivePlus4(unsigned char drive)
+{
+	unsigned char result = cbm_open(15, drive, 15, "ui");
+
+	cbm_close(15);
+	return result;
+}
+#endif
 
 void listDrives(enum menus menu)
 {
@@ -173,12 +173,12 @@ void listDrives(enum menus menu)
 
 		drives[i].message[0] = '\0';
 		if(
-//#ifndef __PLUS4__
-			checkDrive(i + 8)
-//#else
-//			checkDrivePlus4(i + 8)
-//#endif
-			== 0)
+#ifndef __PLUS4__
+			checkDrive(2, "ui", i + 8)
+#else
+			checkDrivePlus4(i + 8)
+#endif
+			!= 5)
 		{
 			getDriveStatus(&(drives[i]));
 			cputs(drives[i].message);

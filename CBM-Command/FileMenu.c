@@ -61,6 +61,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Viewer.h"
 
 #define D64_SIZE 689
+#define D71_SIZE 1378
 #define D81_SIZE 3226
 
 static const char* const quit_message[] =
@@ -480,7 +481,10 @@ void renameFile(void)
 					filename, selectedNode->name);
 				sendCommand(selectedPanel, command);
 
-				rereadSelectedPanel();
+				//rereadSelectedPanel();
+				getDirectory(selectedPanel, selectedPanel->slidingWindowStartAt);
+				displayDirectory(selectedPanel);
+				writeSelectorPosition(selectedPanel, '>');
 
 				writeStatusBarf("Renamed to %s", filename);
 			}
@@ -775,10 +779,14 @@ static const unsigned char l[] =	// sectors per track on 1541/1571 disks
 {	21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
 	19,19,19,19,19,19,19,
 	18,18,18,18,18,18,
+	17,17,17,17,17,
+	21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+	19,19,19,19,19,19,19,
+	18,18,18,18,18,18,
 	17,17,17,17,17
 };
 
-void createD64(void)
+void createDiskImage(void)
 {
 	static const char* const message[] =
 	{
@@ -792,7 +800,7 @@ void createD64(void)
 	int r;
 	clock_t timeStart;
 	time_t timeSpent, timeLeft;
-	bool isD64 = true;
+	bool isD64 = true, isD71 = false;
 	unsigned int p = 0, size = D64_SIZE;
 
 	//if(selectedPanel != NULL && selectedPanel->drive != NULL)
@@ -830,26 +838,32 @@ void createD64(void)
 				{
 					buffer[r] = '\0';
 					if (strstr(buffer,"1541") == NULL &&
-						strstr(buffer,"1571") == NULL &&
+						//strstr(buffer,"1571") == NULL &&
 						strstr(buffer,"2031") == NULL
 					   	// for quick debugging in VICE
 						&& strstr(buffer,"virtual") == NULL
 						)
 					{
-						if(strstr(buffer,"1581") == NULL)
+						if(strstr(buffer,"1581") == NULL  & strstr(buffer, "1571") == NULL)
 						{
-							writeStatusBar("Must be 1541-type or 1581 drive");
+							writeStatusBar("Must be 1541-type, 1571 or 1581 drive");
 							//waitForEnterEsc();
 							cbm_close(15);
 							return;
 						}
-						else
+						else if(strstr(buffer,"1581") != NULL)
 						{
 							isD64 = false;
+							isD71 = false;
 							size=D81_SIZE;
 //							writeStatusBar("Making D81");
 //							waitForEnterEsc();
 							waitForEnterEscf("Making D81. %u", size);
+						}
+						else // 1571, find out from user if making a D71
+						{
+							isD64 = !(isD71 = selectDiskImageType());
+							size=(isD64 ? D64_SIZE : D71_SIZE);
 						}
 					}
 					else
@@ -880,10 +894,10 @@ void createD64(void)
 					cbm_open(14,td,15,"");
 					if(cbm_open(3,td,3,strcat(name,",p,w")) == 0)
 					{
-						tracks = isD64 ? 35 : 80;
+						tracks = isD64 ? 35 : (isD71 ? 70 : 80);
 						for(i=0;i<tracks;++i)
 						{
-							sectorsThisTrack = isD64 ? l[i%35] : 40;
+							sectorsThisTrack = isD64 ? l[i%35] : (isD71 ? l[i%70] : 40);
 							for(j=0;j<sectorsThisTrack;++j)
 							{
 								if(kbhit())
@@ -906,13 +920,25 @@ void createD64(void)
 									// / (((long)p * 256L)/timeSpent);
 									(long)(size - p) * timeSpent / (long)p;
 								writeStatusBarf(
+#if size_x < 40
+									"%u:%02u et %d Bs %u:%02u",
+#elif size_x < 80
 									"%u:%02u et %d Bs %u:%02u rem %4u/%4u",
+#else
+									"%u:%02u et %d Bs %u:%02u rem %4u/%4u - %2u:%2u",
+#endif
 									(unsigned)timeSpent/60u,
 									(unsigned)timeSpent%60u,
 									(unsigned)(((long)p * 256L)/timeSpent),
 									(unsigned)timeLeft/60u,
-									(unsigned)timeLeft%60u,
-									p, size);
+									(unsigned)timeLeft%60u
+#if size_x >= 40
+									, p, size
+#if size_x >= 80
+									, i+1, j
+#endif
+#endif
+									);
 
 								r = cbm_read(2,fileBuffer, 256);
 								// XXX: Check that r==256.
@@ -956,7 +982,7 @@ void createD64(void)
 	}
 }
 
-void writeD64(void)
+void writeDiskImage(void)
 {
 	static const char* const message[] =
 	{
@@ -971,6 +997,8 @@ void writeD64(void)
 	time_t timeSpent, timeLeft;
 	int r;
 	unsigned int p = 0;
+	unsigned char tracks;
+	unsigned int sectors;
 
 	//if(selectedPanel != NULL && selectedPanel->drive != NULL)
 	{
@@ -984,7 +1012,9 @@ void writeD64(void)
 		{
 			currentNode = getSelectedNode(selectedPanel);
 
-			if(currentNode->size != D64_SIZE && currentNode->size != D81_SIZE)
+			if(currentNode->size != D64_SIZE && currentNode->size != D81_SIZE 
+				&& currentNode->size != D71_SIZE
+				)
 			{
 				saveScreen();
 				writeStatusBar(
@@ -1030,9 +1060,34 @@ void writeD64(void)
 					timeStart = clock();
 
 					(void)textcolor(color_text_other);
-					for(i=0;i<(currentNode->size == D64_SIZE ? 35 : 80);++i)
+					switch(currentNode->size)
 					{
-						for(j=0;j<(currentNode->size == D64_SIZE ? l[i%35] : 40);++j)
+					case D64_SIZE:
+						tracks = 35;
+						break;
+					case D71_SIZE:
+						tracks = 70;
+						break;
+					case D81_SIZE:
+						tracks = 80;
+						break;
+					}
+
+					for(i=0;i<tracks;++i)
+					{
+						switch(currentNode->size)
+						{
+						case D64_SIZE:
+							sectors = l[i%35];
+							break;
+						case D71_SIZE:
+							sectors = l[i%70];
+							break;
+						case D81_SIZE:
+							sectors = 40;
+							break;
+						}
+						for(j=0;j<sectors;++j)
 						{
 							if(kbhit())
 							{
@@ -1100,5 +1155,19 @@ void writeD64(void)
 			}
 		}
 	}
+}
+
+bool selectDiskImageType(void)
+{
+	bool result = false;
+
+	static const char* const message[] =
+	{
+		{ "Is the disk" },
+		{ "in the 1571 " },
+		{ "double-sided?" }
+	};
+
+	result = writeYesNo("Image Type", message, A_SIZE(message));
 }
 #endif

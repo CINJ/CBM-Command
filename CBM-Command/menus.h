@@ -141,8 +141,9 @@ void copyFiles(void);
 void renameFile(void);
 void makeDirectory(void);
 void deleteFiles(void);
-void writeD64(void);
-void createD64(void);
+void writeDiskImage(void);
+void createDiskImage(void);
+bool selectDiskImageType(void);
 void quit(void);
 #ifdef __C128__
 void go64(void);

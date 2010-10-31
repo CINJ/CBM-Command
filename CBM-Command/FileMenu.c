@@ -744,33 +744,82 @@ void executeSelectedFile(void)
 void inputCommand(void)
 {
 	enum results dialogResult;
-	char command[77];
+	char command[size_x - 4];
+	unsigned char key = '\0';
+	unsigned char count = 0;
+	unsigned char x = 3, 
+#ifdef __VIC20__
+		y=size_y - 3;
+#else
+		y=size_y - 2;
+#endif
 	static const char* const dialogMessage[] =
 	{
 		{ "Type drive-command" }
 	};
 
-	//if(selectedPanel != NULL)
+	command[0] = '\0';
+
+	//saveScreen();
+	//dialogResult = drawInputDialog(
+	//	A_SIZE(dialogMessage),
+	//	size_x - 4,
+	//	dialogMessage,
+	//	"Command",
+	//	command
+	//	);
+	//retrieveScreen();
+
+	//if((unsigned char)dialogResult == OK_RESULT)
+	//{
+	//}
+
+	gotoxy(0, y);
+	cprintf("%2u>", selectedPanel->drive->drive);
+
+		revers(true);
+	//(void)textcolor(color_text_other);
+	cclearxy(x, y, size_x - 3);
+		
+	do
 	{
-		command[0] = '\0';
+		cputcxy(count + x, y, '_');
+		key = getKey();
 
-		//saveScreen();
-		dialogResult = drawInputDialog(
-			A_SIZE(dialogMessage),
-			size_x - 4,
-			dialogMessage,
-			"Command",
-			command
-			);
-		retrieveScreen();
-
-		if((unsigned char)dialogResult == OK_RESULT)
+		if (count < size_x - 3 &&
+			(
+				(key >= ' ' && key <= '^'+1) ||
+				(key >= 'A' && key <= 'Z')
+			)
+		   )
 		{
-			sendCommand(selectedPanel, command);
-
-			rereadSelectedPanel();
+			cputcxy(count+x, y, command[count] = key);
+			++count;
 		}
+		else if (key ==
+#ifdef CH_DEL
+			CH_DEL
+#else
+			'\x7F'				// CH_RUBOUT
+#endif
+			&& count > 0)
+		{
+			cputcxy(count+x, y, ' ');
+			--count;
+		}
+		command[count] = '\0';
 	}
+	while (key != CH_ENTER && key != CH_STOP);
+
+	revers(false);
+
+	if(key != CH_STOP)
+	{
+		sendCommand(selectedPanel, command);
+		rereadSelectedPanel();
+	}
+
+	cclearxy(0, y, size_x);
 }
 
 #if defined(__CBM__) //&& !defined(__VIC20__)
@@ -998,7 +1047,7 @@ void writeDiskImage(void)
 	int r;
 	unsigned int p = 0;
 	unsigned char tracks;
-	unsigned int sectors;
+	unsigned char sectors;
 
 	//if(selectedPanel != NULL && selectedPanel->drive != NULL)
 	{
@@ -1013,7 +1062,7 @@ void writeDiskImage(void)
 			currentNode = getSelectedNode(selectedPanel);
 
 			if(currentNode->size != D64_SIZE && currentNode->size != D81_SIZE 
-				&& currentNode->size != D71_SIZE
+				&& currentNode->size != D71_SIZE - 1
 				)
 			{
 				saveScreen();
@@ -1060,18 +1109,22 @@ void writeDiskImage(void)
 					timeStart = clock();
 
 					(void)textcolor(color_text_other);
+
 					switch(currentNode->size)
 					{
 					case D64_SIZE:
-						tracks = 35;
+						tracks = 35u;
 						break;
 					case D71_SIZE:
-						tracks = 70;
+					case D71_SIZE - 1u:
+						tracks = 70u;
 						break;
 					case D81_SIZE:
-						tracks = 80;
+						tracks = 80u;
 						break;
 					}
+
+					//waitForEnterEscf("size: %4u  tracks: %2u", currentNode->size, tracks);
 
 					for(i=0;i<tracks;++i)
 					{
@@ -1081,6 +1134,7 @@ void writeDiskImage(void)
 							sectors = l[i%35];
 							break;
 						case D71_SIZE:
+						case D71_SIZE - 1u:
 							sectors = l[i%70];
 							break;
 						case D81_SIZE:
@@ -1119,12 +1173,21 @@ void writeDiskImage(void)
 								// / (((long)p * 256L)/timeSpent);
 								(long)(currentNode->size - p) * timeSpent
 								/ (long)p;
-							writeStatusBarf("%u:%02u e.t. %d B/s, %u:%02u rem",
+							writeStatusBarf(
+#if size_x < 80
+								"%u:%02u e.t. %d B/s, %u:%02u rem",
+#else
+								"%u:%02u e.t. %d B/s, %u:%02u rem - %2u:%2u of %2u:%2u",
+#endif
 								(unsigned)timeSpent/60u,
 								(unsigned)timeSpent%60u,
 								(unsigned)(((long)p * 256L)/timeSpent),
 								(unsigned)timeLeft/60u,
-								(unsigned)timeLeft%60u);
+								(unsigned)timeLeft%60u
+#if size_x >= 80
+								, i + 1, j, tracks, sectors - 1
+#endif
+								);
 						}
 					}
 					cbm_close(2);

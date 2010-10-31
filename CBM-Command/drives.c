@@ -394,7 +394,11 @@ void displayDirectory(
 #else
 		2u;
 #endif
+#if size_y >23
 #define panelHeight (size_y - 3u)
+#else
+#define panelHeight (size_y - 4u)
+#endif
 	unsigned char x = 0;
 	unsigned int i, start;
 	char fileType;

@@ -38,6 +38,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _GLOBALS_H
 #define _GLOBALS_H
 
+#define __fastcall __fastcall__
+
 //#include <stdbool.h>
 
 //extern unsigned char size_x, size_y;
@@ -51,6 +53,50 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define size_x 40u
 #define size_y 25u
 #endif
+
+// Global Hotkeys
+#define HK_EXECUTE_SELECTED	(CH_ENTER|0x80)
+#define HK_REREAD_LEFT		'e'
+#define HK_REREAD_RIGHT		'E'	// SHIFT-E
+#define HK_REREAD_SELECTED	'r'
+#define HK_DRIVE_LEFT		'd'
+#define HK_DRIVE_RIGHT		'D'	// SHIFT-D
+#define HK_DRIVE_CURRENT	'u'
+#define HK_SELECT_ALL		'a'
+#define HK_DESELECT_ALL		's'
+#define HK_QUIT				'q'
+#define HK_COPY				'c'
+#define HK_RENAME			'n'
+#define HK_DELETE			'l'
+#define HK_MAKE_DIRECTORY	'm'			// KEY_CTRL_K
+#define HK_ENTER_DIRECTORY	('+'|0x80)
+#define HK_LEAVE_DIRECTORY	('-'|0x80)
+#ifdef __CBM__
+#define HK_TO_TOP			'^'
+#define HK_TO_BOTTOM		('^'|0x80)	// SHIFT-^ (Pi)
+#else
+#define HK_TO_TOP			'{'
+#define HK_TO_BOTTOM		'}'
+#endif
+#ifdef __CBM__
+#define HK_PAGE_UP			'+'
+#define HK_PAGE_DOWN		'-'
+#else
+#define HK_PAGE_UP			'['
+#define HK_PAGE_DOWN		']'
+#endif
+#define HK_SELECT			' '
+#define HK_HELP				'h'
+#define HK_DRIVE_COMMAND	'@'
+#define HK_CREATE_D64		'x'
+#define HK_WRITE_D64		'X'
+
+#ifdef __C128__
+#define HK_HELP_128			0x84	// HELP key
+#define HK_GO64				KEY_CTRL_G
+#endif
+
+
 
 //extern bool arePanelsOn;
 extern unsigned char buffer[41];

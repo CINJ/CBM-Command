@@ -41,6 +41,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <conio.h>
 
 //#include "constants.h"
+#include "Configuration.h"
 #include "drives.h"
 #include "globals.h"
 #include "input.h"
@@ -51,31 +52,18 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void readKeyboard(void)
 {
 	//char buffer[39];
-	//char key = cgetc();
+	char key = cgetc();
 
-	switch(cgetc())
+	if(key == CH_CURS_DOWN)
 	{
-	case CH_F4:
-		rereadSelectedPanel();
-		break;
-#ifdef __CBM__
-	case KEY_SH_RETURN:
-		executeSelectedFile();
-		break;
-#endif
-	case CH_F3:
-		selectCurrentPanelDrive();
-		break;
-	case HK_SELECT:
-		selectCurrentFile();
-		// fall through
-	case CH_CURS_DOWN:
 		moveSelectorDown(selectedPanel);
-		break;
-	case CH_CURS_UP:
+	}
+	else if(key == CH_CURS_UP)
+	{
 		moveSelectorUp(selectedPanel);
-		break;
-	case CH_CURS_LEFT:
+	}
+	else if(key == CH_CURS_LEFT)
+	{
 		if(selectedPanel == &rightPanelDrive
 			&& leftPanelDrive.visible
 			/*&& arePanelsOn*/)
@@ -90,8 +78,9 @@ void readKeyboard(void)
 			writeSelectorPosition(&rightPanelDrive, ' ');
 #endif
 		}
-		break;
-	case CH_CURS_RIGHT:
+	}
+	else if(key == CH_CURS_RIGHT)
+	{
 		if(selectedPanel == &leftPanelDrive
 #if size_x > 22
 			&& rightPanelDrive.visible
@@ -108,111 +97,120 @@ void readKeyboard(void)
 			writeSelectorPosition(& leftPanelDrive, ' ');
 #endif
 		}
-		break;
-#ifdef __CBM__
-	case KEY_SH_PLUS:
-		enterDirectory(selectedPanel);
-		break;
-	case KEY_SH_MINUS:
-		leaveDirectory(selectedPanel);
-		break;
-	//case 188: // C= C - Command Menu
-	//	writeMenu(command);
-	//	break;
-	//case 182: // C= L - Left Menu
-	//	writeMenu(left);
-	//	break;
-	//case 178: // C= R - Right Menu
-	//	writeMenu(right);
-	//	break;
-	//case 187: // C= F - File Menu
-	//	writeMenu(file);
-	//	break;
-	//case 185: // C= O - Options Menu
-	//	writeMenu(options);
-	//	break;
-#endif
-	case HK_REREAD_LEFT:
-		rereadDrivePanel(left);
-		break;
-	case HK_REREAD_RIGHT:
-		rereadDrivePanel(right);
-		break;
-	case HK_DRIVE_LEFT:
-		writeDriveSelectionPanel(left);
-		break;
-	case HK_DRIVE_RIGHT:
-		writeDriveSelectionPanel(right);
-		break;
-	//case HK_TOGGLE_PANELS:
-	//	togglePanels();
-	//	break;
-	case HK_SELECT_ALL:
-		selectAllFiles(selectedPanel, 0xFF);
-		break;
-	case HK_DESELECT_ALL:
-		selectAllFiles(selectedPanel, 0x00);
-		break;
-#ifdef __C128__
-	case HK_HELP_128:
-#endif
-	case CH_F1:
-		writeHelpPanel();
-		break;
-//#ifdef __CBM__
-	case HK_QUIT:
-//#endif
-	case CH_F2:
-		quit();
-		break;
-#ifdef __C128__
-	case HK_GO64:
-		go64();
-		break;
-#endif
-	case HK_COPY:
-	case CH_F5:
-		copyFiles();
-		break;
-	case HK_RENAME:
-	case CH_F6:
-		renameFile();
-		break;
-	case HK_DELETE:
-	case CH_F8:
-		deleteFiles();
-		break;
-	case KEY_AT:
-		inputCommand();
-		break;
-//#ifdef __CBM__
-	case HK_MAKE_DIRECTORY:
-//#endif
-	case CH_F7:
-		makeDirectory();
-		break;
-	case HK_TO_TOP:
-		moveTop(selectedPanel);
-		break;
-	case HK_TO_BOTTOM:
-		moveBottom(selectedPanel);
-		break;
-	case HK_PAGE_UP:
-		movePageUp(selectedPanel);
-		break;
-	case HK_PAGE_DOWN:
-		movePageDown(selectedPanel);
-		break;
-#if defined(__CBM__) //&& ! defined(__VIC20__)
-	case KEY_SH_SPACE:
-		writeDiskImage();
-		break;
-	case HK_CREATE_D64:
-		createDiskImage();
-		break;
-#endif
-	default:
-		//writeStatusBarf("%c", key);
-		break;
 	}
+	else if(key == CH_F4 || key == keyMap[KM_REREAD_SELECTED])
+	{
+		rereadSelectedPanel();
+	}
+#ifdef __CBM__
+	else if(key == keyMap[KM_EXECUTE_SELECTED])
+	{
+		executeSelectedFile();
+	}
+#endif
+	else if(key == CH_F3 || key == keyMap[KM_DRIVE_CURRENT])
+	{
+		selectCurrentPanelDrive();
+	}
+	else if(key == keyMap[KM_SELECT])
+	{
+		selectCurrentFile();
+		moveSelectorDown(selectedPanel);
+	}
+	else if(key == keyMap[KM_ENTER_DIRECTORY])
+	{
+		enterDirectory(selectedPanel);
+	}
+	else if(key == keyMap[KM_LEAVE_DIRECTORY])
+	{
+		leaveDirectory(selectedPanel);
+	}
+	else if(key == keyMap[KM_REREAD_LEFT])
+	{
+		rereadDrivePanel(left);
+	}
+	else if(key == keyMap[KM_REREAD_RIGHT])
+	{
+		rereadDrivePanel(right);
+	}
+	else if(key == keyMap[KM_DRIVE_LEFT])
+	{
+		writeDriveSelectionPanel(left);
+	}
+	else if(key == keyMap[KM_DRIVE_RIGHT])
+	{
+		writeDriveSelectionPanel(right);
+	}
+	else if(key == keyMap[KM_SELECT_ALL])
+	{
+		selectAllFiles(selectedPanel, 0xFF);
+	}
+	else if(key == keyMap[KM_DESELECT_ALL])
+	{
+		selectAllFiles(selectedPanel, 0x00);
+	}
+	else if(
+#ifdef __C128__
+		key == HK_HELP_128 ||
+#endif
+		key == keyMap[KM_HELP])
+	{
+		writeHelpPanel();
+	}
+	else if(key == CH_F2 || key == keyMap[KM_QUIT])
+	{
+		quit();
+	}
+	else if(key == CH_F5 || key == keyMap[KM_COPY])
+	{
+		copyFiles();
+	}
+	else if(key == CH_F6 || key == keyMap[KM_RENAME])
+	{
+		renameFile();
+	}
+	else if(key == CH_F8 || key == keyMap[KM_DELETE])
+	{
+		deleteFiles();
+	}
+	else if(key == keyMap[KM_DRIVE_COMMAND])
+	{
+		inputCommand();
+	}
+	else if(key == CH_F7 || key == keyMap[KM_MAKE_DIRECTORY])
+	{
+		makeDirectory();
+	}
+	else if(key == keyMap[KM_TO_TOP])
+	{
+		moveTop(selectedPanel);
+	}
+	else if(key == keyMap[KM_TO_BOTTOM])
+	{
+		moveBottom(selectedPanel);
+	}
+	else if(key == keyMap[KM_PAGE_UP])
+	{
+		movePageUp(selectedPanel);
+	}
+	else if(key == keyMap[KM_PAGE_DOWN])
+	{
+		movePageDown(selectedPanel);
+	}
+#if defined(__CBM__)
+	else if(key == keyMap[KM_WRITE_D64])
+	{
+		writeDiskImage();
+	}
+	else if(key == keyMap[KM_CREATE_D64])
+	{
+		createDiskImage();
+	}
+#endif
+#ifdef __C128__
+	else if(key == HK_GO64)
+	{
+		go64();
+	}
+#endif
 }

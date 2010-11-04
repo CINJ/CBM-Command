@@ -34,12 +34,13 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
-
+#define __fastcall __fastcall__
 #include <conio.h>
 #include <stdbool.h>
 //#include <stdio.h>
 #include <stdlib.h>
-//#include <string.h>
+#include <string.h>
+#include <stdbool.h>
 #ifdef __C128__
 #include <c128.h>
 #endif
@@ -90,6 +91,10 @@ static void readKeyboard(void)
 	case CH_F3:
 		save();
 		break;
+	case CH_F4:
+		keys();
+		refreshScreen();
+		break;
 #ifdef COLOR_RED
 	case '1':
 	case '2':
@@ -115,7 +120,7 @@ static void readKeyboard(void)
 }
 
 #ifdef COLOR_RED
-static void changeColor(char key)
+static void __fastcall changeColor(char key)
 {
 	switch(key)
 	{
@@ -150,7 +155,7 @@ static void changeColor(char key)
 	refreshScreen();
 }
 
-static void displayColor(unsigned char color)
+static void __fastcall displayColor(unsigned char color)
 {
 	gotox(14);
 	cputc(':');
@@ -209,7 +214,7 @@ static void quit(void)
 static void writeMenu(void)
 {
 	writePanel(true, false, color_text_borders,
-		0, 1, size_y - 3, size_x - 1,
+		0, 1, size_y - 4, size_x - 1,
 #if size_x < 40
 		"Config. Manager",
 #else
@@ -243,21 +248,39 @@ static void writeMenu(void)
 
 static void writeFunctionKeys(void)
 {
+#if size_y > 23u
 #define bottom size_y - 1
+#else
+#define bottom size_y - 2
+#endif
 
 	(void)textcolor(color_text_other);
 	//cclearxy(0, bottom, size_x);
-	cputsxy(2, bottom, "HELP    QUIT    SAVE");
+#if size_y > 23u
+	cputsxy(2, bottom, "HELP    QUIT    SAVE    KEYS");
+#else
+	cputsxy(2, bottom,		"HELP    SAVE");
+	cputsxy(2, bottom + 1u, "QUIT    KEYS");
+#endif
 
 	revers(true);
 #ifdef __PET__
 	cputcxy(1, bottom, '1');
 	gotox(9); cputc('2');
 	gotox(17); cputc('3');
+	gotox(25); cputc('4');
 #else
+#if size_y > 23u
 	cputsxy(0, bottom, "F1");
 	gotox(8); cputs("F2");
 	gotox(16); cputs("F3");
+	gotox(24); cputs("F4");
+#else
+	cputsxy(0, bottom, "F1");
+	gotox(8); cputs("F3");
+	gotoxy(0, bottom + 1u); cputs("F2");
+	gotox(8); cputs("F4");
+#endif
 #endif
 	revers(false);
 }
@@ -265,11 +288,11 @@ static void writeFunctionKeys(void)
 static void save(void)
 {
 #ifdef __CBM__
-	unsigned char d;
+	unsigned char d, i;
 	signed char r;
 
 	cbm_open(15,_curunit,15,"");	// open the status channel
-	d = cbm_open(1, _curunit, 3, "@0:cbmcmd-cfg."
+	d = cbm_open(1, _curunit, 3, "@0:cbmcmd2cfg."
 #ifdef __C64__
 		"c64"
 #endif
@@ -305,6 +328,8 @@ static void save(void)
 		cbm_write(1, &color_text_highlight, 1);
 #endif
 
+		cbm_write(1u, keyMap, 25);
+
 		r = cbm_read(15, buffer, (sizeof buffer) - 1);
 		buffer[r < 0 ? 0 : r] = '\0';
 		if (buffer[0] != '0')
@@ -332,7 +357,7 @@ static void save(void)
 }
 
 #ifdef COLOR_RED
-static void pickColor(unsigned char *color)
+static void __fastcall pickColor(unsigned char *color)
 {
 	unsigned char k, j, i;
 #if defined(__VIC20__)
@@ -392,3 +417,166 @@ static void pickColor(unsigned char *color)
 	}
 }
 #endif
+
+void __fastcall drawCursor(
+	const unsigned char x, 
+	const unsigned char y, 
+	const bool clear)
+{
+	textcolor(color_text_highlight);
+	cputcxy(x, y, clear ? ' ' : '>');
+}
+
+void __fastcall setHotKey(const unsigned char index)
+{
+	unsigned char key, newKey;
+	unsigned char 
+		x = getCenterX(15u),
+		y = getCenterY(6u);
+
+	writeStatusBarf("index: %2u", index);	
+
+	writePanel(
+		true, false, 
+		color_text_borders, 
+		x, y, 6u, 15u,
+		"Set Key", NULL, "OK");
+
+	textcolor(color_text_other);
+	gotoxy(x+1, y+2);
+	cprintf("Current: %2X %c", keyMap[index], keyMap[index]);
+
+	key = keyMap[index];
+
+	for(;;)
+	{
+		gotoxy(x+1, y+3);
+		cprintf("New    : %2X %c", key, key);
+
+		key = cgetc();
+
+		switch(key)
+		{
+		case CH_ENTER:
+			keyMap[index] = newKey;
+
+		case CH_ESC:
+		case CH_STOP:
+			return;
+
+		case CH_F1:
+		case CH_F2:
+		case CH_F3:
+		case CH_F4:
+		case CH_F5:
+		case CH_F6:
+		case CH_F7:
+		case CH_F8:
+		case CH_CURS_DOWN:
+		case CH_CURS_LEFT:
+		case CH_CURS_RIGHT:
+		case CH_CURS_UP:
+			break;
+
+		default:
+			newKey = key;
+			break;
+		}
+	}
+}
+
+#define KEYS_HELP "Select Function"
+void keys(void)
+{
+	unsigned char key;
+	unsigned char index = 0u, x = 1u, y = 2u;
+
+	writePanel(true, false, color_text_borders, 0, 0, size_y-1, size_x-1,
+		"Change Keys", NULL, NULL);
+	
+	textcolor(color_text_files);
+	cputsxy(2u, 2u, "Copy");
+	cputsxy(2u, 3u, "Mk Image");
+	cputsxy(2u, 4u, "Wr Image");
+	cputsxy(2u, 5u, "Delete");
+	cputsxy(2u, 6u, "Dr Left");
+	cputsxy(2u, 7u, "Dr Right");
+	cputsxy(2u, 8u, "Dr Curr");
+	cputsxy(2u, 9u, "Dr Cmd");
+	cputsxy(2u, 10u, "Help");
+	cputsxy(2u, 11u, "Mk Dir");
+	cputsxy(2u, 12u, "En Dir");
+	cputsxy(2u, 13u, "Lv Dir");	
+	cputsxy(2u, 14u, "Pg Up");
+	cputsxy(2u, 15u, "Pg Down");
+
+	cputsxy(12u, 2u, "Quit");
+	cputsxy(12u, 3u, "Rename");
+	cputsxy(12u, 4u, "Read Lft");
+	cputsxy(12u, 5u, "Read Rgt");
+	cputsxy(12u, 6u, "Refresh");
+	cputsxy(12u, 7u, "Select");
+	cputsxy(12u, 8u, "S. All");
+	cputsxy(12u, 9u, "S. None");
+	cputsxy(12u, 10u, "To Bottom");
+	cputsxy(12u, 11u, "To Top");
+	cputsxy(12u, 12u, "Exc/Read");
+	
+
+	textcolor(color_text_highlight);
+	gotoxy(getCenterX((unsigned char)strlen(KEYS_HELP)), 17u);
+	cputs(KEYS_HELP);
+
+
+	for(;;)
+	{
+		drawCursor(x, y, false);
+		key = cgetc();
+
+		switch(key)
+		{
+		case CH_ENTER:
+			saveScreen();
+			setHotKey((x == 1u ? 0u : 14u) + y - 2u);
+			retrieveScreen();
+			break;
+
+		case CH_ESC:
+		case CH_STOP:
+			return;
+
+		case CH_CURS_DOWN:
+			if(y < (x == 1u ? 15u : 12u))
+			{
+				drawCursor(x, y, true);
+				++y;
+			}
+			break;
+
+		case CH_CURS_UP:
+			if(y > 2u)
+			{
+				drawCursor(x, y, true);
+				--y;
+			}
+			break;
+
+		case CH_CURS_RIGHT:
+			if(x != 11u)
+			{
+				drawCursor(x, y, true);
+				if(y > 12u) y = 12u;
+				x = 11u;
+			}
+			break;
+
+		case CH_CURS_LEFT:
+			if(x != 1u)
+			{
+				drawCursor(x, y, true);
+				x = 1u;
+			}
+			break;
+		}
+	}
+}

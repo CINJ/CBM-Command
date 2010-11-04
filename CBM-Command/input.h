@@ -40,49 +40,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "constants.h"
 
-// Global Hotkeys
-#define HK_REREAD_LEFT		KEY_CTRL_E
-#define HK_REREAD_RIGHT		KEY_ALT_E	// SHIFT-E
-#define HK_DRIVE_LEFT		KEY_CTRL_D
-#define HK_DRIVE_RIGHT		KEY_ALT_D	// SHIFT-D
-#define HK_TOGGLE_PANELS	KEY_CTRL_T
-#define HK_SELECT_ALL		KEY_CTRL_A
-#define HK_DESELECT_ALL		KEY_CTRL_S
-#define HK_QUIT				KEY_CTRL_U
-#define HK_COPY				KEY_CTRL_C
-#define HK_RENAME			KEY_CTRL_R
-//#ifdef __CBM__
-//#define HK_DELETE			KEY_CTRL('^')
-//#else
-#define HK_DELETE			KEY_CTRL_L
-//#endif
-#define HK_MAKE_DIRECTORY	'm'			// KEY_CTRL_K
-#ifdef __CBM__
-#define HK_TO_TOP			'^'
-#define HK_TO_BOTTOM		('^'|0x80)	// SHIFT-^ (Pi)
-#else
-#define HK_TO_TOP			'{'
-#define HK_TO_BOTTOM		'}'
-#endif
-#ifdef __CBM__
-#define HK_PAGE_UP			'+'
-#define HK_PAGE_DOWN		'-'
-#else
-#define HK_PAGE_UP			'['
-#define HK_PAGE_DOWN		']'
-#endif
-
-#define HK_SELECT			' '
-
-#ifdef __CBM__
-#define HK_CREATE_D64		KEY_CTRL_X
-#endif
-
-#ifdef __C128__
-#define HK_HELP_128			0x84	// HELP key
-#define HK_GO64				KEY_CTRL_G
-#endif
 
 void readKeyboard(void);
+
 
 #endif

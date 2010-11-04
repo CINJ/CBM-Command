@@ -53,6 +53,37 @@ extern unsigned char color_text_status;		// Color of the status bar and its text
 extern unsigned char color_text_highlight;	// Color of text that needs to stand out
 extern unsigned char color_text_other;		// Color for areas not covered above
 
+/* Keys Configuration */
+unsigned char keyMap[];
+// Key Map Indices
+#define KM_COPY				0u
+#define KM_CREATE_D64		1u
+#define KM_WRITE_D64		2u
+#define KM_DELETE			3u
+#define	KM_DRIVE_LEFT		4u
+#define KM_DRIVE_RIGHT		5u
+#define KM_DRIVE_CURRENT	6u
+#define KM_DRIVE_COMMAND	7u
+#define KM_HELP				8u
+#define KM_MAKE_DIRECTORY	9u
+#define KM_ENTER_DIRECTORY	10u
+#define KM_LEAVE_DIRECTORY	11u
+#define KM_PAGE_DOWN		12u
+#define KM_PAGE_UP			13u
+#define KM_QUIT				14u
+#define KM_RENAME			15u
+#define KM_REREAD_LEFT		16u
+#define KM_REREAD_RIGHT		17u
+#define KM_REREAD_SELECTED	18u
+#define KM_SELECT			19u
+#define KM_SELECT_ALL		20u
+#define KM_DESELECT_ALL		21u
+#define KM_TO_BOTTOM		22u
+#define KM_TO_TOP			23u
+#define KM_EXECUTE_SELECTED	24u
+
+
+
 /* Methods */
 void load(void);				// Loads configuration
 void save(void);				// Saves configuration

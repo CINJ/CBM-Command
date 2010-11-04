@@ -44,10 +44,11 @@ static void quit(void);
 static void writeFunctionKeys(void);
 static void writeMenu(void);
 static void help(void);
-static void changeColor(char key);
+static void __fastcall changeColor(char key);
 static void save(void);
+static void keys(void);
 
-static void displayColor(unsigned char color);
+static void __fastcall displayColor(unsigned char color);
 
-static void pickColor(unsigned char *color);
+static void __fastcall pickColor(unsigned char *color);
 #endif

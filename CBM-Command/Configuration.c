@@ -44,6 +44,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Configuration-CBM.h"
 #endif
 
+#include <string.h>
+
 #include "Configuration.h"
 #include "globalInput.h"
 #include "globals.h"
@@ -52,6 +54,38 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Drive Configuration */
 unsigned char defaultLeftDrive;
 unsigned char defaultRightDrive;
+
+/* Keys Configuration */
+unsigned char keyMap[] =
+{
+	HK_COPY,			// 0
+	HK_CREATE_D64,		// 1
+	HK_WRITE_D64,		// 2
+	HK_DELETE,			// 3
+	HK_DRIVE_LEFT,		// 4
+	HK_DRIVE_RIGHT,		// 5
+	HK_DRIVE_CURRENT,	// 6 
+	HK_DRIVE_COMMAND,	// 7
+	HK_HELP,			// 8
+	HK_MAKE_DIRECTORY,	// 9
+	HK_ENTER_DIRECTORY, //10
+	HK_LEAVE_DIRECTORY, //11
+	HK_PAGE_DOWN,		//12
+	HK_PAGE_UP,			//13
+	HK_QUIT,			//14
+	HK_RENAME,			//15
+	HK_REREAD_LEFT,		//16
+	HK_REREAD_RIGHT,	//17
+	HK_REREAD_SELECTED,	//18
+	HK_SELECT,			//19
+	HK_SELECT_ALL,		//20
+	HK_DESELECT_ALL,	//21
+	HK_TO_BOTTOM,		//22
+	HK_TO_TOP,			//23
+	HK_EXECUTE_SELECTED	//24
+};
+
+
 
 /* Color Configuration */
 
@@ -123,7 +157,7 @@ void loadCBM(void)
 	if (cbm_open(1,
 		// Get the drive from which the program was loaded.
 		defaultLeftDrive = defaultRightDrive = _curunit,
-		2, ":cbmcmd-cfg."
+		2, ":cbmcmd2cfg."
 
 	// We use different filenames for the various
 	// models, so that different versions can be
@@ -150,9 +184,9 @@ void loadCBM(void)
 		// if the configuration file can be read.
 		if (cbm_read(1, buffer,
 #ifdef COLOR_RED
-			11) == 11	// expecting drives and colors on color systems
+			36) == 36	// expecting drives and colors on color systems
 #else
-			2) == 2		// expecting only drive numbers on monochrome systems
+			27) == 27		// expecting only drive numbers on monochrome systems
 #endif
 		   )
 		{
@@ -176,6 +210,7 @@ void loadCBM(void)
 			color_text_other	= buffer[9];
 			color_text_highlight= buffer[10];
 #endif
+			strncpy(keyMap, buffer + 11, 25);
 		}
 	}
 	else

@@ -349,6 +349,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CBM-Command.c" />
+    <ClCompile Include="CBM-REL.c" />
     <ClCompile Include="CommandMenu.c" />
     <ClCompile Include="Configuration.c" />
     <ClCompile Include="ConfigurationManager.c" />
@@ -365,6 +366,7 @@
     <ClCompile Include="Viewer.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CBM-REL.h" />
     <ClInclude Include="Configuration-CBM.h" />
     <ClInclude Include="Configuration.h" />
     <ClInclude Include="ConfigurationManager.h" />

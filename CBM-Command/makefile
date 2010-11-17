@@ -38,10 +38,8 @@ SOURCES	= \
 	menus.c \
 	screen.c  \
 	globalInput.c \
-	Viewer.c
-
-#	CommandMenu.c \
-#	OptionMenu.c \
+	Viewer.c \
+	CBM-REL.c
 
 ASMFILES= \
 	res\common\driveRoutines.s \
@@ -85,41 +83,41 @@ D64: all
 	$(CP) $(TITLE)_master.d64 $(TITLE).d64
 	$(CP) c64\$(TITLE).c64 $(TITLE).c64
 	$(CP) c128\$(TITLE).c128 $(TITLE).c128
-	$(CP) pet\$(TITLE).pet80 $(TITLE).pet80
-	$(CP) pet\$(TITLE).pet40 $(TITLE).pet40
+#	$(CP) pet\$(TITLE).pet80 $(TITLE).pet80
+#	$(CP) pet\$(TITLE).pet40 $(TITLE).pet40
 	$(CP) vic20\$(TITLE).vic20 $(TITLE).vic20
 	$(CP) plus4\$(TITLE).plus4 $(TITLE).plus4
 
 	$(CP) c64\$(CONFIG_TITLE).c64 $(CONFIG_TITLE).c64
 	$(CP) c128\$(CONFIG_TITLE).c128 $(CONFIG_TITLE).c128
-	$(CP) pet\$(CONFIG_TITLE).pet80 $(CONFIG_TITLE).pet80
-	$(CP) pet\$(CONFIG_TITLE).pet40 $(CONFIG_TITLE).pet40
+#	$(CP) pet\$(CONFIG_TITLE).pet80 $(CONFIG_TITLE).pet80
+#	$(CP) pet\$(CONFIG_TITLE).pet40 $(CONFIG_TITLE).pet40
 	$(CP) vic20\$(CONFIG_TITLE).vic20 $(CONFIG_TITLE).vic20
 	$(CP) plus4\$(CONFIG_TITLE).plus4 $(CONFIG_TITLE).plus4
 
 	$(C1541) $(TITLE).d64 -write $(TITLE).c64 $(TITLE).c64
 	$(C1541) $(TITLE).d64 -write $(TITLE).c128 $(TITLE).c128
-	$(C1541) $(TITLE).d64 -write $(TITLE).pet80 $(TITLE).pet80
+#	$(C1541) $(TITLE).d64 -write $(TITLE).pet80 $(TITLE).pet80
 #	$(C1541) $(TITLE).d64 -write $(TITLE).pet40 $(TITLE).pet40
 	$(C1541) $(TITLE).d64 -write $(TITLE).vic20 $(TITLE).vic20
 	$(C1541) $(TITLE).d64 -write $(TITLE).plus4 $(TITLE).plus4
 
 	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).c64 $(CONFIG_TITLE).c64
 	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).c128 $(CONFIG_TITLE).c128
-	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).pet80 $(CONFIG_TITLE).pet80
+#	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).pet80 $(CONFIG_TITLE).pet80
 #	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).pet40 $(CONFIG_TITLE).pet40
 	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).vic20 $(CONFIG_TITLE).vic20
 	$(C1541) $(TITLE).d64 -write $(CONFIG_TITLE).plus4 $(CONFIG_TITLE).plus4
 
 	$(RM) $(TITLE).c64
 	$(RM) $(TITLE).c128
-	$(RM) $(TITLE).pet?0
+#	$(RM) $(TITLE).pet?0
 	$(RM) $(TITLE).vic20
 	$(RM) $(TITLE).plus4
 
 	$(RM) $(CONFIG_TITLE).c64
 	$(RM) $(CONFIG_TITLE).c128
-	$(RM) $(CONFIG_TITLE).pet?0
+#	$(RM) $(CONFIG_TITLE).pet?0
 	$(RM) $(CONFIG_TITLE).vic20
 	$(RM) $(CONFIG_TITLE).plus4
 

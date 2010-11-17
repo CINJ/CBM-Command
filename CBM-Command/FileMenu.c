@@ -59,6 +59,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "menus.h"
 #include "screen.h"
 #include "Viewer.h"
+#include "CBM-REL.h"
 
 #define D64_SIZE 689
 #define D71_SIZE 1378
@@ -243,11 +244,13 @@ void copyFiles(void)
 	unsigned long totalBytes = 0;
 	clock_t timeStart;
 	time_t timeSpent;
-	unsigned i, k, index;
-	char targetFilename[2 + 16 + 2 + 2 + 1], status[41];
+	unsigned i, k, index,  rel_current;
+	char targetFilename[2 + 16 + 2 + 2 + 1], status[41], command[6];
 	const struct dir_node *currentNode;
-	unsigned char j, sd, td, r;
+	unsigned char j, sd, td, r, rel_size;
 	int bytes;
+	static struct rel_file* relativeFile;
+	static struct rel_file_rec relativeRecord;
 
 	targetPanel =
 		(selectedPanel == &leftPanelDrive) ? &rightPanelDrive : &leftPanelDrive;
@@ -413,6 +416,96 @@ void copyFiles(void)
 					cbm_close(1);
 					cbm_close(15);
 					cbm_close(14);
+				}
+				else if(currentNode->type == CBM_T_REL)
+				{
+					cbm_open(127, sd, 15, "");
+					cbm_open(126, td, 15, "");
+
+					// Get record size
+					rel_size = getRecordSize(127, 2, sd, 2, currentNode->name);
+
+					// Make read filename string 
+					sprintf(targetFilename, "%s,l", currentNode->name);
+
+					// Open the source file
+					r = cbm_open(2, sd, 2, targetFilename);
+
+					// Make write filename string
+					sprintf(targetFilename, "%s,l, ", currentNode->name);
+
+					// Set the last byte to the size of the records
+					targetFilename[strlen(targetFilename) - 1] = rel_size;
+
+					// Open the target file
+					cbm_open(3, td, 3, targetFilename);
+
+					// Close it to make sure the file was created.
+					cbm_close(3);
+
+					// Reopen it
+					cbm_open(3, td, 3, targetFilename);
+
+					// Get status of target file operation
+					cbm_read(126, status, sizeof status);
+
+					// Get the first two bytes of the status
+					status[2] = '\0';
+
+					// Convert them to an integer
+					r=atoi(status);
+
+					// r == 0 means the target file was opened.
+					if(r==0)
+					{
+						writeStatusBar("Copying file...");
+						rel_current = 0;
+						while(rel_current >= 0)
+						{
+							relativeRecord.record_number = ++rel_current;
+
+							command[0] = 'p';
+							command[1] = 98;
+							command[2] = rel_current % 256;
+							command[3] = rel_current / 256;
+							command[4] = rel_size;
+
+							cbm_write(127u, command, 5u);
+
+							cbm_read(2, relativeRecord.record_data, rel_size);
+								
+							cbm_read(127u, status, sizeof status);
+							status[2] = '\0';
+							r=atoi(status);
+
+							if(r == 0)
+							{
+								writeStatusBarf("Writing record %d", rel_current);
+
+								cbm_write(3, relativeRecord.record_data, rel_size);
+
+								totalBytes += rel_size;
+							}
+							else if(r == 50)
+							{
+								rel_current = -1;
+								break;
+							}
+							else
+							{
+								waitForEnterEscf("Error - rec: %u - result: %u", rel_current, r);
+								rel_current = -1;
+								break;
+							}
+
+						}
+					}
+
+					writeStatusBarf("Closing ....");
+					cbm_close(2); cbm_close(3);
+					cbm_close(126); cbm_close(127);
+
+					RELOAD = true;
 				}
 #endif
 			}

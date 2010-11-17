@@ -148,6 +148,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="makefile" />
+    <ClCompile Include="CBM-REL.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="constants.h">
@@ -187,6 +190,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="res\macroes.inc">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CBM-REL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

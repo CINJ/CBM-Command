@@ -34,86 +34,62 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
+#ifndef _CBM_REL_H
+#define _CBM_REL_H
 
-#ifndef __VIC20__
-//#include <stdlib.h>
-#endif
-//#include <stdio.h>
-//#include <string.h>
-//#include <conio.h>
-#if defined(__C128__)
-#include <c128.h>
+#include <stdbool.h>
+
+#ifndef __fastcall
+#define __fastcall __fastcall__
 #endif
 
-//#include "constants.h"
-#include "drives.h"
-#include "globals.h"
-#include "menus.h"
-#include "screen.h"
-#include "input.h"
-//#include "PlatformSpecific.h"
-#include "Configuration.h"
-
-#ifdef __CBM__
-#include "CBM-REL.h"
-#endif
-
-#ifndef __VIC20__
-//extern void _INIT_RUN__[], _INIT_SIZE__;
-#endif
-
-/* CBM-Command Main Function
- * --------------------------
- * - Payton Byrd
- * --------------------------
- * Prepares application, and
- * provides main loop.
- */
-void main(void)
+struct rel_file 
 {
-#ifdef __C128__
-	// Set screen to 80 columns.
-	// 40 columns is not supported
-	// on the C= 128, due to memory
-	// constraints.
-	videomode(VIDEOMODE_80COL);
+	unsigned char file_name[17];
+	unsigned char record_size;
+	unsigned int record_count;
+};
 
-	// Set the C= 128 to 2 MHz.
-	fast();
+struct rel_file_rec
+{
+	struct rel_file* file;
+	unsigned int record_number;
+	unsigned char record_data[255];
+};
+
+unsigned char getRecordSize(
+	const unsigned char command_lfn,
+	const unsigned char logical_file_number,
+	const unsigned char unit_number,
+	const unsigned char secondary,
+	const char* file_name);
+//
+//struct rel_file* openRelativeFile(
+//	const unsigned char logical_file_number,
+//	const unsigned char unit_number,
+//	const unsigned char secondary,
+//	const unsigned char record_size,
+//	const char* file_name,
+//	bool count_records);
+//
+//char __fastcall getRecord(
+//	const unsigned char logical_file_number,
+//	const unsigned char unit_number,
+//	const unsigned char secondary,
+//	struct rel_file_rec* record,
+//	const unsigned char rel_size);
+//
+//char __fastcall saveRecord(
+//	const unsigned char logical_file_number,
+//	const unsigned char unit_number,
+//	const unsigned char secondary,
+//	struct rel_file_rec* record,
+//	const unsigned char rel_size);
+//
+//char initializeRelativeFile(
+//	const unsigned char unit_number,
+//	const unsigned char record_size,
+//	const unsigned int record_count,
+//	const char* file_name);
+
 #endif
-
-#ifndef __VIC20__
-//	_heapadd(_INIT_RUN__, (size_t)&_INIT_SIZE__);
-#endif
-
-	// Prepares the application
-	initialize();
-
-	// Initializes the disk drives,
-	// and sets up structures for
-	// the disk panels.
-	initializeDrives();
-
-	// Writes the function-key
-	// bar onto the screen.
-	writeMenuBar();
-
-	// Reads the directory of the
-	// default drive, and displays
-	// it in the left panel.
-	rereadSelectedPanel();
-
-	writeStatusBar(
-#if size_x > 22
-		"CBM-Command, built: "
-#endif
-		__DATE__ " " __TIME__);
-
-	// Main Loop
-	for (;;)
-	{
-		// Reads the keyboard, and exits
-		// the application when necessary.
-		readKeyboard();
-	}
-}

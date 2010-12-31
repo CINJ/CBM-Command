@@ -242,8 +242,10 @@ void copyFiles(void)
 	bool multipleSelected = false, RELOAD = false;
 	unsigned numSelectors = (selectedPanel->length + (7 - 1)) / 8u;
 	unsigned long totalBytes = 0;
-	clock_t timeStart;
-	time_t timeSpent;
+	//clock_t timeStart;
+	//time_t timeSpent;
+	long timeStart = 0;
+	long timeSpent = 0;
 	unsigned i, k, index,  rel_current;
 	char targetFilename[2 + 16 + 2 + 2 + 1], status[41], command[6];
 	const struct dir_node *currentNode;
@@ -289,7 +291,9 @@ void copyFiles(void)
 		writeSelectorPosition(selectedPanel, '>');
 	}
 
-	timeStart = clock();
+#ifndef __VIC20__
+	timeStart = time(NULL);
+#endif
 	for(i=0; i<numSelectors; ++i)
 	{
 		for(j=0; j<8; ++j)
@@ -381,12 +385,14 @@ void copyFiles(void)
 									waitForEnterEsc();
 									break;
 								}
-								timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+#ifndef __VIC20__
+								timeSpent = (time(NULL) - timeStart);
 								writeStatusBarf("%u:%02u e.t. %d B/s",
 									(unsigned)timeSpent/60u,
 									(unsigned)timeSpent%60u,
 									(unsigned)((totalBytes +=
 										(unsigned long)bytes)/timeSpent));
+#endif
 							}
 							//drawProgressBar("", index, currentNode->size);
 							drawProgressBar("", 1, 1);	// 100%
@@ -515,11 +521,13 @@ void copyFiles(void)
 	{
 		reloadPanels();
 
-		timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+#ifndef __VIC20__
+		timeSpent = (time(NULL) - timeStart);
 		writeStatusBarf("%u:%02u e.t. %d B/s",
 			(unsigned)timeSpent/60u,
 			(unsigned)timeSpent%60u,
 			(unsigned)(totalBytes/timeSpent));
+#endif
 	}
 }
 
@@ -940,8 +948,8 @@ void createDiskImage(void)
 	//struct dir_node *currentNode;
 	enum results result;
 	int r;
-	clock_t timeStart;
-	time_t timeSpent, timeLeft;
+	long timeStart = 0;
+	long timeSpent = 0, timeLeft = 0;
 	bool isD64 = true, isD71 = false;
 	unsigned int p = 0, size = D64_SIZE;
 
@@ -1031,8 +1039,9 @@ void createDiskImage(void)
 						19, 3,
 						color_text_borders,
 						false);
-
-					timeStart = clock();
+#ifndef __VIC20__
+					timeStart = time(NULL);
+#endif
 					cbm_open(14,td,15,"");
 					if(cbm_open(3,td,3,strcat(name,",p,w")) == 0)
 					{
@@ -1056,7 +1065,8 @@ void createDiskImage(void)
 								cbm_write(15, buffer,
 									sprintf(buffer,"u1 2 0 %u %u", i+1, j));
 
-								timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+#ifndef __VIC20__
+								timeSpent = (time(NULL) - timeStart);
 								timeLeft =
 									//((long)(size - p) * 256L) // bytes remaining
 									// / (((long)p * 256L)/timeSpent);
@@ -1081,6 +1091,7 @@ void createDiskImage(void)
 #endif
 #endif
 									);
+#endif
 
 								r = cbm_read(2,fileBuffer, 256);
 								// XXX: Check that r==256.
@@ -1089,7 +1100,8 @@ void createDiskImage(void)
 						}
 						cbm_close(2); cbm_close(3);
 						cbm_close(15); cbm_close(14);
-						timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+#ifndef __VIC20__
+						timeSpent = (time(NULL) - timeStart);
 						retrieveScreen();
 						reloadPanels();
 						writeStatusBarf(
@@ -1097,6 +1109,7 @@ void createDiskImage(void)
 							(unsigned)timeSpent/60u,
 							(unsigned)timeSpent%60u,
 							(unsigned)(((long)size * 256L)/timeSpent));
+#endif
 					}
 					else
 					{
@@ -1135,8 +1148,8 @@ void writeDiskImage(void)
 	bool confirmed;
 	unsigned char sd, td, i, j;
 	const struct dir_node *currentNode;
-	clock_t timeStart;
-	time_t timeSpent, timeLeft;
+	long timeStart = 0;
+	long timeSpent = 0, timeLeft = 0;
 	int r;
 	unsigned int p = 0;
 	unsigned char tracks;
@@ -1199,7 +1212,9 @@ void writeDiskImage(void)
 						false);
 
 					writeStatusBar("Making disk...");
-					timeStart = clock();
+#ifndef __VIC20__
+					timeStart = time(NULL);
+#endif
 
 					(void)textcolor(color_text_other);
 
@@ -1259,8 +1274,8 @@ void writeDiskImage(void)
 							cbm_write(3,fileBuffer,256);
 							cbm_write(14,buffer,
 								sprintf(buffer, "u2 3 0 %u %u", i+1, j));
-
-							timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+#ifndef __VIC20__
+							timeSpent = (time(NULL) - timeStart);
 							timeLeft =
 								//((long)(currentNode->size - p) * 256L) // bytes remaining
 								// / (((long)p * 256L)/timeSpent);
@@ -1281,13 +1296,15 @@ void writeDiskImage(void)
 								, i + 1, j, tracks, sectors - 1
 #endif
 								);
+#endif
 						}
 					}
 					cbm_close(2);
 					cbm_close(3);
 					cbm_close(14);
 					cbm_close(15);
-					timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+#ifndef __VIC20__
+					timeSpent = (time(NULL) - timeStart);
 					retrieveScreen();
 					reloadPanels();
 					writeStatusBarf(
@@ -1295,6 +1312,7 @@ void writeDiskImage(void)
 						(unsigned)timeSpent/60u,
 						(unsigned)timeSpent%60u,
 						(unsigned)(((long)currentNode->size * 256uL)/timeSpent));
+#endif
 					//waitForEnterEsc();
 					//retrieveScreen();
 				}

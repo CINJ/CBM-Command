@@ -292,7 +292,9 @@ void copyFiles(void)
 	}
 
 #ifndef __VIC20__
+#ifndef __PET__
 	timeStart = time(NULL);
+#endif
 #endif
 	for(i=0; i<numSelectors; ++i)
 	{
@@ -386,12 +388,14 @@ void copyFiles(void)
 									break;
 								}
 #ifndef __VIC20__
+#ifndef __PET__
 								timeSpent = (time(NULL) - timeStart);
 								writeStatusBarf("%u:%02u e.t. %d B/s",
 									(unsigned)timeSpent/60u,
 									(unsigned)timeSpent%60u,
 									(unsigned)((totalBytes +=
 										(unsigned long)bytes)/timeSpent));
+#endif
 #endif
 							}
 							//drawProgressBar("", index, currentNode->size);
@@ -522,11 +526,13 @@ void copyFiles(void)
 		reloadPanels();
 
 #ifndef __VIC20__
+#ifndef __PET__
 		timeSpent = (time(NULL) - timeStart);
 		writeStatusBarf("%u:%02u e.t. %d B/s",
 			(unsigned)timeSpent/60u,
 			(unsigned)timeSpent%60u,
 			(unsigned)(totalBytes/timeSpent));
+#endif
 #endif
 	}
 }
@@ -1040,7 +1046,9 @@ void createDiskImage(void)
 						color_text_borders,
 						false);
 #ifndef __VIC20__
+#ifndef __PET__
 					timeStart = time(NULL);
+#endif
 #endif
 					cbm_open(14,td,15,"");
 					if(cbm_open(3,td,3,strcat(name,",p,w")) == 0)
@@ -1066,6 +1074,7 @@ void createDiskImage(void)
 									sprintf(buffer,"u1 2 0 %u %u", i+1, j));
 
 #ifndef __VIC20__
+#ifndef __PET__
 								timeSpent = (time(NULL) - timeStart);
 								timeLeft =
 									//((long)(size - p) * 256L) // bytes remaining
@@ -1079,7 +1088,6 @@ void createDiskImage(void)
 #else
 									"%u:%02u et %d Bs %u:%02u rem %4u/%4u - %2u:%2u",
 #endif
-									(unsigned)timeSpent/60u,
 									(unsigned)timeSpent%60u,
 									(unsigned)(((long)p * 256L)/timeSpent),
 									(unsigned)timeLeft/60u,
@@ -1089,8 +1097,9 @@ void createDiskImage(void)
 #if size_x >= 80
 									, i+1, j
 #endif
-#endif
 									);
+#endif
+#endif
 #endif
 
 								r = cbm_read(2,fileBuffer, 256);
@@ -1101,6 +1110,7 @@ void createDiskImage(void)
 						cbm_close(2); cbm_close(3);
 						cbm_close(15); cbm_close(14);
 #ifndef __VIC20__
+#ifndef __PET__
 						timeSpent = (time(NULL) - timeStart);
 						retrieveScreen();
 						reloadPanels();
@@ -1109,6 +1119,7 @@ void createDiskImage(void)
 							(unsigned)timeSpent/60u,
 							(unsigned)timeSpent%60u,
 							(unsigned)(((long)size * 256L)/timeSpent));
+#endif
 #endif
 					}
 					else
@@ -1213,7 +1224,9 @@ void writeDiskImage(void)
 
 					writeStatusBar("Making disk...");
 #ifndef __VIC20__
+#ifndef __PET__
 					timeStart = time(NULL);
+#endif
 #endif
 
 					(void)textcolor(color_text_other);
@@ -1275,6 +1288,7 @@ void writeDiskImage(void)
 							cbm_write(14,buffer,
 								sprintf(buffer, "u2 3 0 %u %u", i+1, j));
 #ifndef __VIC20__
+#ifndef __PET__
 							timeSpent = (time(NULL) - timeStart);
 							timeLeft =
 								//((long)(currentNode->size - p) * 256L) // bytes remaining
@@ -1297,13 +1311,15 @@ void writeDiskImage(void)
 #endif
 								);
 #endif
+#endif
 						}
 					}
 					cbm_close(2);
 					cbm_close(3);
 					cbm_close(14);
 					cbm_close(15);
-#ifndef __VIC20__
+#ifndef __VIC20__ 
+#ifndef __PET__
 					timeSpent = (time(NULL) - timeStart);
 					retrieveScreen();
 					reloadPanels();
@@ -1312,6 +1328,7 @@ void writeDiskImage(void)
 						(unsigned)timeSpent/60u,
 						(unsigned)timeSpent%60u,
 						(unsigned)(((long)currentNode->size * 256uL)/timeSpent));
+#endif
 #endif
 					//waitForEnterEsc();
 					//retrieveScreen();

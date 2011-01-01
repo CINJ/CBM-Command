@@ -69,8 +69,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_RENAME			'n'
 #define HK_DELETE			'l'
 #define HK_MAKE_DIRECTORY	'm'			// KEY_CTRL_K
-#define HK_ENTER_DIRECTORY	('+'|0x80)
-#define HK_LEAVE_DIRECTORY	('-'|0x80)
+#define HK_ENTER_DIRECTORY	219
+#define HK_LEAVE_DIRECTORY	221
 #ifdef __CBM__
 #define HK_TO_TOP			'^'
 #define HK_TO_BOTTOM		('^'|0x80)	// SHIFT-^ (Pi)

@@ -150,6 +150,7 @@ void readKeyboard(void)
 		selectAllFiles(selectedPanel, 0x00);
 	}
 	else if(
+		key == CH_F1 ||
 #ifdef __C128__
 		key == HK_HELP_128 ||
 #endif

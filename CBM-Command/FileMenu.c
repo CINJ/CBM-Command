@@ -633,7 +633,7 @@ void makeDirectory(void)
 	}
 }
 
-static signed char removeFile(const struct dir_node *selectedNode)
+static signed char removeFile(unsigned char *name, unsigned char type)
 {
 	char command[41];
 
@@ -643,11 +643,11 @@ static signed char removeFile(const struct dir_node *selectedNode)
 #else
 		"Dltng %s",
 #endif
-		selectedNode->name);
+		name);
 #ifdef __CBM__
 	sprintf(command,
-		(selectedNode->type == CBM_T_DIR) ? "rd:%s" : "s:%s",
-		 selectedNode->name);
+		(type == CBM_T_DIR) ? "rd:%s" : "s:%s",
+		 name);
 #else
 	command[0] = '\0';
 #endif
@@ -656,45 +656,56 @@ static signed char removeFile(const struct dir_node *selectedNode)
 
 void deleteFiles(void)
 {
-	const struct dir_node *selectedNode;
-	unsigned i, k;
-	unsigned char j;
+	static struct dir_node *selectedNode;
+	static struct cbm_dirent currentDE;
+	unsigned i, k, l;
+	unsigned char j, r;
 	bool dialogResult, isBatch = false;
 	static const char* const dialogMessage[] =
 	{
 		{ "Are you sure?" }
 	};
 
-	//if(selectedPanel != NULL)
+	saveScreen();
+	dialogResult = writeYesNo(
+		"Delete",
+		dialogMessage,
+		1);
+	retrieveScreen();
+
+	if(dialogResult)
 	{
-		//writeStatusBar("Deleting files...");
-		for(i=0; i<(selectedPanel->length + (7 - 1)) / 8u; ++i)
+		//dir = opendir(selectedPanel->drive->drive);
+		r = cbm_opendir(2, selectedPanel->drive->drive);
+		if(r == 0)
 		{
-			for(j=0; j<8; ++j)
+			r = cbm_readdir(2, &currentDE);
+			if(r == 0)
 			{
-				if ((selectedPanel->selectedEntries[i] & (1 << j)) != 0x00
-					&& (k = i*8+j) < selectedPanel->length - 1)
+				writeStatusBar("Deleting files...");
+				l = selectedPanel->length;
+				for(k=0; k<l; ++k)
 				{
-					isBatch = true;
-
-					selectedNode = getSpecificNode(selectedPanel, k);
-					if(selectedNode == NULL)
+					r = cbm_readdir(2, &currentDE);
+					if(r == 0)
 					{
-						getDirectory(selectedPanel, k);
-						selectedNode = getSpecificNode(selectedPanel, k);
-						//if(selectedNode == NULL)
-						//{
-						//	waitForEnterEscf("Can't get file %u", k);
-						//	return;
-						//}
-					}
+						i = k / 8;
+						j = k % 8;
 
-					if (removeFile(selectedNode) < 0 ||
-						// Let us change our minds, and stop a batch delete.
-						kbhit() && getKey() == CH_STOP)
-					{
-						rereadSelectedPanel();
-						return;
+						if ((selectedPanel->selectedEntries[i] & (1 << j)) != 0x00)
+							//&& (k = i*8+j) < selectedPanel->length)
+						{
+							isBatch = true;
+
+							writeStatusBarf("Deleting %s", currentDE.name);
+							if (removeFile(currentDE.name, currentDE.type) < 0 ||
+								// Let us change our minds, and stop a batch delete.
+								kbhit() && getKey() == CH_STOP)
+							{
+								rereadSelectedPanel();
+								return;
+							}
+						}
 					}
 				}
 			}
@@ -716,25 +727,17 @@ void deleteFiles(void)
 #endif
 					selectedNode->name);
 
-				dialogResult = writeYesNo(
-					"Delete",
-					dialogMessage,
-					A_SIZE(dialogMessage));
-
-				retrieveScreen();
 				writeCurrentFilename(selectedPanel);
 
-				if(dialogResult)
-				{
-					removeFile(selectedNode);
-					rereadSelectedPanel();
-				}
+				removeFile(selectedNode->name, selectedNode->type);
+				rereadSelectedPanel();
 			}
 		}
 		else
 		{
 			rereadSelectedPanel();
 		}
+		cbm_close(2);
 	}
 }
 

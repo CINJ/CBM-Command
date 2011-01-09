@@ -123,7 +123,7 @@ static int getDriveStatus(
 void listDrives(enum menus menu);
 
 #ifndef __PLUS4__
-extern unsigned char __fastcall checkDrive(unsigned char length, const char* file, unsigned char drive);
+extern unsigned char __fastcall__ checkDrive(unsigned char length, const char* file, unsigned char drive);
 #else
 static unsigned char checkDrivePlus4(unsigned char drive);
 #endif

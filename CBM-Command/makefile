@@ -14,7 +14,7 @@ CP := cp
 
 T := c128
 
-VIC_CONFIG := vic20-32k-big.cfg
+VIC_CONFIG := vic20-32k.cfg
 
 ifeq "$(T)" "vic20"
 LD_CONFIG := -C $(VIC_CONFIG)

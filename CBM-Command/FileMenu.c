@@ -633,7 +633,7 @@ void makeDirectory(void)
 	}
 }
 
-static signed char removeFile(unsigned char *name, unsigned char type)
+static signed char removeFile(const struct dir_node *selectedNode)
 {
 	char command[41];
 
@@ -643,11 +643,11 @@ static signed char removeFile(unsigned char *name, unsigned char type)
 #else
 		"Dltng %s",
 #endif
-		name);
+		selectedNode->name);
 #ifdef __CBM__
 	sprintf(command,
-		(type == CBM_T_DIR) ? "rd:%s" : "s:%s",
-		 name);
+		(selectedNode->type == CBM_T_DIR) ? "rd:%s" : "s:%s",
+		 selectedNode->name);
 #else
 	command[0] = '\0';
 #endif
@@ -656,56 +656,45 @@ static signed char removeFile(unsigned char *name, unsigned char type)
 
 void deleteFiles(void)
 {
-	static struct dir_node *selectedNode;
-	static struct cbm_dirent currentDE;
-	unsigned i, k, l;
-	unsigned char j, r;
+	const struct dir_node *selectedNode;
+	unsigned i, k;
+	unsigned char j;
+
+
 	bool dialogResult, isBatch = false;
 	static const char* const dialogMessage[] =
 	{
 		{ "Are you sure?" }
 	};
 
-	saveScreen();
-	dialogResult = writeYesNo(
-		"Delete",
-		dialogMessage,
-		1);
-	retrieveScreen();
-
-	if(dialogResult)
 	{
-		//dir = opendir(selectedPanel->drive->drive);
-		r = cbm_opendir(2, selectedPanel->drive->drive);
-		if(r == 0)
+		writeStatusBar("Deleting files...");
+		for(i=0; i<(selectedPanel->length + (7 - 1)) / 8u; ++i)
+
 		{
-			r = cbm_readdir(2, &currentDE);
-			if(r == 0)
+			for(j=0; j<8; ++j)
+
 			{
-				writeStatusBar("Deleting files...");
-				l = selectedPanel->length;
-				for(k=0; k<l; ++k)
+				if ((selectedPanel->selectedEntries[i] & (1 << j)) != 0x00
+					&& (k = i*8+j) < selectedPanel->length - 1)
+
+
 				{
-					r = cbm_readdir(2, &currentDE);
-					if(r == 0)
+					isBatch = true;
+
+					selectedNode = getSpecificNode(selectedPanel, k);
+					if(selectedNode == NULL)
 					{
-						i = k / 8;
-						j = k % 8;
+						getDirectory(selectedPanel, k);
+						selectedNode = getSpecificNode(selectedPanel, k);
+					}
 
-						if ((selectedPanel->selectedEntries[i] & (1 << j)) != 0x00)
-							//&& (k = i*8+j) < selectedPanel->length)
-						{
-							isBatch = true;
-
-							writeStatusBarf("Deleting %s", currentDE.name);
-							if (removeFile(currentDE.name, currentDE.type) < 0 ||
-								// Let us change our minds, and stop a batch delete.
-								kbhit() && getKey() == CH_STOP)
-							{
-								rereadSelectedPanel();
-								return;
-							}
-						}
+					if (removeFile(selectedNode) < 0 ||
+						// Let us change our minds, and stop a batch delete.
+						kbhit() && getKey() == CH_STOP)
+					{
+						rereadSelectedPanel();
+						return;
 					}
 				}
 			}
@@ -727,17 +716,26 @@ void deleteFiles(void)
 #endif
 					selectedNode->name);
 
+				dialogResult = writeYesNo(
+					"Delete",
+					dialogMessage,
+					A_SIZE(dialogMessage));
+
+				retrieveScreen();
 				writeCurrentFilename(selectedPanel);
 
-				removeFile(selectedNode->name, selectedNode->type);
-				rereadSelectedPanel();
+				if(dialogResult)
+				{
+					removeFile(selectedNode);
+					rereadSelectedPanel();
+				}
 			}
 		}
 		else
 		{
 			rereadSelectedPanel();
 		}
-		cbm_close(2);
+
 	}
 }
 
@@ -1365,3 +1363,123 @@ bool selectDiskImageType(void)
 	result = writeYesNo("Image Type", message, A_SIZE(message));
 }
 #endif
+
+void copyDisk(void)
+{
+	const char* const message[] =
+	{
+		{ "Are you ready?" }
+	};
+
+	const char* const message1571[] =
+	{
+		{ "Double Sided Source?" }
+	};
+	static bool yesNo;
+	unsigned char i, j, sd, td;
+	unsigned char sectorCount, currentSector;
+	unsigned char trackCount, currentTrack;
+	struct panel_drive *targetPanel;
+	
+	targetPanel = (selectedPanel == &leftPanelDrive ? &rightPanelDrive : &leftPanelDrive);
+
+	saveScreen();
+	yesNo = writeYesNo("Copy Disk", message, 1);
+	retrieveScreen();
+
+	if(yesNo)
+	{
+		if((strstr(selectedPanel->drive->message, "1541") != NULL && strstr(targetPanel->drive->message, "1541") != NULL)
+			|| (strstr(selectedPanel->drive->message, "1541") != NULL && strcmp(targetPanel->drive->message, "1571") != NULL)
+#ifdef __PLUS4__
+			|| (strstr(selectedPanel->drive->message, "1551") != NULL && strcmp(targetPanel->drive->message, "1551") != NULL)
+#endif
+			|| (strstr(selectedPanel->drive->message, "1571") != NULL && strcmp(targetPanel->drive->message, "1571") != NULL)
+			|| (strstr(selectedPanel->drive->message, "1581") != NULL && strcmp(targetPanel->drive->message, "1581") != NULL)
+			)
+		{
+			if(strstr(selectedPanel->drive->message, "1541") != NULL) trackCount = 35;
+			else if(strstr(selectedPanel->drive->message, "1571") != NULL)
+			{
+				saveScreen();
+				trackCount = writeYesNo("1571 Detected", message1571, 1) ? 70 : 35;
+				retrieveScreen();
+			}
+			else if(strstr(selectedPanel->drive->message, "1581") != NULL) trackCount = 80;
+#ifdef __PLUS4__
+			else if(strstr(selectedPanel->drive->message, "1551") != NULL) trackCount = 35;
+#endif
+
+			switch(trackCount)
+			{
+#ifdef __PLUS4__
+			case 35: writeStatusBarf("1541/1551 Drive Copy..."); break;
+#else
+			case 35: writeStatusBarf("1541 Drive Copy..."); break;
+#endif
+			case 70: writeStatusBarf("1571 Drive Copy..."); break;
+			case 80: writeStatusBarf("1581 Drive Copy..."); break;
+			}
+			
+			sd = selectedPanel->drive->drive;
+			td = targetPanel->drive->drive;
+
+			cbm_open(15, sd, 15, "");
+
+			cbm_open(14, td, 15, "");
+
+			for(i = 0; i < trackCount; ++i)
+			{
+				sectorCount = (trackCount == 80 ? 40 : l[i]);
+
+				cbm_open(2, sd, 2, "#");
+				cbm_open(3, td, 3, "#");
+				for(j = 0; j < sectorCount; ++j)
+				{
+					if(kbhit())
+					{
+						if (getKey() == CH_STOP)
+						{
+							i=81;
+							break;
+						}
+					}
+
+					cbm_write(15, buffer, sprintf(buffer,"u1 2 0 %u %u", i+1, j));
+
+					cbm_read(2,fileBuffer, 256);
+
+					cbm_write(14, "b-p 3 0", 7);
+					cbm_write(3,fileBuffer,256);
+					cbm_write(14,buffer,
+						sprintf(buffer, "u2 3 0 %u %u", i+1, j));
+#if size_x > 22
+					writeStatusBarf("Track %u, Sector %u Copied.", i+1, j);
+#else
+					writeStatusBarf("%2u:%2u Copied", i+1, j);
+#endif
+				}
+			}
+
+			cbm_close(2);
+			cbm_close(3);
+			cbm_close(15);
+			cbm_close(14);
+		}
+		else
+		{
+			writeStatusBarf("One or more invalid drives");
+			return;
+		}
+
+		selectedPanel = targetPanel;	
+		rereadSelectedPanel();
+		writeSelectorPosition(selectedPanel, '>');
+
+		writeStatusBarf("Disk copy complete.");
+	}
+	else
+	{
+		writeStatusBarf("Disk copy aborted.");
+	}
+}

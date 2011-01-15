@@ -141,12 +141,15 @@ static unsigned char checkDrivePlus4(unsigned char drive)
 }
 #endif
 
-void listDrives(enum menus menu)
+void __fastcall__ listDrives(const enum menus menu)
 {
 	static const unsigned char h = A_SIZE(drives) + 6;
 	static const unsigned char w = size_x - 1u;
-	unsigned char x = getCenterX(w) + 1, y = getCenterY(h);
-	unsigned char current = 0, original = 0, i;
+	unsigned char x, y;
+	unsigned char current = 0, original = 0, i = 0;
+
+	x = getCenterX(w) + 1;
+	y = getCenterY(h);
 
 	writePanel(true, false,
 		color_text_borders,
@@ -174,7 +177,7 @@ void listDrives(enum menus menu)
 		drives[i].message[0] = '\0';
 		if(
 #ifndef __PLUS4__
-			checkDrive(2, "ui", i + 8)
+			checkDrive(i + 8)
 #else
 			checkDrivePlus4(i + 8)
 #endif
@@ -362,7 +365,7 @@ unsigned int getDirectory(
 #endif
 }
 
-void resetSelectedFiles(struct panel_drive *panel)
+void __fastcall__ resetSelectedFiles(struct panel_drive *panel)
 {
 #ifndef __VIC20__
 	free(panel->selectedEntries);
@@ -711,9 +714,9 @@ void leaveDirectory(struct panel_drive *panel)
 	rereadSelectedPanel();
 }
 
-static bool isDiskImage(struct panel_drive *panel)
+static bool __fastcall__ isDiskImage(struct panel_drive *panel)
 {
-	char name[17];
+	static char name[17];
 	const struct dir_node *currentDirNode =
 		getSelectedNode(panel);
 
@@ -732,40 +735,34 @@ static bool isDiskImage(struct panel_drive *panel)
 	return false;
 }
 
-static bool isDirectory(struct panel_drive *panel)
+static bool __fastcall__ isDirectory(struct panel_drive *panel)
 {
 	const struct dir_node *currentDirNode = getSelectedNode(panel);
 
 	return currentDirNode != NULL && currentDirNode->type == CBM_T_DIR;
 }
 
-struct dir_node* getSelectedNode(struct panel_drive *panel)
+struct dir_node* __fastcall__ getSelectedNode(struct panel_drive *panel)
 {
 	return getSpecificNode(panel, panel->currentIndex);
 }
 
-struct dir_node* getSpecificNode(
+struct dir_node* __fastcall__ getSpecificNode(
 	struct panel_drive *panel, int index)
 {
-	int offset = index - panel->slidingWindowStartAt;
+	static int offset;
+	offset = index - panel->slidingWindowStartAt;
 
-	//if(panel != NULL)
-	{
-		//if(panel->drive != NULL)
-		{
-			return (offset >= 0 && offset < SLIDING_WINDOW_SIZE) ?
-				&(panel->slidingWindow[offset]) : NULL;
-		}
-	}
-	//return NULL;
+	return (offset >= 0 && offset < SLIDING_WINDOW_SIZE) ?
+		&(panel->slidingWindow[offset]) : NULL;
 }
 
-signed char sendCommand(
+signed char __fastcall__ sendCommand(
 	const struct panel_drive *panel,
 	const char *command)
 {
 #ifdef __CBM__
-	signed char result;
+	static signed char result;
 
 	cbm_open(15, panel->drive->drive, 15, command);
 
@@ -785,10 +782,10 @@ signed char sendCommand(
 	return 0;
 }
 
-void selectAllFiles(struct panel_drive *panel,
+void __fastcall__ selectAllFiles(struct panel_drive *panel,
 	unsigned char select)
 {
-	unsigned int i;
+	static unsigned int i;
 
 	if(panel->selectedEntries != NULL)
 	{
@@ -809,81 +806,69 @@ void selectAllFiles(struct panel_drive *panel,
 	writeCurrentFilename(panel);
 }
 
-void moveTop(struct panel_drive *panel)
+void __fastcall__ moveTop(struct panel_drive *panel)
 {
-	//if(panel != NULL)
+	getDirectory(panel,
+		//panel->slidingWindowStartAt =
+		panel->currentIndex =
+		panel->displayStartAt = 0);
+
+	displayDirectory(panel);
+	writeSelectorPosition(panel, '>');
+	writeCurrentFilename(panel);
+}
+
+void __fastcall__ movePageUp(struct panel_drive *panel)
+{
+	if(panel->currentIndex < size_y - 6u)
+	{
+		moveTop(panel);
+	}
+	else
 	{
 		getDirectory(panel,
 			//panel->slidingWindowStartAt =
-			panel->currentIndex =
-			panel->displayStartAt = 0);
-
+			panel->displayStartAt =
+			panel->currentIndex -= size_y - 6u);
 		displayDirectory(panel);
 		writeSelectorPosition(panel, '>');
 		writeCurrentFilename(panel);
 	}
 }
 
-void movePageUp(struct panel_drive *panel)
+void __fastcall__ movePageDown(struct panel_drive *panel)
 {
-	//if(panel != NULL)
+	if(panel->currentIndex + (size_y - 6u + 2) > panel->length)
 	{
-		if(panel->currentIndex < size_y - 6u)
-		{
-			moveTop(panel);
-		}
-		else
-		{
-			getDirectory(panel,
-				//panel->slidingWindowStartAt =
-				panel->displayStartAt =
-				panel->currentIndex -= size_y - 6u);
-			displayDirectory(panel);
-			writeSelectorPosition(panel, '>');
-			writeCurrentFilename(panel);
-		}
+		moveBottom(panel);
 	}
-}
-
-void movePageDown(struct panel_drive *panel)
-{
-	//if(panel != NULL)
+	else
 	{
-		if(panel->currentIndex + (size_y - 6u + 2) > panel->length)
-		{
-			moveBottom(panel);
-		}
-		else
-		{
-			//panel->slidingWindowStartAt =
-				panel->displayStartAt = panel->currentIndex;
-			panel->currentIndex += size_y - 6u;
+		//panel->slidingWindowStartAt =
+			panel->displayStartAt = panel->currentIndex;
+		panel->currentIndex += size_y - 6u;
 
-			getDirectory(panel, panel->displayStartAt);
-			displayDirectory(panel);
-			writeSelectorPosition(panel, '>');
-			writeCurrentFilename(panel);
-		}
-	}
-}
-
-void moveBottom(struct panel_drive *panel)
-{
-	//if(panel != NULL)
-	{
-		if ((panel->currentIndex = panel->length - 2) < 0)
-		{
-			panel->currentIndex = 0;
-		}
-		panel->displayStartAt =
-			(panel->length >  size_y - 4u) ?
-			 panel->length - (size_y - 4u) : 0;
-
-		getDirectory(panel,
-			(panel->length > SLIDING_WINDOW_SIZE) ?
-			 panel->length - SLIDING_WINDOW_SIZE  : 0);
+		getDirectory(panel, panel->displayStartAt);
 		displayDirectory(panel);
 		writeSelectorPosition(panel, '>');
 		writeCurrentFilename(panel);
 	}
+}
+
+void __fastcall__ moveBottom(struct panel_drive *panel)
+{
+	if ((panel->currentIndex = panel->length - 2) < 0)
+	{
+		panel->currentIndex = 0;
+	}
+	panel->displayStartAt =
+		(panel->length >  size_y - 4u) ?
+			panel->length - (size_y - 4u) : 0;
+
+	getDirectory(panel,
+		(panel->length > SLIDING_WINDOW_SIZE) ?
+			panel->length - SLIDING_WINDOW_SIZE  : 0);
+	displayDirectory(panel);
+	writeSelectorPosition(panel, '>');
+	writeCurrentFilename(panel);
 }

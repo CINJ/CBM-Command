@@ -171,10 +171,10 @@
     <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'">
-    <NMakeBuildCommandLine>make T:=c64</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>make D64 T:=c64</NMakeBuildCommandLine>
     <NMakeOutput />
     <NMakeCleanCommandLine>make clean T:=c64</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>make T:=c64</NMakeReBuildCommandLine>
+    <NMakeReBuildCommandLine>make D64 T:=c64</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>__C64__; __CBM__; __fastcall__=__fastcall</NMakePreprocessorDefinitions>
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
     <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>

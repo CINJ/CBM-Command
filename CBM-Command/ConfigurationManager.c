@@ -521,6 +521,7 @@ void keys(void)
 	cputsxy(12u, 10u, "To Bottom");
 	cputsxy(12u, 11u, "To Top");
 	cputsxy(12u, 12u, "Exc/Read");
+	cputsxy(12u, 13u, "Copy Disk");
 	
 
 	textcolor(color_text_highlight);
@@ -546,7 +547,7 @@ void keys(void)
 			return;
 
 		case CH_CURS_DOWN:
-			if(y < (x == 1u ? 15u : 12u))
+			if(y < (x == 1u ? 15u : 13u))
 			{
 				drawCursor(x, y, true);
 				++y;
@@ -565,7 +566,7 @@ void keys(void)
 			if(x != 11u)
 			{
 				drawCursor(x, y, true);
-				if(y > 12u) y = 12u;
+				if(y > 13u) y = 13u;
 				x = 11u;
 			}
 			break;

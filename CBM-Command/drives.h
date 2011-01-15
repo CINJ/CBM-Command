@@ -120,10 +120,10 @@ void initializeDrives(void);
 static int getDriveStatus(
 	struct drive_status *drive);
 
-void listDrives(enum menus menu);
+void __fastcall__ listDrives(const enum menus menu);
 
 #ifndef __PLUS4__
-extern unsigned char __fastcall__ checkDrive(unsigned char length, const char* file, unsigned char drive);
+extern unsigned char __fastcall__ checkDrive(unsigned char drive);
 #else
 static unsigned char checkDrivePlus4(unsigned char drive);
 #endif
@@ -166,39 +166,39 @@ void enterDirectory(
 void leaveDirectory(
 	struct panel_drive *panel);
 
-static bool isDiskImage(
+static bool __fastcall__ isDiskImage(
 	struct panel_drive *panel);
 
-static bool isDirectory(
+static bool __fastcall__ isDirectory(
 	struct panel_drive *panel);
 
-struct dir_node* getSelectedNode(
+struct dir_node* __fastcall__ getSelectedNode(
 	struct panel_drive *panel);
 
-struct dir_node* getSpecificNode(
+struct dir_node* __fastcall__ getSpecificNode(
 	struct panel_drive *panel, int index);
 
-signed char sendCommand(
+signed char __fastcall__ sendCommand(
 	const struct panel_drive *panel,
 	const char *command);
 
-void resetSelectedFiles(
+void __fastcall__ resetSelectedFiles(
 	struct panel_drive *panel);
 
-void selectAllFiles(
+void __fastcall__ selectAllFiles(
 	struct panel_drive *panel,
 	unsigned char select);
 
-void moveTop(
+void __fastcall__  moveTop(
 	struct panel_drive *panel);
 
-void movePageUp(
+void __fastcall__  movePageUp(
 	struct panel_drive *panel);
 
-void movePageDown(
+void __fastcall__ movePageDown(
 	struct panel_drive *panel);
 
-void moveBottom(
+void __fastcall__ moveBottom(
 	struct panel_drive *panel);
 
 //bool getDriveError(

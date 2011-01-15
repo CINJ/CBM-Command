@@ -82,7 +82,8 @@ unsigned char keyMap[] =
 	HK_DESELECT_ALL,	//21
 	HK_TO_BOTTOM,		//22
 	HK_TO_TOP,			//23
-	HK_EXECUTE_SELECTED	//24
+	HK_EXECUTE_SELECTED,//24
+	HK_COPY_DISK,		//25
 };
 
 

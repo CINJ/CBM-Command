@@ -144,6 +144,7 @@ void deleteFiles(void);
 void writeDiskImage(void);
 void createDiskImage(void);
 bool selectDiskImageType(void);
+void copyDisk(void);
 void quit(void);
 #ifdef __C128__
 void go64(void);

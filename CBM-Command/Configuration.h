@@ -81,7 +81,7 @@ unsigned char keyMap[];
 #define KM_TO_BOTTOM		22u
 #define KM_TO_TOP			23u
 #define KM_EXECUTE_SELECTED	24u
-
+#define KM_COPY_DISK		25u
 
 
 /* Methods */

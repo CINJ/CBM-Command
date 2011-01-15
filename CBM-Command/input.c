@@ -214,4 +214,8 @@ void readKeyboard(void)
 		go64();
 	}
 #endif
+	else if(key == keyMap[KM_COPY_DISK])
+	{
+		copyDisk();
+	}
 }

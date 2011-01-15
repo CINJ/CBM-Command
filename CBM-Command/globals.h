@@ -55,6 +55,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 // Global Hotkeys
+#define HK_COPY_DISK		'o'
 #define HK_EXECUTE_SELECTED	(CH_ENTER|0x80)
 #define HK_REREAD_LEFT		'e'
 #define HK_REREAD_RIGHT		'E'	// SHIFT-E

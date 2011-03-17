@@ -667,7 +667,10 @@ void deleteFiles(void)
 		{ "Are you sure?" }
 	};
 
+	saveScreen();
+	if(writeYesNo("Delete files", dialogMessage, 1))
 	{
+		retrieveScreen();
 		writeStatusBar("Deleting files...");
 		for(i=0; i<(selectedPanel->length + (7 - 1)) / 8u; ++i)
 
@@ -716,19 +719,11 @@ void deleteFiles(void)
 #endif
 					selectedNode->name);
 
-				dialogResult = writeYesNo(
-					"Delete",
-					dialogMessage,
-					A_SIZE(dialogMessage));
-
 				retrieveScreen();
 				writeCurrentFilename(selectedPanel);
 
-				if(dialogResult)
-				{
-					removeFile(selectedNode);
-					rereadSelectedPanel();
-				}
+				removeFile(selectedNode);
+				rereadSelectedPanel();
 			}
 		}
 		else
@@ -736,6 +731,10 @@ void deleteFiles(void)
 			rereadSelectedPanel();
 		}
 
+	}
+	else
+	{
+		retrieveScreen();
 	}
 }
 
@@ -1089,6 +1088,7 @@ void createDiskImage(void)
 #else
 									"%u:%02u et %d Bs %u:%02u rem %4u/%4u - %2u:%2u",
 #endif
+									(unsigned)timeSpent/60u,
 									(unsigned)timeSpent%60u,
 									(unsigned)(((long)p * 256L)/timeSpent),
 									(unsigned)timeLeft/60u,

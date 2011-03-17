@@ -43,6 +43,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <peekpoke.h>
 
 #include "screen.h"
 #include "Configuration.h"
@@ -71,6 +72,53 @@ static unsigned char SCREEN_BUFFER[size_x * size_y];
 static unsigned char SCREEN_BUFFER[size_x * size_y];
 static unsigned char  COLOR_BUFFER[size_x * size_y];
 #endif
+
+bool isDoubleBuffered = false;
+bool double_buffer_initialized = false;
+unsigned char d018;
+unsigned char dd00;
+unsigned char dd02;
+
+void beginDoubleBuffer(void)
+{
+#ifdef __C64__
+	if(!double_buffer_initialized)
+	{
+		POKE(56334, PEEK(56334) & 0xFE); // Turn off interrupts
+		POKE(0x01, PEEK(0x01) & 0xFB); // Switch in RAM
+
+		memcpy((void*)0xF800, (void*)0xD800, 0x0800);
+
+		POKE(0x01, PEEK(0x01) | 0x04); // Switch out RAM
+		POKE(0xDC0E, PEEK(0xDC0E) | 1); // Turn on interrupts
+
+		double_buffer_initialized = true;
+	}
+
+	d018 = PEEK(0xD018);
+	dd00 = PEEK(0xDD00);
+	dd02 = PEEK(0xDD02);
+
+	saveScreen();
+
+	POKE(0xDD02, PEEK(0xDD02) | 0x03);
+	POKE(0xDD00, (PEEK(0xDD00) & 0xFC) | 0x00);
+	POKE(0xD018, (PEEK(0xD018) & 0x0F) | 0xC0);
+	POKE(0xD018, (PEEK(0xD018) & 0xF0) | 0x0E);
+
+	isDoubleBuffered = true;
+#endif
+}
+
+void endDoubleBuffer(void)
+{
+#ifdef __C64__
+	POKE(0xDD02, dd02);
+	POKE(0xDD00, dd00);
+	POKE(0xD018, d018);
+	isDoubleBuffered = false;
+#endif
+}
 
 // Prepares the screen
 void setupScreen(void)

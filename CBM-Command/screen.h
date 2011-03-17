@@ -47,6 +47,10 @@ enum buttons { OK = 1, CANCEL = 2, YES = 4, NO = 8 };	// bit-masks
 //enum buttonTypes { cancel, ok, other };
 //typedef void *ButtonCallback(enum buttonTypes buttonType);
 
+extern bool isDoubleBuffered;
+void beginDoubleBuffer(void);
+void endDoubleBuffer(void);
+
 void setupScreen(void);
 
 void writeStatusBar(const char[]);

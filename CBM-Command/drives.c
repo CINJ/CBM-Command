@@ -258,18 +258,15 @@ unsigned int getDirectory(
 	unsigned char dr;
 	int i;
 	unsigned int read=0, counter=0;
+	bool useDoubleBuffer = isDoubleBuffered;
+
+	if(useDoubleBuffer) endDoubleBuffer();
 
 	drive->slidingWindowStartAt = slidingWindowStartAt;
 
 	drive->header.name[0] = '\0';
-	//for(i=0; i<SLIDING_WINDOW_SIZE; ++i)
-	//{
-	//	drive->slidingWindow[i].name[0] = '\0';
-	//	drive->slidingWindow[i].index = 0;
-	//	drive->slidingWindow[i].size = 0u;
-	//	drive->slidingWindow[i].type = 0;
-	//}
-	memset(drive->slidingWindow, 0, sizeof drive->slidingWindow);
+
+	memset(drive->slidingWindow, 0, SLIDING_WINDOW_SIZE);
 
 	dr = drive->drive->drive;
 
@@ -313,30 +310,12 @@ unsigned int getDirectory(
 			}
 			++counter;
 		}
+		
 		if (dr == 2)
 		{
 			/* "blocks free/used" line was read. */
 			drive->header.size = currentDE.size;
 		}
-		//cbm_closedir(2);
-
-		//// Open the directory again; but this time, make sure that
-		//// only the header and the "blocks free." lines are produced.
-		////
-		//cbm_open(2, dr, CBM_READ, "$:'y-%&?");
-		//cbm_read(2, buffer, 32); // skip unwanted data
-		//if (buffer[31] != 0x00)
-		//{
-		//	// Find the end of an extended directory header.
-		//	cbm_k_chkin(2);
-		//	do ; while (cbm_k_basin() != 0x00);
-		//	cbm_k_clrch();
-		//}
-		//cbm_read(2, buffer, 4);
-		////drive->header.size = buffer[3]*256 + buffer[2];
-		//drive->header.size = ((unsigned*)buffer)[1];
-		//
-		//cbm_close(2);
 
 		writeStatusBarf("Read %d names", counter - 1);
 	}
@@ -359,8 +338,12 @@ unsigned int getDirectory(
 		}
 	}
 
+	if(useDoubleBuffer) beginDoubleBuffer();
+
 	return counter;
 #else
+	if(useDoubleBuffer) beginDoubleBuffer();
+
 	return 0;
 #endif
 }
@@ -408,12 +391,7 @@ void displayDirectory(
 	const struct dir_node *currentNode;
 	char size[4];
 
-	//if(drive->drive == NULL)
-	//{
-	//	drive->drive = &(drives[_curunit - 8]);
-	//	getDirectory(drive, 0);
-	//	resetSelectedFiles(drive);
-	//}
+	beginDoubleBuffer();
 
 	if(drive->header.name[0] == '\0')
 	{
@@ -429,41 +407,31 @@ void displayDirectory(
 	if(drive == &rightPanelDrive) x=w;
 #endif
 
-	//writePanel(true, false, color_text_borders, x, 1, 21, w - 1,
-	//	drive->header.name, NULL, NULL);
 	(void)textcolor(color_text_borders);
-	for(i=1; i<panelHeight; ++i)
-	{
-		cclearxy(x, i, w);
-	}
 	cvlinexy(0, 1, panelHeight);
 #if size_x > 22
 	cvlinexy(w, 1, panelHeight);
 #endif
 	chlinexy(x+1, panelHeight, w - 1u);
-
+	cclearxy(x+1, 1, w-1);
 	gotoxy(x+1, 1); cprintf("[%s]", drive->header.name);
 	gotoxy(x+1, panelHeight); cprintf("[%2u]", drive->drive->drive);
 #if size_x < 40
 	gotox(getCenterX(5)); cputs((drive == &leftPanelDrive) ? "Left" : "Right");
 #endif
 
-	if(drive->header.name[0] == '\0')
-	{
-		// The disk isn't formatted, the drive is empty, or it failed.
-		// Don't show things that can't be known.
-		return;
-	}
-
 	gotox(x + w - 7); cprintf("[%5u]", drive->header.size);
 
-	start = drive->displayStartAt;
-	for(i=start; i<start + (panelHeight - 2u) && i < drive->length - 1; i++)
+	(void)textcolor(color_text_files);
+
+	i = start = drive->displayStartAt;
+	for(; i<start + (panelHeight - 2u) && i < drive->length - 1; ++i)
 	{
 		currentNode = getSpecificNode(drive, i);
 		if(currentNode == NULL ||
 			currentNode->name[0] == '\0')
 		{
+			//endDoubleBuffer();
 			//if(i == drive->length - 1) break;
 			if(i != start)
 			{
@@ -475,16 +443,12 @@ void displayDirectory(
 				getDirectory(drive, (i > 5) ? i - 5 : 0);
 			}
 			currentNode = getSpecificNode(drive, i);
+			//beginDoubleBuffer();
 		}
-		//if (currentNode->name[0] == '\0')
-		//{
-		//	break;
-		//}
 
 		shortenSize(size, currentNode->size);
 		fileType = getFileType(currentNode->type);
 
-		(void)textcolor(color_text_files);
 		revers(drive->selectedEntries[(currentNode->index - 1) / 8u]
 			& (unsigned char)(1 << ((currentNode->index - 1) % 8u)));
 
@@ -509,8 +473,14 @@ void displayDirectory(
 #endif
 			);
 
-		revers(false);
+		(void)revers(false);
+	}
 
+	while(i<start + (panelHeight - 2u))
+	{
+		// draw rest of lines as blank
+		cclearxy(x  + 1, i - start + 2, w-1);
+		++i;
 	}
 
 #if size_x > 40
@@ -522,6 +492,7 @@ void displayDirectory(
 	cvlinexy(x + 26, 2, panelHeight - 2);
 	cvlinexy(x + 30, 2, panelHeight - 2);
 #endif
+	endDoubleBuffer();
 }
 
 void writeSelectorPosition(struct panel_drive *panel,

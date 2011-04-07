@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -50,6 +50,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cbm.h>
 #endif
 
+#include "CBM-REL.h"
 #include "Configuration.h"
 #include "constants.h"
 #include "globalInput.h"
@@ -59,11 +60,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "menus.h"
 #include "screen.h"
 #include "Viewer.h"
-#include "CBM-REL.h"
 
-#define D64_SIZE 689
-#define D71_SIZE 1378
+// Number of CBM blocks in disk images (without error blocks).
+#define D64_SIZE  689
+#define D71_SIZE 1377
+#define D80_SIZE 2100
 #define D81_SIZE 3226
+#define D82_SIZE 4199
 
 static const char* const quit_message[] =
 {
@@ -234,6 +237,11 @@ void writeHelpPanel(void)
 	viewFile(_curunit,"cbmcmd.help");
 }
 
+static bool kbStop(void)
+{
+	return (kbhit() && getKey() == CH_STOP);
+}
+
 unsigned char fileBuffer[COPY_BUFFER_SIZE];
 static struct panel_drive *targetPanel, *tempPanel;
 
@@ -242,16 +250,21 @@ void copyFiles(void)
 	bool multipleSelected = false, RELOAD = false;
 	unsigned numSelectors = (selectedPanel->length + (7 - 1)) / 8u;
 	unsigned long totalBytes = 0;
-	//clock_t timeStart;
-	//time_t timeSpent;
-	long timeStart = 0;
-	long timeSpent = 0;
-	unsigned i, k, index,  rel_current;
-	char targetFilename[2 + 16 + 2 + 2 + 1], status[41], command[6];
+#ifndef __VIC20__
+#ifdef __PET__
+	clock_t timeStart;
+#else
+	time_t timeStart;
+#endif
+	time_t timeSpent;
+#endif
+	unsigned i, k, index;
+	char targetFilename[2 + 16 + 2 + 2 + 1];
 	const struct dir_node *currentNode;
-	unsigned char j, sd, td, r, rel_size;
+	unsigned char j, sd, td, r, rel_size, rel_bytes;
 	int bytes;
-	static struct rel_file* relativeFile;
+	static struct position_rel command = {'p', 96 + 2, 0, 1};
+	//static struct rel_file* relativeFile;
 	static struct rel_file_rec relativeRecord;
 
 	targetPanel =
@@ -277,6 +290,10 @@ void copyFiles(void)
 		return;
 	}
 
+#if size_x > 40
+	saveScreen();
+#endif
+
 	// XXX: This doesn't ignore the select-all-files overflow.  If you "select
 	// all", then deselect every file one-by-one, this code still might think
 	// that some files are chosen.  Fortunately, that event is rare; and,
@@ -292,7 +309,9 @@ void copyFiles(void)
 	}
 
 #ifndef __VIC20__
-#ifndef __PET__
+#ifdef __PET__
+	timeStart = clock();
+#else
 	timeStart = time(NULL);
 #endif
 #endif
@@ -303,8 +322,7 @@ void copyFiles(void)
 			if ((selectedPanel->selectedEntries[i] & (1 << j)) != 0x00
 				&& (k = i*8+j) < selectedPanel->length - 1)
 			{
-				currentNode = getSpecificNode(selectedPanel, k);
-				if(currentNode == NULL)
+				if ((currentNode = getSpecificNode(selectedPanel, k)) == NULL)
 				{
 					getDirectory(selectedPanel, k);
 					currentNode = getSpecificNode(selectedPanel, k);
@@ -315,18 +333,16 @@ void copyFiles(void)
 					//}
 				}
 #ifdef __CBM__
-				/* Copy only sequential files. */
+				/* Copy only sequential and relative files. */
 				if(currentNode->type < CBM_T_REL)
 				{
 					cbm_open(14, sd, 15, "");
-					r = cbm_open(1, sd, 2, currentNode->name);
-					if(r == 0)
+					if ((r = cbm_open(1, sd, 2, currentNode->name)) == 0)
 					{
 						sprintf(targetFilename,"@:%s,%c,w",currentNode->name,
 							tolower(getFileType(currentNode->type)));
 						cbm_open(15,td,15,"");
-						r = cbm_open(2, td, 3, targetFilename);
-						if(r == 0)
+						if ((r = cbm_open(2, td, 3, targetFilename)) == 0)
 						{
 							drawBox(
 								getCenterX(20), getCenterY(3),
@@ -342,37 +358,34 @@ void copyFiles(void)
 								drawProgressBar(currentNode->name,
 									index, currentNode->size);
 
-								bytes = cbm_read(1, fileBuffer, COPY_BUFFER_SIZE);
-								if(bytes <= 0)	// Catch errors
+								if ((bytes = cbm_read(1, fileBuffer,
+									COPY_BUFFER_SIZE)) < 0)	// Catch errors.
 								{
 									waitForEnterEscf("Problem (%u) reading %s",
 										_oserror,
 										currentNode->name);
 									bytes = cbm_read(14,
-										status, (sizeof status) - 1);
-									status[bytes < 0 ? 0 : bytes] = '\0';
-									writeStatusBar(status);
+										buffer, (sizeof buffer) - 1);
+									buffer[bytes < 0 ? 0 : bytes] = '\0';
+									writeStatusBar(buffer);
 									waitForEnterEsc();
 									break;
 								}
-								//if(bytes == 0)	// Catch end-of-file, too
-								//{
-								//	break;
-								//}
-
-								if(kbhit())
+								if(bytes == 0)	// Catch end-of-file, too.
 								{
-									if(getKey() == CH_STOP)
-									{
-										cbm_close(2);
-										cbm_close(1);
-										cbm_close(15);
-										cbm_close(14);
+									break;
+								}
 
-										reloadPanels();
-										writeStatusBar("Aborted copy");
-										return;
-									}
+								if(kbStop())
+								{
+									cbm_close(2);
+									cbm_close(1);
+									cbm_close(15);
+									cbm_close(14);
+
+									reloadPanels();
+									writeStatusBar("Aborted copy");
+									return;
 								}
 
 								if (cbm_write(2, fileBuffer, bytes) != bytes)
@@ -381,21 +394,23 @@ void copyFiles(void)
 										_oserror,
 										currentNode->name);
 									bytes = cbm_read(15,
-										status, (sizeof status) - 1);
-									status[bytes < 0 ? 0 : bytes] = '\0';
-									writeStatusBar(status);
+										buffer, (sizeof buffer) - 1);
+									buffer[bytes < 0 ? 0 : bytes] = '\0';
+									writeStatusBar(buffer);
 									waitForEnterEsc();
 									break;
 								}
 #ifndef __VIC20__
-#ifndef __PET__
+#ifdef __PET__
+								timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+#else
 								timeSpent = (time(NULL) - timeStart);
+#endif
 								writeStatusBarf("%u:%02u e.t. %d B/s",
 									(unsigned)timeSpent/60u,
 									(unsigned)timeSpent%60u,
 									(unsigned)((totalBytes +=
 										(unsigned long)bytes)/timeSpent));
-#endif
 #endif
 							}
 							//drawProgressBar("", index, currentNode->size);
@@ -406,9 +421,9 @@ void copyFiles(void)
 						{
 							waitForEnterEscf("Can't open %s for write (%u)",
 								currentNode->name, r);
-							bytes = cbm_read(15, status, (sizeof status) - 1);
-							status[bytes < 0 ? 0 : bytes] = '\0';
-							writeStatusBar(status);
+							bytes = cbm_read(15, buffer, (sizeof buffer) - 1);
+							buffer[bytes < 0 ? 0 : bytes] = '\0';
+							writeStatusBar(buffer);
 							waitForEnterEsc();
 						}
 					}
@@ -416,9 +431,9 @@ void copyFiles(void)
 					{
 						waitForEnterEscf("Can't open %s for read (%u)",
 							currentNode->name, r);
-						bytes = cbm_read(14, status, (sizeof status) - 1);
-						status[bytes < 0 ? 0 : bytes] = '\0';
-						writeStatusBar(status);
+						bytes = cbm_read(14, buffer, (sizeof buffer) - 1);
+						buffer[bytes < 0 ? 0 : bytes] = '\0';
+						writeStatusBar(buffer);
 						waitForEnterEsc();
 					}
 
@@ -432,87 +447,80 @@ void copyFiles(void)
 					cbm_open(127, sd, 15, "");
 					cbm_open(126, td, 15, "");
 
-					// Get record size
+					// Get record size.
 					rel_size = getRecordSize(127, 2, sd, 2, currentNode->name);
 
-					// Make read filename string 
-					sprintf(targetFilename, "%s,l", currentNode->name);
+					// Make read- and write-filename string.
+					// Set the last byte to the size of the records.
+					sprintf(targetFilename, ":%s,l,%c",
+							currentNode->name, rel_size);
 
-					// Open the source file
-					r = cbm_open(2, sd, 2, targetFilename);
+					// Open the source file.
+					cbm_open(2, sd, 2, targetFilename);
 
-					// Make write filename string
-					sprintf(targetFilename, "%s,l, ", currentNode->name);
-
-					// Set the last byte to the size of the records
-					targetFilename[strlen(targetFilename) - 1] = rel_size;
-
-					// Open the target file
+					// Open the target file.
 					cbm_open(3, td, 3, targetFilename);
 
 					// Close it to make sure the file was created.
 					cbm_close(3);
 
-					// Reopen it
+					// Re-open it.
 					cbm_open(3, td, 3, targetFilename);
 
-					// Get status of target file operation
-					cbm_read(126, status, sizeof status);
+					// Get the status of the target file operation.
+					cbm_read(126, buffer, sizeof buffer);
 
-					// Get the first two bytes of the status
-					status[2] = '\0';
+					// Get the first two bytes of the status.
+					//buffer[2] = '\0';
 
-					// Convert them to an integer
-					r=atoi(status);
-
-					// r == 0 means the target file was opened.
-					if(r==0)
+					// Convert them to an integer.
+					// r == 0 means the target file was openned.
+					if ((r=atoi(buffer)) == 0)
 					{
 						writeStatusBar("Copying file...");
-						rel_current = 0;
-						while(rel_current >= 0)
+						command.rec_number = 0;
+						for (;;)
 						{
-							relativeRecord.record_number = ++rel_current;
+							//relativeRecord.record_number =
+							++command.rec_number;
+							cbm_write(127u, &command, sizeof command);
 
-							command[0] = 'p';
-							command[1] = 98;
-							command[2] = rel_current % 256;
-							command[3] = rel_current / 256;
-							command[4] = rel_size;
+							rel_bytes = cbm_read(2, relativeRecord.record_data,
+								rel_size);
 
-							cbm_write(127u, command, 5u);
-
-							cbm_read(2, relativeRecord.record_data, rel_size);
-								
-							cbm_read(127u, status, sizeof status);
-							status[2] = '\0';
-							r=atoi(status);
-
-							if(r == 0)
+							cbm_read(127u, buffer, sizeof buffer);
+							//buffer[2] = '\0';
+							if ((r=atoi(buffer)) != 00)
 							{
-								writeStatusBarf("Writing record %d", rel_current);
-
-								cbm_write(3, relativeRecord.record_data, rel_size);
-
-								totalBytes += rel_size;
-							}
-							else if(r == 50)
-							{
-								rel_current = -1;
-								break;
-							}
-							else
-							{
-								waitForEnterEscf("Error - rec: %u - result: %u", rel_current, r);
-								rel_current = -1;
+								if (r != 50)	// is it error or end of file?
+								{
+									waitForEnterEscf("Error - rec: %u - result: %u",
+										command.rec_number, r);
+								}
 								break;
 							}
 
+							writeStatusBarf("Writing rec. %u, len. %u",
+								command.rec_number, rel_bytes);
+							totalBytes += cbm_write(3,
+								relativeRecord.record_data, rel_bytes);
+
+							if (kbStop())
+							{
+								cbm_close(3); cbm_close(2);
+								cbm_close(126); cbm_close(127);
+
+								reloadPanels();
+								writeStatusBar("Aborted copy");
+								return;
+							}
 						}
+						//waitForEnterEscf("Stopped at rec. %u, len. %u",
+						//	command.rec_number, rel_bytes);
 					}
 
-					writeStatusBarf("Closing ....");
-					cbm_close(2); cbm_close(3);
+					writeStatusBar("Closing...");
+					cbm_close(3); cbm_close(2);
 					cbm_close(126); cbm_close(127);
 
 					RELOAD = true;
@@ -526,19 +534,24 @@ void copyFiles(void)
 		reloadPanels();
 
 #ifndef __VIC20__
-#ifndef __PET__
+#ifdef __PET__
+		timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+#else
 		timeSpent = (time(NULL) - timeStart);
+#endif
 		writeStatusBarf("%u:%02u e.t. %d B/s",
 			(unsigned)timeSpent/60u,
 			(unsigned)timeSpent%60u,
 			(unsigned)(totalBytes/timeSpent));
-#endif
 #endif
 	}
 }
 
 static void reloadPanels(void)
 {
+#if size_x > 40
+	retrieveScreen();
+#endif
 	tempPanel = selectedPanel;
 	selectedPanel = targetPanel;
 	rereadSelectedPanel();
@@ -563,8 +576,7 @@ void renameFile(void)
 
 	//if(selectedPanel != NULL)
 	{
-		selectedNode = getSelectedNode(selectedPanel);
-		if(selectedNode != NULL)
+		if ((selectedNode = getSelectedNode(selectedPanel)) != NULL)
 		{
 #if size_x > 22
 			writeStatusBarf("Old name: %s",
@@ -587,13 +599,21 @@ void renameFile(void)
 				sprintf(command, "r:%s=%s",
 					filename, selectedNode->name);
 				sendCommand(selectedPanel, command);
+				strcpy(filename, selectedNode->name);
 
+				// Show the new file-name (but, don't move the directory).
 				//rereadSelectedPanel();
 				getDirectory(selectedPanel, selectedPanel->slidingWindowStartAt);
 				displayDirectory(selectedPanel);
 				writeSelectorPosition(selectedPanel, '>');
 
-				writeStatusBarf("Renamed to %s", filename);
+				writeStatusBarf(
+#if size_x > 22
+					"Renamed from %s",
+#else
+					"From %s",
+#endif
+					filename);
 			}
 		}
 	}
@@ -633,7 +653,7 @@ void makeDirectory(void)
 	}
 }
 
-static signed char removeFile(const struct dir_node *selectedNode)
+static signed char __fastcall removeFile(const struct dir_node *selectedNode)
 {
 	char command[41];
 
@@ -661,40 +681,35 @@ void deleteFiles(void)
 	unsigned char j;
 
 
-	bool dialogResult, isBatch = false;
+	bool isBatch = false;
 	static const char* const dialogMessage[] =
 	{
 		{ "Are you sure?" }
 	};
 
-	saveScreen();
-	if(writeYesNo("Delete files", dialogMessage, 1))
+	//saveScreen();
+	if(writeYesNo("Delete files", dialogMessage, A_SIZE(dialogMessage)))
 	{
 		retrieveScreen();
 		writeStatusBar("Deleting files...");
 		for(i=0; i<(selectedPanel->length + (7 - 1)) / 8u; ++i)
-
 		{
 			for(j=0; j<8; ++j)
-
 			{
 				if ((selectedPanel->selectedEntries[i] & (1 << j)) != 0x00
 					&& (k = i*8+j) < selectedPanel->length - 1)
-
-
 				{
 					isBatch = true;
 
-					selectedNode = getSpecificNode(selectedPanel, k);
-					if(selectedNode == NULL)
+					if ((selectedNode = getSpecificNode(selectedPanel, k)) == NULL)
 					{
 						getDirectory(selectedPanel, k);
 						selectedNode = getSpecificNode(selectedPanel, k);
 					}
 
 					if (removeFile(selectedNode) < 0 ||
-						// Let us change our minds, and stop a batch delete.
-						kbhit() && getKey() == CH_STOP)
+						// Allow us to change our minds, and stop a batch delete.
+						kbStop())
 					{
 						rereadSelectedPanel();
 						return;
@@ -706,22 +721,8 @@ void deleteFiles(void)
 		if(!isBatch)
 		{
 			// No names are highlighted; delete the current file.
-			selectedNode = getSelectedNode(selectedPanel);
-			if(selectedNode != NULL)
+			if ((selectedNode = getSelectedNode(selectedPanel)) != NULL)
 			{
-				//saveScreen();
-
-				writeStatusBarf(
-#if size_x > 22
-					"File to delete: %s",
-#else
-					"DEL: %s",
-#endif
-					selectedNode->name);
-
-				retrieveScreen();
-				writeCurrentFilename(selectedPanel);
-
 				removeFile(selectedNode);
 				rereadSelectedPanel();
 			}
@@ -730,7 +731,6 @@ void deleteFiles(void)
 		{
 			rereadSelectedPanel();
 		}
-
 	}
 	else
 	{
@@ -785,14 +785,13 @@ void executeSelectedFile(void)
 
 	//if(selectedPanel != NULL)
 	{
-		currentNode = getSelectedNode(selectedPanel);
-		if(currentNode != NULL)
+		if ((currentNode = getSelectedNode(selectedPanel)) != NULL)
 		{
+			saveScreen();
 			switch (currentNode->type)
 			{
 #ifdef __CBM__
 			case CBM_T_PRG:
-				//saveScreen();
 				if(!writeYesNo(currentNode->name, message, A_SIZE(message)))
 				{
 					retrieveScreen();
@@ -839,10 +838,11 @@ void executeSelectedFile(void)
 				// fall through
 			case CBM_T_SEQ:
 			//case CBM_T_USR:
+			case CBM_T_OTHER:
 #endif
+				retrieveScreen();
 				viewFile(selectedPanel->drive->drive,
 					currentNode->name);
-				retrieveScreen();
 			}
 		}
 	}
@@ -850,20 +850,20 @@ void executeSelectedFile(void)
 
 void inputCommand(void)
 {
-	enum results dialogResult;
+	//enum results dialogResult;
 	char command[size_x - 4];
 	unsigned char key = '\0';
 	unsigned char count = 0;
-	unsigned char x = 3, 
-#ifdef __VIC20__
-		y=size_y - 3;
+	unsigned char x = 3, y = size_y -
+#if size_x < 40
+		3;
 #else
-		y=size_y - 2;
+		2;
 #endif
-	static const char* const dialogMessage[] =
-	{
-		{ "Type drive-command" }
-	};
+	//static const char* const dialogMessage[] =
+	//{
+	//	{ "Type drive-command" }
+	//};
 
 	command[0] = '\0';
 
@@ -881,13 +881,13 @@ void inputCommand(void)
 	//{
 	//}
 
+	(void)textcolor(color_text_other);
 	gotoxy(0, y);
 	cprintf("%2u>", selectedPanel->drive->drive);
 
-		revers(true);
-	//(void)textcolor(color_text_other);
+	revers(true);
 	cclearxy(x, y, size_x - 3);
-		
+
 	do
 	{
 		cputcxy(count + x, y, '_');
@@ -932,11 +932,9 @@ void inputCommand(void)
 #if defined(__CBM__) //&& !defined(__VIC20__)
 //static unsigned char temp[256];
 static const unsigned char l[] =	// sectors per track on 1541/1571 disks
+// Note:  This table can handle both sides of a 1571 because the modulo
+// operator effectively "folds" it on itself.
 {	21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
-	19,19,19,19,19,19,19,
-	18,18,18,18,18,18,
-	17,17,17,17,17,
-	21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
 	19,19,19,19,19,19,19,
 	18,18,18,18,18,18,
 	17,17,17,17,17
@@ -954,8 +952,14 @@ void createDiskImage(void)
 	//struct dir_node *currentNode;
 	enum results result;
 	int r;
-	long timeStart = 0;
-	long timeSpent = 0, timeLeft = 0;
+#ifndef __VIC20__
+#ifdef __PET__
+	clock_t timeStart;
+#else
+	time_t timeStart;
+#endif
+	time_t timeSpent, timeLeft;
+#endif
 	bool isD64 = true, isD71 = false;
 	unsigned int p = 0, size = D64_SIZE;
 
@@ -989,8 +993,7 @@ void createDiskImage(void)
 				//}
 
 				cbm_open(15, sd, 15, "ui");
-				r = cbm_read(15, buffer, (sizeof buffer) - 1);
-				if(r > 0)
+				if ((r = cbm_read(15, buffer, (sizeof buffer) - 1)) > 0)
 				{
 					buffer[r] = '\0';
 					if (strstr(buffer,"1541") == NULL &&
@@ -1000,9 +1003,9 @@ void createDiskImage(void)
 						&& strstr(buffer,"virtual") == NULL
 						)
 					{
-						if(strstr(buffer,"1581") == NULL  & strstr(buffer, "1571") == NULL)
+						if(strstr(buffer,"1581") == NULL  && strstr(buffer, "1571") == NULL)
 						{
-							writeStatusBar("Must be 1541-type, 1571 or 1581 drive");
+							writeStatusBar("Must be 1541, 1571, or 1581 format");
 							//waitForEnterEsc();
 							cbm_close(15);
 							return;
@@ -1045,27 +1048,30 @@ void createDiskImage(void)
 						19, 3,
 						color_text_borders,
 						false);
+
 #ifndef __VIC20__
-#ifndef __PET__
+#ifdef __PET__
+					timeStart = clock();
+#else
 					timeStart = time(NULL);
 #endif
 #endif
 					cbm_open(14,td,15,"");
 					if(cbm_open(3,td,3,strcat(name,",p,w")) == 0)
 					{
-						tracks = isD64 ? 35 : (isD71 ? 70 : 80);
+						tracks = isD64 ? 35 : (isD71 ? 35*2 : 80);
 						for(i=0;i<tracks;++i)
 						{
-							sectorsThisTrack = isD64 ? l[i%35] : (isD71 ? l[i%70] : 40);
+							sectorsThisTrack = (isD64 || isD71) ? l[i%35] : 40;
 							for(j=0;j<sectorsThisTrack;++j)
 							{
-								if(kbhit())
+								if(kbStop())
 								{
-									if (getKey() == CH_STOP)
-									{
-										i=81;
-										break;
-									}
+									// Break out of the outer loop by presetting
+									// the track number beyond the highest
+									// supported value.
+									i=155;
+									break;
 								}
 
 								drawProgressBar("Making image...", ++p, size);
@@ -1074,8 +1080,11 @@ void createDiskImage(void)
 									sprintf(buffer,"u1 2 0 %u %u", i+1, j));
 
 #ifndef __VIC20__
-#ifndef __PET__
+#ifdef __PET__
+								timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+#else
 								timeSpent = (time(NULL) - timeStart);
+#endif
 								timeLeft =
 									//((long)(size - p) * 256L) // bytes remaining
 									// / (((long)p * 256L)/timeSpent);
@@ -1098,9 +1107,8 @@ void createDiskImage(void)
 #if size_x >= 80
 									, i+1, j
 #endif
+#endif
 									);
-#endif
-#endif
 #endif
 
 								r = cbm_read(2,fileBuffer, 256);
@@ -1111,16 +1119,18 @@ void createDiskImage(void)
 						cbm_close(2); cbm_close(3);
 						cbm_close(15); cbm_close(14);
 #ifndef __VIC20__
-#ifndef __PET__
+#ifdef __PET__
+						timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+#else
 						timeSpent = (time(NULL) - timeStart);
-						retrieveScreen();
+#endif
+						//retrieveScreen();
 						reloadPanels();
 						writeStatusBarf(
-							(i == 82) ? "Stopped" : "%u:%02u e.t. %d B/s",
+							(i == 156) ? "Stopped" : "%u:%02u e.t. %d B/s",
 							(unsigned)timeSpent/60u,
 							(unsigned)timeSpent%60u,
 							(unsigned)(((long)size * 256L)/timeSpent));
-#endif
 #endif
 					}
 					else
@@ -1160,12 +1170,17 @@ void writeDiskImage(void)
 	bool confirmed;
 	unsigned char sd, td, i, j;
 	const struct dir_node *currentNode;
-	long timeStart = 0;
-	long timeSpent = 0, timeLeft = 0;
+#ifndef __VIC20__
+#ifdef __PET__
+	clock_t timeStart;
+#else
+	time_t timeStart;
+#endif
+	time_t timeSpent, timeLeft;
+#endif
 	int r;
+	unsigned char tracks, sectors;
 	unsigned int p = 0;
-	unsigned char tracks;
-	unsigned char sectors;
 
 	//if(selectedPanel != NULL && selectedPanel->drive != NULL)
 	{
@@ -1179,8 +1194,8 @@ void writeDiskImage(void)
 		{
 			currentNode = getSelectedNode(selectedPanel);
 
-			if(currentNode->size != D64_SIZE && currentNode->size != D81_SIZE 
-				&& currentNode->size != D71_SIZE - 1
+			if(currentNode->size != D64_SIZE && currentNode->size != D81_SIZE
+				&& currentNode->size != D71_SIZE
 				)
 			{
 				saveScreen();
@@ -1225,7 +1240,9 @@ void writeDiskImage(void)
 
 					writeStatusBar("Making disk...");
 #ifndef __VIC20__
-#ifndef __PET__
+#ifdef __PET__
+					timeStart = clock();
+#else
 					timeStart = time(NULL);
 #endif
 #endif
@@ -1238,26 +1255,22 @@ void writeDiskImage(void)
 						tracks = 35u;
 						break;
 					case D71_SIZE:
-					case D71_SIZE - 1u:
-						tracks = 70u;
+						tracks = 35u*2;
 						break;
 					case D81_SIZE:
 						tracks = 80u;
 						break;
 					}
 
-					//waitForEnterEscf("size: %4u  tracks: %2u", currentNode->size, tracks);
+					//waitForEnterEscf("size: %4u, tracks: %2u", currentNode->size, tracks);
 
 					for(i=0;i<tracks;++i)
 					{
 						switch(currentNode->size)
 						{
 						case D64_SIZE:
-							sectors = l[i%35];
-							break;
 						case D71_SIZE:
-						case D71_SIZE - 1u:
-							sectors = l[i%70];
+							sectors = l[i%35];
 							break;
 						case D81_SIZE:
 							sectors = 40;
@@ -1265,13 +1278,13 @@ void writeDiskImage(void)
 						}
 						for(j=0;j<sectors;++j)
 						{
-							if(kbhit())
+							if(kbStop())
 							{
-								if (getKey() == CH_STOP)
-								{
-									i=81;
-									break;
-								}
+								// Break out of the outer loop by presetting
+								// the track number beyond the highest
+								// supported value.
+								i=155;
+								break;
 							}
 
 							drawProgressBar(currentNode->name,
@@ -1288,9 +1301,13 @@ void writeDiskImage(void)
 							cbm_write(3,fileBuffer,256);
 							cbm_write(14,buffer,
 								sprintf(buffer, "u2 3 0 %u %u", i+1, j));
+
 #ifndef __VIC20__
-#ifndef __PET__
+#ifdef __PET__
+							timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+#else
 							timeSpent = (time(NULL) - timeStart);
+#endif
 							timeLeft =
 								//((long)(currentNode->size - p) * 256L) // bytes remaining
 								// / (((long)p * 256L)/timeSpent);
@@ -1312,27 +1329,31 @@ void writeDiskImage(void)
 #endif
 								);
 #endif
-#endif
 						}
 					}
 					cbm_close(2);
 					cbm_close(3);
 					cbm_close(14);
 					cbm_close(15);
-#ifndef __VIC20__ 
-#ifndef __PET__
+#ifndef __VIC20__
+#ifdef __PET__
+					timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+#else
 					timeSpent = (time(NULL) - timeStart);
-					retrieveScreen();
+#endif
+					//retrieveScreen();
 					reloadPanels();
 					writeStatusBarf(
-						(i == 82) ? "Stopped" : "%u:%02u e.t. %d B/s",
+						(i == 156) ? "Stopped" : "%u:%02u e.t. %d B/s",
 						(unsigned)timeSpent/60u,
 						(unsigned)timeSpent%60u,
 						(unsigned)(((long)currentNode->size * 256uL)/timeSpent));
-#endif
-#endif
 					//waitForEnterEsc();
 					//retrieveScreen();
+#else
+					//retrieveScreen();
+					reloadPanels();
+#endif
 				}
 				else
 				{
@@ -1351,16 +1372,14 @@ void writeDiskImage(void)
 
 bool selectDiskImageType(void)
 {
-	bool result = false;
-
 	static const char* const message[] =
 	{
 		{ "Is the disk" },
-		{ "in the 1571 " },
+		{ "in the 1571" },
 		{ "double-sided?" }
 	};
 
-	result = writeYesNo("Image Type", message, A_SIZE(message));
+	return writeYesNo("Image Type", message, A_SIZE(message));
 }
 #endif
 
@@ -1380,7 +1399,7 @@ void copyDisk(void)
 	unsigned char sectorCount, currentSector;
 	unsigned char trackCount, currentTrack;
 	struct panel_drive *targetPanel;
-	
+
 	targetPanel = (selectedPanel == &leftPanelDrive ? &rightPanelDrive : &leftPanelDrive);
 
 	saveScreen();
@@ -1420,7 +1439,7 @@ void copyDisk(void)
 			case 70: writeStatusBarf("1571 Drive Copy..."); break;
 			case 80: writeStatusBarf("1581 Drive Copy..."); break;
 			}
-			
+
 			sd = selectedPanel->drive->drive;
 			td = targetPanel->drive->drive;
 
@@ -1472,7 +1491,7 @@ void copyDisk(void)
 			return;
 		}
 
-		selectedPanel = targetPanel;	
+		selectedPanel = targetPanel;
 		rereadSelectedPanel();
 		writeSelectorPosition(selectedPanel, '>');
 

@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -34,72 +34,72 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
-#include <stdlib.h>
+
+//#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <conio.h>
-#include <ctype.h>
-
-#include "cbm.h"
-
+//#include <conio.h>
+//#include <ctype.h>
+#include <cbm.h>
 
 #include "CBM-REL.h"
+#include "globals.h"
+#include "screen.h"
 
-unsigned char getRecordSize(
+/* Returns the RELative file's record-size (2-254);
+** or, returns zero on an error.
+*/
+unsigned char __fastcall getRecordSize(
 	const unsigned char command_lfn,
 	const unsigned char logical_file_number,
 	const unsigned char unit_number,
 	const unsigned char secondary,
 	const char* file_name)
 {
-	const static unsigned char s=128;
-	unsigned char result=0;
-	unsigned char r=0;
-	static unsigned char relFileName[21];
-	static unsigned char commandBuffer[12]; // = { 'p', 2, 1, itoc(0), itoc(128), '\0' };
-	static unsigned char errorBuffer[256];
+	//const static unsigned char s=128;
+	char relFileName[1+16+2+1];
+	static struct position_rel command = {'p', 2, 1};
+	//static char errorBuffer[256];
 
 	sprintf(relFileName, ":%s,l", file_name);
 
-	result = cbm_open(
-		logical_file_number, unit_number, 
-		secondary, relFileName);
-
-	if(result == 0)
+	if (cbm_open(
+		logical_file_number, unit_number,
+		secondary, relFileName) == 0)
 	{
-		for(r=1; r<254; ++r)
+		// Learn if the drive found the file.
+		cbm_read(command_lfn, buffer, sizeof buffer);
+		if(buffer[0] == '0')
 		{
-			commandBuffer[0] = 'p';
-			commandBuffer[1] = secondary;
-			commandBuffer[2] = 1;
-			commandBuffer[3] = 0;
-			commandBuffer[4] = r;
-			commandBuffer[5] = '\0';
-
-			cbm_write(command_lfn, commandBuffer, 5);
-
-			cbm_read(command_lfn, errorBuffer, sizeof errorBuffer);
-
-			if(errorBuffer[0] != '0')
+			// File found -- find the record length.  Start at the maximum;
+			// and, shrink.  The position command fails when the target is
+			// beyond the end of the record; it succeeds when the target
+			// reaches the last byte in the record -- that spot is the size.
+			//
+			writeStatusBar("Getting record size");
+			command.channel = secondary;
+			command.position = 254;
+			do
 			{
-				--r;
-				break;
+				cbm_write(command_lfn, &command, sizeof command);
+
+				cbm_read(command_lfn, buffer, sizeof buffer);
+				if(buffer[0] == '0')
+				{
+					break;
+				}
 			}
+			while (--command.position > 0);
+
+			cbm_close(logical_file_number);
+			return command.position;
 		}
-
-		if(r == 255) r = 254;
-
 		cbm_close(logical_file_number);
 	}
-	else
-	{
-		return -1;
-	}
-
-	return r;
+	return 0;
 }
 //
-//struct rel_file* openRelativeFile(
+//struct rel_file* __fastcall openRelativeFile(
 //	const unsigned char logical_file_number,
 //	const unsigned char unit_number,
 //	const unsigned char secondary,
@@ -107,21 +107,18 @@ unsigned char getRecordSize(
 //	const char* file_name,
 //	bool count_records)
 //{
-//	static unsigned char file[21], command[] = "p    ";
-//	char result = 0;
-//	unsigned int count = 0;
+//	static unsigned char file[22], command[] = "p    ";
+//	signed char result;
+//	unsigned int count;
 //	struct rel_file file_struct;
 //
-//	
-//	//printf("\r\n--------------------\r\nOpening relative file %s", file_name);
-//	//sprintf(file, "%s,l,", file_name);
 //
-//	file[strlen(file) + 1] = '\0';
-//	file[strlen(file)] = record_size;
+//	//printf("\r\n--------------------\r\nOpening relative file %s", file_name);
+//	sprintf(file, ":%s,l,%c", file_name, record_size);
 //
 //	//cbm_open(127u, unit_number, 15u, "");
 //	result = cbm_open(logical_file_number, unit_number, secondary, file);
-//	//cbm_read(127u, errorBuffer, sizeof errorBuffer);
+//	//errorBuffer[cbm_read(127u, errorBuffer, sizeof errorBuffer)] = '\0';
 //	//printf("errorChannel: %s", errorBuffer);
 //	//cbm_close(127u);
 //
@@ -136,8 +133,7 @@ unsigned char getRecordSize(
 //			command[4] = 1u;
 //			for(count = 0; count < 65535; ++count)
 //			{
-//				command[2] = count % 256u;
-//				command[3] = count / 256u;
+//				(unsigned*)&command[2] = count;
 //				result = cbm_write(127u, command, 5u);
 //				if(result == -1) break;
 //			}
@@ -150,99 +146,92 @@ unsigned char getRecordSize(
 //	return &file_struct;
 //}
 //
-//char __fastcall getRecord(
+//signed char __fastcall getRecord(
 //	const unsigned char logical_file_number,
 //	const unsigned char unit_number,
 //	const unsigned char secondary,
 //	struct rel_file_rec* record,
 //	const unsigned char rel_size)
 //{
-//	char result = 0;
+//	signed char result;
 //	static unsigned char errorBuffer[41], file[21], command[] = "p    ";
-//	static unsigned char temp[3];
 //	//printf("\r\n-----------------------\r\nLFN: %u  UN: %u  Sec: %u", logical_file_number, unit_number, secondary);
 //	cbm_open(127u, unit_number, 15u, "");
 //	command[1] = 96 + logical_file_number;
-//	command[2] = record->record_number % 256;
-//	command[3] = record->record_number / 256;
+//	(unsigned*)&command[2] = record->record_number;
 //	command[4] = rel_size;
-//	result = cbm_write(127u, command, 5u);
+//			 cbm_write(127u, command, 5u); // needed by a VICE virtual-drive bug
 //	result = cbm_write(127u, command, 5u);
 //	if(result > -1)
 //	{
 //		cbm_read(logical_file_number, record->record_data, rel_size);
 //		cbm_read(127u, errorBuffer, sizeof errorBuffer);
-//		temp[0] = errorBuffer[0];
-//		temp[1] = errorBuffer[1];
-//		temp[2] = '\0';
-//		result=atoi(temp);
+//		//errorBuffer[2] = '\0';
+//		result=atoi(errorBuffer);
 //	}
 //	cbm_close(127u);
 //
 //	return result;
 //}
 //
-//char __fastcall saveRecord(
+//signed char __fastcall saveRecord(
 //	const unsigned char logical_file_number,
 //	const unsigned char unit_number,
 //	const unsigned char secondary,
 //	struct rel_file_rec* record,
 //	const unsigned char rel_size)
 //{
-//	char result = 0;
+//	signed char result;
 //	static unsigned char errorBuffer[256], file[21], command[] = "p    ";
 //
 //	cbm_open(127u, unit_number, 15u, "");
 //	command[1] = 96 + logical_file_number;
-//	command[2] = record->record_number % 256u;
-//	command[3] = record->record_number / 256u;
+//	(unsigned*)&command[2] = record->record_number;
 //	command[4] = rel_size;
 //	result = cbm_write(127u, command, 5u);
-//	cbm_read(127u, errorBuffer, sizeof errorBuffer);
-//	printf("\r\n================\r\nWrite Step 1 - result: %u errorBuffer: %s\r\n", result, errorBuffer);
+//	errorBuffer[cbm_read(127u, errorBuffer, sizeof errorBuffer)] = '\0';
+//	printf("\r\n================\r\nWrite Step 1 -- result: %d, errorBuffer: %s\r\n", result, errorBuffer);
 //	if(result > -1)
 //	{
 //		result = cbm_write(logical_file_number, record->record_data, rel_size);
-//		cbm_read(127u, errorBuffer, sizeof errorBuffer);
-//		printf("\r\n================\r\nWrite Step 2 - result: %u errorBuffer: %s\r\n", result, errorBuffer);
+//		errorBuffer[cbm_read(127u, errorBuffer, sizeof errorBuffer)] = '\0';
+//		printf("\r\n================\r\nWrite Step 2 -- result: %d, errorBuffer: %s\r\n", result, errorBuffer);
 //	}
 //	result = cbm_write(127u, command, 5u);
-//	cbm_read(127u, errorBuffer, sizeof errorBuffer);
-//	printf("\r\n================\r\nWrite Step 3 - result: %u errorBuffer: %s\r\n", result, errorBuffer);
+//	errorBuffer[cbm_read(127u, errorBuffer, sizeof errorBuffer)] = '\0';
+//	printf("\r\n================\r\nWrite Step 3 -- result: %d, errorBuffer: %s\r\n", result, errorBuffer);
 //	cbm_close(127u);
 //
 //	return result;
 //}
 //
-//char initializeRelativeFile(
+//signed char __fastcall initializeRelativeFile(
 //	const unsigned char unit_number,
 //	const unsigned char record_size,
 //	const unsigned int record_count,
 //	const char* file_name)
 //{
-//	static char result = 0;
-//	static unsigned int count = 0u;
+//	static signed char result;
+//	static unsigned int count;
 //	static struct rel_file* file;
 //	static struct rel_file_rec rec;
-//	
+//
 //	file = openRelativeFile(
 //		126u, unit_number, 2u,
 //		record_size, file_name, false);
-//
 //	if(file != NULL)
 //	{
 //		rec.file = file;
-//	
+//
 //		for(count = 0; count < record_size; ++count)
 //		{
-//			rec.record_data[count] = count % 256;
+//			rec.record_data[count] = (unsigned char)count;
 //		}
 //
 //		for(count = 0; count < record_count; ++count)
 //		{
 //			rec.record_number = count;
 //			result = saveRecord(126, unit_number, 2, &rec, record_size);
-//
 //			if(result == -1)
 //			{
 //				break;

@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -34,18 +34,27 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
+
 #ifndef _CBM_REL_H
 #define _CBM_REL_H
 
-#include <stdbool.h>
+//#include <stdbool.h>
 
 #ifndef __fastcall
 #define __fastcall __fastcall__
 #endif
 
-struct rel_file 
+struct position_rel
 {
-	unsigned char file_name[17];
+	char cmd;
+	unsigned char channel;
+	unsigned rec_number;
+	unsigned char position;
+};
+
+struct rel_file
+{
+	char file_name[17];
 	unsigned char record_size;
 	unsigned int record_count;
 };
@@ -57,14 +66,14 @@ struct rel_file_rec
 	unsigned char record_data[255];
 };
 
-unsigned char getRecordSize(
+unsigned char __fastcall getRecordSize(
 	const unsigned char command_lfn,
 	const unsigned char logical_file_number,
 	const unsigned char unit_number,
 	const unsigned char secondary,
 	const char* file_name);
 //
-//struct rel_file* openRelativeFile(
+//struct rel_file* __fastcall openRelativeFile(
 //	const unsigned char logical_file_number,
 //	const unsigned char unit_number,
 //	const unsigned char secondary,
@@ -72,21 +81,21 @@ unsigned char getRecordSize(
 //	const char* file_name,
 //	bool count_records);
 //
-//char __fastcall getRecord(
+//signed char __fastcall getRecord(
 //	const unsigned char logical_file_number,
 //	const unsigned char unit_number,
 //	const unsigned char secondary,
 //	struct rel_file_rec* record,
 //	const unsigned char rel_size);
 //
-//char __fastcall saveRecord(
+//signed char __fastcall saveRecord(
 //	const unsigned char logical_file_number,
 //	const unsigned char unit_number,
 //	const unsigned char secondary,
 //	struct rel_file_rec* record,
 //	const unsigned char rel_size);
 //
-//char initializeRelativeFile(
+//signed char __fastcall initializeRelativeFile(
 //	const unsigned char unit_number,
 //	const unsigned char record_size,
 //	const unsigned int record_count,

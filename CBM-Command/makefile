@@ -39,7 +39,9 @@ SOURCES	= \
 	screen.c  \
 	globalInput.c \
 	Viewer.c \
-	CBM-REL.c
+	CBM-REL.c \
+	builtStamp.c
+# builtStamp.c should be last in that list.
 
 ASMFILES= \
 	res\common\driveRoutines.s \

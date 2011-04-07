@@ -348,6 +348,7 @@
     <None Include="res\vic20\Text.s" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="builtStamp.c" />
     <ClCompile Include="CBM-Command.c" />
     <ClCompile Include="CBM-REL.c" />
     <ClCompile Include="CommandMenu.c" />

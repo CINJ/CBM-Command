@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -52,15 +52,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "screen.h"
 #include "input.h"
 //#include "PlatformSpecific.h"
-#include "Configuration.h"
-
-#ifdef __CBM__
-#include "CBM-REL.h"
-#endif
+//#include "Configuration.h"
 
 #ifndef __VIC20__
 //extern void _INIT_RUN__[], _INIT_SIZE__;
 #endif
+
+extern const char builtStamp[];
 
 /* CBM-Command Main Function
  * --------------------------
@@ -103,11 +101,7 @@ void main(void)
 	// it in the left panel.
 	rereadSelectedPanel();
 
-	writeStatusBar(
-#if size_x > 22
-		"CBM-Command, built: "
-#endif
-		__DATE__ " " __TIME__);
+	writeStatusBar(builtStamp);
 
 	// Main Loop
 	for (;;)

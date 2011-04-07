@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -41,6 +41,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __fastcall __fastcall__
 
 //#include <stdbool.h>
+#include <conio.h>
 
 //extern unsigned char size_x, size_y;
 #if defined(__VIC20__)
@@ -70,8 +71,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_RENAME			'n'
 #define HK_DELETE			'l'
 #define HK_MAKE_DIRECTORY	'm'			// KEY_CTRL_K
-#define HK_ENTER_DIRECTORY	219
-#define HK_LEAVE_DIRECTORY	221
+#define HK_ENTER_DIRECTORY	0xdb
+#define HK_LEAVE_DIRECTORY	0xdd
 #ifdef __CBM__
 #define HK_TO_TOP			'^'
 #define HK_TO_BOTTOM		('^'|0x80)	// SHIFT-^ (Pi)
@@ -94,7 +95,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __C128__
 #define HK_HELP_128			0x84	// HELP key
-#define HK_GO64				KEY_CTRL_G
+#define HK_GO64				'g'
 #endif
 
 
@@ -102,7 +103,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //extern bool arePanelsOn;
 extern unsigned char buffer[41];
 
-#ifndef __PET__
+#ifdef COLOR_RED
 extern unsigned char outsideFrame;
 extern unsigned char outsideScreen;
 extern unsigned char outsideText;

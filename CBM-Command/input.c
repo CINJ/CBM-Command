@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -40,8 +40,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#include <stdbool.h>
 #include <conio.h>
 
-//#include "constants.h"
 #include "Configuration.h"
+//#include "constants.h"
 #include "drives.h"
 #include "globals.h"
 #include "input.h"
@@ -53,17 +53,109 @@ void readKeyboard(void)
 {
 	//char buffer[39];
 	char key = cgetc();
+	signed char k = KM_KEYMAP_SIZE;
 
-	if(key == CH_CURS_DOWN)
+	// The key might be configured; look for which one.
+	while (--k > KM_NONE && keyMap[k] != key)
+		;
+	switch (k)
 	{
+	case KM_REREAD_SELECTED:
+		key = CH_F4;
+		break;
+#ifdef __CBM__
+	case KM_EXECUTE_SELECTED:
+		executeSelectedFile();
+		return;
+#endif
+	case KM_DRIVE_CURRENT:
+		key = CH_F3;
+		break;
+	case KM_SELECT:
+		selectCurrentFile();
+		key = CH_CURS_DOWN;
+		break;
+	case KM_ENTER_DIRECTORY:
+		enterDirectory(selectedPanel);
+		return;
+	case KM_LEAVE_DIRECTORY:
+		leaveDirectory(selectedPanel);
+		return;
+	case KM_REREAD_LEFT:
+		rereadDrivePanel(left);
+		return;
+	case KM_REREAD_RIGHT:
+		rereadDrivePanel(right);
+		return;
+	case KM_DRIVE_LEFT:
+		writeDriveSelectionPanel(left);
+		return;
+	case KM_DRIVE_RIGHT:
+		writeDriveSelectionPanel(right);
+		return;
+	case KM_SELECT_ALL:
+		selectAllFiles(selectedPanel, 0xFF);
+		return;
+	case KM_DESELECT_ALL:
+		selectAllFiles(selectedPanel, 0x00);
+		return;
+	case KM_HELP:
+		key = CH_F1;
+		break;
+	case KM_QUIT:
+		key = CH_F2;
+		break;
+	case KM_COPY:
+		key = CH_F5;
+		break;
+	case KM_RENAME:
+		key = CH_F6;
+		break;
+	case KM_DELETE:
+		key = CH_F8;
+		break;
+	case KM_DRIVE_COMMAND:
+		inputCommand();
+		return;
+	case KM_MAKE_DIRECTORY:
+		key = CH_F7;
+		break;
+	case KM_TO_TOP:
+		moveTop(selectedPanel);
+		return;
+	case KM_TO_BOTTOM:
+		moveBottom(selectedPanel);
+		return;
+	case KM_PAGE_UP:
+		movePageUp(selectedPanel);
+		return;
+	case KM_PAGE_DOWN:
+		movePageDown(selectedPanel);
+		return;
+#if defined(__CBM__)
+	case KM_WRITE_D64:
+		writeDiskImage();
+		return;
+	case KM_CREATE_D64:
+		createDiskImage();
+		return;
+#endif
+	case KM_COPY_DISK:
+		copyDisk();
+		return;
+	}
+
+	// Either the key isn't configured, or it has a non-configurable twin.  We
+	// use the twins, so that there is only one call to the command functions.
+	switch (key)
+	{
+	case CH_CURS_DOWN:
 		moveSelectorDown(selectedPanel);
-	}
-	else if(key == CH_CURS_UP)
-	{
+		break;
+	case CH_CURS_UP:
 		moveSelectorUp(selectedPanel);
-	}
-	else if(key == CH_CURS_LEFT)
-	{
+		break;
+	case CH_CURS_LEFT:
 		if(selectedPanel == &rightPanelDrive
 			&& leftPanelDrive.visible
 			/*&& arePanelsOn*/)
@@ -78,9 +170,8 @@ void readKeyboard(void)
 			writeSelectorPosition(&rightPanelDrive, ' ');
 #endif
 		}
-	}
-	else if(key == CH_CURS_RIGHT)
-	{
+		break;
+	case CH_CURS_RIGHT:
 		if(selectedPanel == &leftPanelDrive
 #if size_x > 22
 			&& rightPanelDrive.visible
@@ -97,125 +188,39 @@ void readKeyboard(void)
 			writeSelectorPosition(& leftPanelDrive, ' ');
 #endif
 		}
-	}
-	else if(key == CH_F4 || key == keyMap[KM_REREAD_SELECTED])
-	{
+		break;
+	case CH_F4:
 		rereadSelectedPanel();
-	}
-#ifdef __CBM__
-	else if(key == keyMap[KM_EXECUTE_SELECTED])
-	{
-		executeSelectedFile();
-	}
-#endif
-	else if(key == CH_F3 || key == keyMap[KM_DRIVE_CURRENT])
-	{
+		break;
+	case CH_F3:
 		selectCurrentPanelDrive();
-	}
-	else if(key == keyMap[KM_SELECT])
-	{
-		selectCurrentFile();
-		moveSelectorDown(selectedPanel);
-	}
-	else if(key == keyMap[KM_ENTER_DIRECTORY])
-	{
-		enterDirectory(selectedPanel);
-	}
-	else if(key == keyMap[KM_LEAVE_DIRECTORY])
-	{
-		leaveDirectory(selectedPanel);
-	}
-	else if(key == keyMap[KM_REREAD_LEFT])
-	{
-		rereadDrivePanel(left);
-	}
-	else if(key == keyMap[KM_REREAD_RIGHT])
-	{
-		rereadDrivePanel(right);
-	}
-	else if(key == keyMap[KM_DRIVE_LEFT])
-	{
-		writeDriveSelectionPanel(left);
-	}
-	else if(key == keyMap[KM_DRIVE_RIGHT])
-	{
-		writeDriveSelectionPanel(right);
-	}
-	else if(key == keyMap[KM_SELECT_ALL])
-	{
-		selectAllFiles(selectedPanel, 0xFF);
-	}
-	else if(key == keyMap[KM_DESELECT_ALL])
-	{
-		selectAllFiles(selectedPanel, 0x00);
-	}
-	else if(
-		key == CH_F1 ||
+		break;
 #ifdef __C128__
-		key == HK_HELP_128 ||
+	case HK_HELP_128:
 #endif
-		key == keyMap[KM_HELP])
-	{
+	case CH_F1:
 		writeHelpPanel();
-	}
-	else if(key == CH_F2 || key == keyMap[KM_QUIT])
-	{
+		break;
+	case CH_F2:
 		quit();
-	}
-	else if(key == CH_F5 || key == keyMap[KM_COPY])
-	{
+		break;
+	case CH_F5:
 		copyFiles();
-	}
-	else if(key == CH_F6 || key == keyMap[KM_RENAME])
-	{
+		break;
+	case CH_F6:
 		renameFile();
-	}
-	else if(key == CH_F8 || key == keyMap[KM_DELETE])
-	{
+		break;
+	case CH_F8:
 		deleteFiles();
-	}
-	else if(key == keyMap[KM_DRIVE_COMMAND])
-	{
-		inputCommand();
-	}
-	else if(key == CH_F7 || key == keyMap[KM_MAKE_DIRECTORY])
-	{
+		break;
+	case CH_F7:
 		makeDirectory();
-	}
-	else if(key == keyMap[KM_TO_TOP])
-	{
-		moveTop(selectedPanel);
-	}
-	else if(key == keyMap[KM_TO_BOTTOM])
-	{
-		moveBottom(selectedPanel);
-	}
-	else if(key == keyMap[KM_PAGE_UP])
-	{
-		movePageUp(selectedPanel);
-	}
-	else if(key == keyMap[KM_PAGE_DOWN])
-	{
-		movePageDown(selectedPanel);
-	}
-#if defined(__CBM__)
-	else if(key == keyMap[KM_WRITE_D64])
-	{
-		writeDiskImage();
-	}
-	else if(key == keyMap[KM_CREATE_D64])
-	{
-		createDiskImage();
-	}
-#endif
+		break;
 #ifdef __C128__
-	else if(key == HK_GO64)
-	{
+	case HK_GO64:
 		go64();
-	}
+		break;
 #endif
-	else if(key == keyMap[KM_COPY_DISK])
-	{
-		copyDisk();
+	// It isn't a non-configurable key, either; ignore it.
 	}
 }

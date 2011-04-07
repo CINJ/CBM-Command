@@ -37,6 +37,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //#include <string.h>
 #include <conio.h>
+#ifdef __CBM__
+#include <cbm.h>
+#endif
 
 #include "Configuration.h"
 //#include "constants.h"
@@ -45,16 +48,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "screen.h"
 //#include "PlatformSpecific.h"
 
-#ifdef __CBM__
-#include <cbm.h>
-#endif
-
 //unsigned char size_x, size_y;
 
 //bool arePanelsOn = true;
 unsigned char buffer[41];
 
-#ifndef __PET__
+#ifdef COLOR_RED
 unsigned char outsideFrame;
 unsigned char outsideScreen;
 unsigned char outsideText;
@@ -66,7 +65,8 @@ void initialize(void)
 {
 	//screensize(&size_x, &size_y);
 
-#ifndef __PET__
+// Save the original colors if a platform supports colors.
+#ifdef COLOR_RED
 	outsideFrame = bordercolor(0);
 	outsideScreen = bgcolor(color_background);
 	outsideText = textcolor(0);

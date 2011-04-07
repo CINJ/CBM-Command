@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011 Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -34,13 +34,13 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************/
+
 #define __fastcall __fastcall__
 #include <conio.h>
 #include <stdbool.h>
 //#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
+//#include <string.h>
 #ifdef __C128__
 #include <c128.h>
 #endif
@@ -106,6 +106,7 @@ static void readKeyboard(void)
 	case '8':
 	case '9':
 		changeColor(key);
+		refreshScreen();
 		break;
 #endif
 	case 'l':
@@ -152,7 +153,6 @@ static void __fastcall changeColor(char key)
 		pickColor(&color_text_other);
 		break;
 	}
-	refreshScreen();
 }
 
 static void __fastcall displayColor(unsigned char color)
@@ -248,7 +248,7 @@ static void writeMenu(void)
 
 static void writeFunctionKeys(void)
 {
-#if size_y > 23u
+#if size_x > 22u
 #define bottom size_y - 1
 #else
 #define bottom size_y - 2
@@ -256,7 +256,7 @@ static void writeFunctionKeys(void)
 
 	(void)textcolor(color_text_other);
 	//cclearxy(0, bottom, size_x);
-#if size_y > 23u
+#if size_x > 22u
 	cputsxy(2, bottom, "HELP    QUIT    SAVE    KEYS");
 #else
 	cputsxy(2, bottom,		"HELP    SAVE");
@@ -270,15 +270,14 @@ static void writeFunctionKeys(void)
 	gotox(17); cputc('3');
 	gotox(25); cputc('4');
 #else
-#if size_y > 23u
 	cputsxy(0, bottom, "F1");
+#if size_y > 23u
 	gotox(8); cputs("F2");
 	gotox(16); cputs("F3");
 	gotox(24); cputs("F4");
 #else
-	cputsxy(0, bottom, "F1");
 	gotox(8); cputs("F3");
-	gotoxy(0, bottom + 1u); cputs("F2");
+	cputsxy(0, bottom + 1u, "F2");
 	gotox(8); cputs("F4");
 #endif
 #endif
@@ -288,7 +287,7 @@ static void writeFunctionKeys(void)
 static void save(void)
 {
 #ifdef __CBM__
-	unsigned char d, i;
+	unsigned char d;
 	signed char r;
 
 	cbm_open(15,_curunit,15,"");	// open the status channel
@@ -328,7 +327,7 @@ static void save(void)
 		cbm_write(1, &color_text_highlight, 1);
 #endif
 
-		cbm_write(1u, keyMap, 25);
+		cbm_write(1u, keyMap, sizeof keyMap);
 
 		r = cbm_read(15, buffer, (sizeof buffer) - 1);
 		buffer[r < 0 ? 0 : r] = '\0';
@@ -418,52 +417,50 @@ static void __fastcall pickColor(unsigned char *color)
 }
 #endif
 
-void __fastcall drawCursor(
-	const unsigned char x, 
-	const unsigned char y, 
-	const bool clear)
+static void __fastcall drawCursor(
+	const unsigned char x,
+	const unsigned char y,
+	const bool draw)
 {
-	textcolor(color_text_highlight);
-	cputcxy(x, y, clear ? ' ' : '>');
+	(void)textcolor(color_text_highlight);
+	cputcxy(x, y, draw ? '>' : ' ');
 }
 
-void __fastcall setHotKey(const unsigned char index)
+static void __fastcall setHotKey(const unsigned char index)
 {
-	unsigned char key, newKey;
-	unsigned char 
+	char key, newKey;
+	const unsigned char
 		x = getCenterX(15u),
 		y = getCenterY(6u);
 
-	writeStatusBarf("index: %2u", index);	
+	writeStatusBarf("index:%3u", index);
 
 	writePanel(
-		true, false, 
-		color_text_borders, 
+		true, false,
+		color_text_borders,
 		x, y, 6u, 15u,
 		"Set Key", NULL, "OK");
 
-	textcolor(color_text_other);
+	(void)textcolor(color_text_other);
+	newKey = keyMap[index];
 	gotoxy(x+1, y+2);
-	cprintf("Current: %2X %c", keyMap[index], keyMap[index]);
-
-	key = keyMap[index];
+	cprintf("Current: $%02X %c", newKey, newKey);
 
 	for(;;)
 	{
 		gotoxy(x+1, y+3);
-		cprintf("New    : %2X %c", key, key);
+		cprintf("New    : $%02X %c", newKey, newKey);
 
-		key = cgetc();
-
+		key = getKey();
 		switch(key)
 		{
 		case CH_ENTER:
 			keyMap[index] = newKey;
-
-		case CH_ESC:
+			// Fall through.
 		case CH_STOP:
 			return;
 
+		// Ignore keys that mustn't be reconfigured.
 		case CH_F1:
 		case CH_F2:
 		case CH_F3:
@@ -486,15 +483,16 @@ void __fastcall setHotKey(const unsigned char index)
 }
 
 #define KEYS_HELP "Select Function"
-void keys(void)
+static void keys(void)
 {
-	unsigned char key;
 	unsigned char index = 0u, x = 1u, y = 2u;
 
 	writePanel(true, false, color_text_borders, 0, 0, size_y-1, size_x-1,
 		"Change Keys", NULL, NULL);
-	
-	textcolor(color_text_files);
+
+	(void)textcolor(color_text_files);
+// These names must be column-sorted in the same order as the enumeration.
+// Left column:
 	cputsxy(2u, 2u, "Copy");
 	cputsxy(2u, 3u, "Mk Image");
 	cputsxy(2u, 4u, "Wr Image");
@@ -506,10 +504,11 @@ void keys(void)
 	cputsxy(2u, 10u, "Help");
 	cputsxy(2u, 11u, "Mk Dir");
 	cputsxy(2u, 12u, "En Dir");
-	cputsxy(2u, 13u, "Lv Dir");	
+	cputsxy(2u, 13u, "Lv Dir");
 	cputsxy(2u, 14u, "Pg Up");
 	cputsxy(2u, 15u, "Pg Down");
 
+// Right column:
 	cputsxy(12u, 2u, "Quit");
 	cputsxy(12u, 3u, "Rename");
 	cputsxy(12u, 4u, "Read Lft");
@@ -518,38 +517,34 @@ void keys(void)
 	cputsxy(12u, 7u, "Select");
 	cputsxy(12u, 8u, "S. All");
 	cputsxy(12u, 9u, "S. None");
-	cputsxy(12u, 10u, "To Bottom");
-	cputsxy(12u, 11u, "To Top");
+	cputsxy(12u, 10u, "To Top");
+	cputsxy(12u, 11u, "To Bottom");
 	cputsxy(12u, 12u, "Exc/Read");
 	cputsxy(12u, 13u, "Copy Disk");
-	
 
-	textcolor(color_text_highlight);
-	gotoxy(getCenterX((unsigned char)strlen(KEYS_HELP)), 17u);
-	cputs(KEYS_HELP);
-
+	(void)textcolor(color_text_highlight);
+	cputsxy(getCenterX((unsigned char)(sizeof KEYS_HELP - 1)), 17u, KEYS_HELP);
 
 	for(;;)
 	{
-		drawCursor(x, y, false);
-		key = cgetc();
+		drawCursor(x, y, true);
 
-		switch(key)
+		switch (getKey())
 		{
 		case CH_ENTER:
 			saveScreen();
-			setHotKey((x == 1u ? 0u : 14u) + y - 2u);
+			//setHotKey((x == 1u ? 0u : 14u) + y - 2u);
+			setHotKey(y + (x == 1u ? 0u - 2u : 14 - 2));	// XXX: examine asm output
 			retrieveScreen();
 			break;
 
-		case CH_ESC:
 		case CH_STOP:
 			return;
 
 		case CH_CURS_DOWN:
 			if(y < (x == 1u ? 15u : 13u))
 			{
-				drawCursor(x, y, true);
+				drawCursor(x, y, false);
 				++y;
 			}
 			break;
@@ -557,7 +552,7 @@ void keys(void)
 		case CH_CURS_UP:
 			if(y > 2u)
 			{
-				drawCursor(x, y, true);
+				drawCursor(x, y, false);
 				--y;
 			}
 			break;
@@ -565,7 +560,7 @@ void keys(void)
 		case CH_CURS_RIGHT:
 			if(x != 11u)
 			{
-				drawCursor(x, y, true);
+				drawCursor(x, y, false);
 				if(y > 13u) y = 13u;
 				x = 11u;
 			}
@@ -574,7 +569,7 @@ void keys(void)
 		case CH_CURS_LEFT:
 			if(x != 1u)
 			{
-				drawCursor(x, y, true);
+				drawCursor(x, y, false);
 				x = 1u;
 			}
 			break;

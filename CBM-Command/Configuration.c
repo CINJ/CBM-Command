@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -37,14 +37,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //#include <stdlib.h>
 //#include <stdio.h>
+#include <string.h>
 //#include <conio.h>
 //#include <errno.h>
 #ifdef __CBM__
 #include <cbm.h>
 #include "Configuration-CBM.h"
 #endif
-
-#include <string.h>
 
 #include "Configuration.h"
 #include "globalInput.h"
@@ -56,7 +55,7 @@ unsigned char defaultLeftDrive;
 unsigned char defaultRightDrive;
 
 /* Keys Configuration */
-unsigned char keyMap[] =
+char keyMap[] =
 {
 	HK_COPY,			// 0
 	HK_CREATE_D64,		// 1
@@ -64,14 +63,14 @@ unsigned char keyMap[] =
 	HK_DELETE,			// 3
 	HK_DRIVE_LEFT,		// 4
 	HK_DRIVE_RIGHT,		// 5
-	HK_DRIVE_CURRENT,	// 6 
+	HK_DRIVE_CURRENT,	// 6
 	HK_DRIVE_COMMAND,	// 7
 	HK_HELP,			// 8
 	HK_MAKE_DIRECTORY,	// 9
 	HK_ENTER_DIRECTORY, //10
 	HK_LEAVE_DIRECTORY, //11
-	HK_PAGE_DOWN,		//12
-	HK_PAGE_UP,			//13
+	HK_PAGE_UP,			//12
+	HK_PAGE_DOWN,		//13
 	HK_QUIT,			//14
 	HK_RENAME,			//15
 	HK_REREAD_LEFT,		//16
@@ -80,12 +79,11 @@ unsigned char keyMap[] =
 	HK_SELECT,			//19
 	HK_SELECT_ALL,		//20
 	HK_DESELECT_ALL,	//21
-	HK_TO_BOTTOM,		//22
-	HK_TO_TOP,			//23
+	HK_TO_TOP,			//22
+	HK_TO_BOTTOM,		//23
 	HK_EXECUTE_SELECTED,//24
 	HK_COPY_DISK,		//25
 };
-
 
 
 /* Color Configuration */
@@ -185,9 +183,9 @@ void loadCBM(void)
 		// if the configuration file can be read.
 		if (cbm_read(1, buffer,
 #ifdef COLOR_RED
-			36) == 36	// expecting drives and colors on color systems
+			36) == 36	// expecting drives, keys, and colors on color systems
 #else
-			27) == 27		// expecting only drive numbers on monochrome systems
+			27) == 27	// expecting only drives and keys on monochrome systems
 #endif
 		   )
 		{
@@ -210,8 +208,11 @@ void loadCBM(void)
 			color_text_status	= buffer[8];
 			color_text_other	= buffer[9];
 			color_text_highlight= buffer[10];
+
+			memcpy(keyMap, buffer + 11, sizeof keyMap);
+#else
+			memcpy(keyMap, buffer +  2, sizeof keyMap);
 #endif
-			strncpy(keyMap, buffer + 11, 25);
 		}
 	}
 	else

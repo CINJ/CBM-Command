@@ -38,10 +38,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _INPUT_H
 #define _INPUT_H
 
-#include "constants.h"
-
+//#include "constants.h"
 
 void readKeyboard(void);
-
 
 #endif

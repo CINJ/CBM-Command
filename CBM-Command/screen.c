@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -74,37 +74,42 @@ static unsigned char  COLOR_BUFFER[size_x * size_y];
 #endif
 
 bool isDoubleBuffered = false;
-bool double_buffer_initialized = false;
-unsigned char d018;
-unsigned char dd00;
-unsigned char dd02;
+#ifdef __C64__
+static unsigned char d018;
+static unsigned char dd00;
+//static unsigned char dd02;
+#endif
 
 void beginDoubleBuffer(void)
 {
 #ifdef __C64__
+	static bool double_buffer_initialized = false;
+
 	if(!double_buffer_initialized)
 	{
-		POKE(56334, PEEK(56334) & 0xFE); // Turn off interrupts
-		POKE(0x01, PEEK(0x01) & 0xFB); // Switch in RAM
+		--CIA1.cra;						// Turn off interrupt timer
+		POKE(0x01, PEEK(0x01) & ~0x04);	// Switch in character ROM
 
+		// Copy the lower-/upper-case font into VIC-II RAM bank 3.
 		memcpy((void*)0xF800, (void*)0xD800, 0x0800);
 
-		POKE(0x01, PEEK(0x01) | 0x04); // Switch out RAM
-		POKE(0xDC0E, PEEK(0xDC0E) | 1); // Turn on interrupts
+		POKE(0x01, PEEK(0x01) | 0x04);	// Switch out character ROM
+		++CIA1.cra;						// Turn on interrupt timer
 
 		double_buffer_initialized = true;
-	}
 
-	d018 = PEEK(0xD018);
-	dd00 = PEEK(0xDD00);
-	dd02 = PEEK(0xDD02);
+		// Save the original VIC-II banking values.
+		d018 = PEEK(0xD018);
+		dd00 = PEEK(0xDD00);
+		//dd02 = PEEK(0xDD02);
+
+		//POKE(0xDD02, PEEK(0xDD02) | 0x03);
+	}
 
 	saveScreen();
 
-	POKE(0xDD02, PEEK(0xDD02) | 0x03);
-	POKE(0xDD00, (PEEK(0xDD00) & 0xFC) | 0x00);
-	POKE(0xD018, (PEEK(0xD018) & 0x0F) | 0xC0);
-	POKE(0xD018, (PEEK(0xD018) & 0xF0) | 0x0E);
+	POKE(0xDD00, (PEEK(0xDD00) & 0xFC) | 0x00);	// switch to VIC-II bank 3
+	POKE(0xD018, 0xC0 | 0x0E);					// show the saved screen
 
 	isDoubleBuffered = true;
 #endif
@@ -113,9 +118,10 @@ void beginDoubleBuffer(void)
 void endDoubleBuffer(void)
 {
 #ifdef __C64__
-	POKE(0xDD02, dd02);
-	POKE(0xDD00, dd00);
-	POKE(0xD018, d018);
+	//POKE(0xDD02, dd02);
+	POKE(0xDD00, dd00);					// switch back to VIC-II bank 0
+	POKE(0xD018, d018);					// show the standard screen area
+
 	isDoubleBuffered = false;
 #endif
 }
@@ -164,7 +170,7 @@ void retrieveScreen(void)
 }
 #endif
 
-void writeStatusBar(
+void __fastcall writeStatusBar(
 	const char message[])
 {
 	unsigned char oldX = wherex(), oldY = wherey();
@@ -182,7 +188,7 @@ void writeStatusBar(
 // The "color" parameter isn't used by the Pet library.
 //#pragma warn(unused-param, push, off)
 
-void drawBox(
+void __fastcall drawBox(
 	unsigned char x,
 	unsigned char y,
 	unsigned char w,
@@ -217,17 +223,17 @@ void drawBox(
 }
 //#pragma warn(unused-param, pop)
 
-unsigned char getCenterX(unsigned char w)
+unsigned char __fastcall getCenterX(unsigned char w)
 {
 	return (size_x - w) / 2u /*- 1u*/;
 }
 
-unsigned char getCenterY(unsigned char h)
+unsigned char __fastcall getCenterY(unsigned char h)
 {
 	return (size_y - h) / 2u /*- 1u*/;
 }
 
-void writePanel(
+void __fastcall writePanel(
 	bool drawBorder,
 	bool reverse,
 	unsigned char color,
@@ -306,7 +312,7 @@ void writePanel(
 //	retrieveScreen();
 //}
 
-enum results drawDialog(
+enum results __fastcall drawDialog(
 	const char* const message[],
 	unsigned char lineCount,
 	const char* title,
@@ -405,7 +411,7 @@ enum results drawDialog(
 	return CANCEL_RESULT;
 }
 
-enum results drawInputDialog(
+enum results __fastcall drawInputDialog(
 	unsigned char lineCount,
 	unsigned char length,
 	const char *const message[],
@@ -476,7 +482,7 @@ enum results drawInputDialog(
 	return CANCEL_RESULT;
 }
 
-bool writeYesNo(
+bool __fastcall writeYesNo(
 	const char *title,
 	const char *const message[],
 	unsigned char lineCount)
@@ -488,7 +494,7 @@ bool writeYesNo(
 		== YES_RESULT) ? true : false;
 }
 
-void vwriteStatusBarf(const char format[], va_list ap)
+void __fastcall vwriteStatusBarf(const char format[], va_list ap)
 {
 	char buffer[81];
 
@@ -505,7 +511,7 @@ void writeStatusBarf(const char format[], ...)
 	va_end(ap);
 }
 
-void drawProgressBar(
+void __fastcall drawProgressBar(
 	const char* message,
 	unsigned int currentValue,
 	unsigned int maxValue)

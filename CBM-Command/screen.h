@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -40,6 +40,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdbool.h>
 #include <stdarg.h>
+#include "globals.h"
 
 enum results { OK_RESULT, CANCEL_RESULT, YES_RESULT, NO_RESULT };
 enum buttons { OK = 1, CANCEL = 2, YES = 4, NO = 8 };	// bit-masks
@@ -53,11 +54,11 @@ void endDoubleBuffer(void);
 
 void setupScreen(void);
 
-void writeStatusBar(const char[]);
-void vwriteStatusBarf(const char[], va_list);
+void __fastcall writeStatusBar(const char[]);
+void __fastcall vwriteStatusBarf(const char[], va_list);
 void writeStatusBarf(const char[], ...);
 
-void writePanel(
+void __fastcall writePanel(
 	bool drawBorder,
 	bool reverse,
 	unsigned char color,
@@ -67,30 +68,30 @@ void writePanel(
 	const char *cancel,
 	const char *ok);
 
-void drawBox(
+void __fastcall drawBox(
 	unsigned char x, unsigned char y,
 	unsigned char w, unsigned char h,
 	unsigned char color, bool reverse);
 
-enum results drawDialog(
+enum results __fastcall drawDialog(
 	const char* const message[],
 	unsigned char lineCount,
 	const char* title,
 	enum buttons button);
 
-bool writeYesNo(
+bool __fastcall writeYesNo(
 	const char *title,
 	const char *const message[],
 	unsigned char lineCount);
 
-enum results drawInputDialog(
+enum results __fastcall drawInputDialog(
 	unsigned char lineCount,
 	unsigned char length,
 	const char *const message[],
 	const char *title,
 	char *resultText);
 
-void drawProgressBar(
+void __fastcall drawProgressBar(
 	const char* message,
 	unsigned int currentValue,
 	unsigned int maxValue);
@@ -100,6 +101,6 @@ void retrieveScreen(void);
 
 //void notImplemented(void);
 
-unsigned char getCenterX(unsigned char w);
-unsigned char getCenterY(unsigned char h);
+unsigned char __fastcall getCenterX(unsigned char w);
+unsigned char __fastcall getCenterY(unsigned char h);
 #endif

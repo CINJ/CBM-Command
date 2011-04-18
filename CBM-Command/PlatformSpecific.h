@@ -39,10 +39,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __PlatformSpecific_H
 
 #ifdef __C128__
-//void writeVdcRegister(unsigned char data, unsigned char address);
-//unsigned char readVdcRegister(unsigned char);
-//void clearVdcScreen(unsigned char hi, unsigned char lo);
-void __fastcall__ copyVdcScreen(unsigned char srcHi, unsigned char desHi);
+//void __fastcall writeVdcRegister(unsigned char data, unsigned char address);
+//unsigned char __fastcall readVdcRegister(unsigned char);
+//void __fastcall clearVdcScreen(unsigned char hi, unsigned char lo);
+void __fastcall copyVdcScreen(unsigned char srcHi, unsigned char desHi);
 #endif
 
 #endif

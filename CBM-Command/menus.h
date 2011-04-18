@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -38,8 +38,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _MENUS_H
 #define _MENUS_H
 
-//#include <stdbool.h>
+#include <stdbool.h>
 #include "constants.h"
+#include "globals.h"
 
 // Menu Globals
 //extern unsigned char currentMenuX;
@@ -120,19 +121,19 @@ enum menus
 //void handleOptionMenu(void);
 //void handleFileMenu(void);
 //void handleCommandMenu(void);
-//void handleDriveMenu(enum menus);
+//void __fastcall handleDriveMenu(enum menus);
 
 // Menu actions
 void inputCommand(void);
 void executeSelectedFile(void);
-void rereadDrivePanel(enum menus menu);
+void __fastcall rereadDrivePanel(enum menus menu);
 void rereadSelectedPanel(void);
 void reloadPanels(void);
-void writeDriveSelectionPanel(enum menus menu);
+void __fastcall writeDriveSelectionPanel(enum menus menu);
 void selectCurrentPanelDrive(void);
 //void writeAboutBox(void);
 //void displayPanels(void);
-//void writeMenu(enum menus);
+//void __fastcall writeMenu(enum menus);
 //void writeOptionsPanel(void);
 //void saveOptions(void);
 //void togglePanels(void);
@@ -153,11 +154,11 @@ void go64(void);
 extern unsigned char fileBuffer[COPY_BUFFER_SIZE];
 
 // Menu drawing
-//void drawFileMenu(unsigned char);
-//void drawDriveMenu(unsigned char);
-//void drawCommandMenu(unsigned char);
-//void drawOptionsMenu(unsigned char);
-//void drawMenu(unsigned char, unsigned char, unsigned char, const char* const[], const char[]);
-//void drawMenuLine(bool, char, const char*, unsigned char, unsigned char);
+//void __fastcall drawFileMenu(unsigned char);
+//void __fastcall drawDriveMenu(unsigned char);
+//void __fastcall drawCommandMenu(unsigned char);
+//void __fastcall drawOptionsMenu(unsigned char);
+//void __fastcall drawMenu(unsigned char, unsigned char, unsigned char, const char* const[], const char[]);
+//void __fastcall drawMenuLine(bool, char, const char*, unsigned char, unsigned char);
 void writeMenuBar(void);
 #endif

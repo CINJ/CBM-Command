@@ -92,6 +92,21 @@ static const char* const quit_message[] =
 #define KB_QUEUE ((unsigned char[10])0x0527)
 #endif
 
+/* Names of Unique Disk Formats */
+enum
+{
+	F_UNKNOWN,
+	F_1541,						// single-sided
+	F_1571,						// double-sided
+	F_1581,
+	F_2030,
+	F_8050,						// single-sided
+	F_8250,						// double-sided
+	F_CMD,
+	F_FAT,
+	F_IDE64,
+};
+
 
 //#ifdef __C128__
 //const char* FILE_MENU_LABELS[9];
@@ -930,6 +945,104 @@ void inputCommand(void)
 }
 
 #if defined(__CBM__) //&& !defined(__VIC20__)
+// Detect the format of the disk in the named drive.
+//
+static unsigned char __fastcall getFormat(unsigned char drive)
+{
+	signed char r;
+	unsigned char format = F_UNKNOWN;
+
+	// Decode the drive's reset-message.
+	cbm_open(15, drive, 15, "ui");
+	if ((r = cbm_read(15, buffer, (sizeof buffer) - 1)) > 0)
+	{
+		buffer[r] = '\0';
+		if (
+#ifndef __PET__
+			strstr(buffer,"1541") != NULL ||
+			strstr(buffer,"1540") != NULL ||
+			strstr(buffer,"1570") != NULL ||
+#endif
+#if defined(__PET__) || defined(__C64__)
+			strstr(buffer,"2031") != NULL ||
+#endif
+#ifdef __PLUS4__
+			// VICE says that this device claims to be a tape-disk drive!
+			//strstr(buffer, "1551") != NULL ||
+			strstr(buffer, "tdisk") != NULL ||
+#endif
+			false)
+		{
+			format = F_1541;
+		}
+#ifndef __PET__
+		//else if(strstr(buffer,"1571") != NULL)	// ambiguous
+		//{
+		//	format = F_1571;
+		//}
+		else if(strstr(buffer,"1581") != NULL)
+		{
+			format = F_1581;
+		}
+#ifdef __C64__
+		else if(strstr(buffer,"ide64") != NULL)
+		{
+			format = F_IDE64;
+		}
+#endif
+#endif
+		else
+		{
+			// Either the message doesn't tell the format, or it's ambiguous.
+			// Look at the format-codes at the beginning of the raw directory
+			// file.
+			// (Actually, this method could be used instead of the
+			// reset-message, for almost all formats.)
+			cbm_open(2, drive, 2, "$");
+			if ((r = cbm_read(2, buffer, 2)) > 0)
+			{
+				switch (buffer[0])
+				{
+				case 'a':
+					// See if it's double- or single-sided.
+					format = (buffer[1] == 0x80) ? F_1571 : F_1541;
+					break;
+#if defined(__PET__) || defined(__C64__)
+				case 'c':
+					// XXX: We need more-complex code
+					// to detect the double-sided CBM 8250.
+					format = F_8050;
+					break;
+#endif
+#ifndef __PET__
+				case 'd':
+					format = F_1581;
+					break;
+				case 'h':
+					format = F_CMD;
+					break;
+//#ifdef __C64__
+//				case 'i':
+//					format = F_IDE64;
+//					break;
+//#endif
+#endif
+				}
+			}
+			cbm_close(2);
+		}
+	}
+	cbm_close(15);
+
+	if (r <= 0)
+	{
+		writeStatusBar("Error getting format");
+		//waitForEnterEsc();
+	}
+
+	return format;
+}
+
 //static unsigned char temp[256];
 static const unsigned char l[] =	// sectors per track on 1541/1571 disks
 // Note:  This table can handle both sides of a 1571 because the modulo
@@ -1070,7 +1183,7 @@ void createDiskImage(void)
 									// Break out of the outer loop by presetting
 									// the track number beyond the highest
 									// supported value.
-									i=155;
+									i=77*2+1;
 									break;
 								}
 
@@ -1127,7 +1240,7 @@ void createDiskImage(void)
 						//retrieveScreen();
 						reloadPanels();
 						writeStatusBarf(
-							(i == 156) ? "Stopped" : "%u:%02u e.t. %d B/s",
+							(i == 77*2+2) ? "Stopped" : "%u:%02u e.t. %d B/s",
 							(unsigned)timeSpent/60u,
 							(unsigned)timeSpent%60u,
 							(unsigned)(((long)size * 256L)/timeSpent));
@@ -1283,7 +1396,7 @@ void writeDiskImage(void)
 								// Break out of the outer loop by presetting
 								// the track number beyond the highest
 								// supported value.
-								i=155;
+								i=77*2+1;
 								break;
 							}
 
@@ -1344,7 +1457,7 @@ void writeDiskImage(void)
 					//retrieveScreen();
 					reloadPanels();
 					writeStatusBarf(
-						(i == 156) ? "Stopped" : "%u:%02u e.t. %d B/s",
+						(i == 77*2+2) ? "Stopped" : "%u:%02u e.t. %d B/s",
 						(unsigned)timeSpent/60u,
 						(unsigned)timeSpent%60u,
 						(unsigned)(((long)currentNode->size * 256uL)/timeSpent));
@@ -1385,109 +1498,161 @@ bool selectDiskImageType(void)
 
 void copyDisk(void)
 {
-	const char* const message[] =
+#if defined(__CBM__) //&& !defined(__VIC20__)
+	static const char* const message[] =
 	{
 		{ "Are you ready?" }
 	};
-
-	const char* const message1571[] =
-	{
-		{ "Double Sided Source?" }
-	};
 	static bool yesNo;
-	unsigned char i, j, sd, td;
-	unsigned char sectorCount, currentSector;
-	unsigned char trackCount, currentTrack;
-	struct panel_drive *targetPanel;
+	unsigned char tf, sf;
+	unsigned char j, i = 0, trackCount = 0, sectorCount = 40;
+	struct panel_drive *targetPanel = (selectedPanel == &leftPanelDrive)
+		? &rightPanelDrive : &leftPanelDrive;
+	unsigned char td = targetPanel->drive->drive, sd = selectedPanel->drive->drive;
 
-	targetPanel = (selectedPanel == &leftPanelDrive ? &rightPanelDrive : &leftPanelDrive);
-
-	saveScreen();
-	yesNo = writeYesNo("Copy Disk", message, 1);
+	//saveScreen();
+	yesNo = writeYesNo("Copy Disk", message, A_SIZE(message));
 	retrieveScreen();
-
 	if(yesNo)
 	{
-		if((strstr(selectedPanel->drive->message, "1541") != NULL && strstr(targetPanel->drive->message, "1541") != NULL)
-			|| (strstr(selectedPanel->drive->message, "1541") != NULL && strcmp(targetPanel->drive->message, "1571") != NULL)
-#ifdef __PLUS4__
-			|| (strstr(selectedPanel->drive->message, "1551") != NULL && strcmp(targetPanel->drive->message, "1551") != NULL)
+		// The two formats must be compatible.
+		if ((sf = getFormat(sd)) == (tf = getFormat(td))
+			// Will change a double-sided into a single-sided disk!
+#ifndef __PET__
+			|| sf == F_1541 && tf == F_1571
 #endif
-			|| (strstr(selectedPanel->drive->message, "1571") != NULL && strcmp(targetPanel->drive->message, "1571") != NULL)
-			|| (strstr(selectedPanel->drive->message, "1581") != NULL && strcmp(targetPanel->drive->message, "1581") != NULL)
+#if defined(__PET__) || defined(__C64__)
+			|| sf == F_8050 && tf == F_8250
+#endif
 			)
 		{
-			if(strstr(selectedPanel->drive->message, "1541") != NULL) trackCount = 35;
-			else if(strstr(selectedPanel->drive->message, "1571") != NULL)
+			// Known floppy-disk formats will set trackCount;
+			// other formats won't set it.
+			switch (sf)
 			{
-				saveScreen();
-				trackCount = writeYesNo("1571 Detected", message1571, 1) ? 70 : 35;
-				retrieveScreen();
-			}
-			else if(strstr(selectedPanel->drive->message, "1581") != NULL) trackCount = 80;
+			case F_1541:
 #ifdef __PLUS4__
-			else if(strstr(selectedPanel->drive->message, "1551") != NULL) trackCount = 35;
-#endif
-
-			switch(trackCount)
-			{
-#ifdef __PLUS4__
-			case 35: writeStatusBarf("1541/1551 Drive Copy..."); break;
+				writeStatusBar("1541-/1551-Drive Copy.");
 #else
-			case 35: writeStatusBarf("1541 Drive Copy..."); break;
+				writeStatusBar("1541-/2031-Drive Copy.");
 #endif
-			case 70: writeStatusBarf("1571 Drive Copy..."); break;
-			case 80: writeStatusBarf("1581 Drive Copy..."); break;
+				trackCount = 35;
+				break;
+#ifndef __PET__
+			case F_1571:
+				writeStatusBar("1571-Drive Copy...");
+				trackCount = 35*2;
+				break;
+			case F_1581:
+				writeStatusBar("1581-Drive Copy...");
+				trackCount = 80;
+				break;
+#endif
+#if defined(__PET__) || defined(__C64__)
+			case F_8050:
+				writeStatusBar("8050-Drive Copy...");
+				trackCount = 77;
+				break;
+			case F_8250:
+				writeStatusBar("1001-/8250-Drive Copy.");
+				trackCount = 77*2;
+				break;
+#endif
 			}
+		}
 
-			sd = selectedPanel->drive->drive;
-			td = targetPanel->drive->drive;
-
+		if (trackCount != 0)
+		{
 			cbm_open(15, sd, 15, "");
-
 			cbm_open(14, td, 15, "");
+			cbm_open(2, sd, 2, "#");
+			cbm_open(3, td, 3, "#");
 
-			for(i = 0; i < trackCount; ++i)
+			// This is constant if it's a 1581.
+			//sectorCount = 40;
+
+			for(; i < trackCount; ++i)
 			{
-				sectorCount = (trackCount == 80 ? 40 : l[i]);
+				// Some formats have a variable number of sectors per track.
+				// Change that conut at the appropriate cylinders.
+				switch (sf)
+				{
+				case F_1541:			// single-sided
+				case F_1571:			// double-sided
+					switch (i)
+					{
+					case 0:				// side 0
+					case 0+35:			// side 1
+						sectorCount = 21;
+						break;
+					case 17:
+					case 17+35:
+						sectorCount = 19;
+						break;
+					case 24:
+					case 24+35:
+						sectorCount = 18;
+						break;
+					case 30:
+					case 30+35:
+						sectorCount = 17;
+					}
+					break;
+				case F_8050:			// single-sided
+				case F_8250:			// double-sided
+					switch (i)
+					{
+					case 0:
+					case 0+77:
+						sectorCount = 29;
+						break;
+					case 39:
+					case 39+77:
+						sectorCount = 27;
+						break;
+					case 53:
+					case 53+77:
+						sectorCount = 25;
+						break;
+					case 64:
+					case 64+77:
+						sectorCount = 23;
+					}
+					break;
+				}
 
-				cbm_open(2, sd, 2, "#");
-				cbm_open(3, td, 3, "#");
 				for(j = 0; j < sectorCount; ++j)
 				{
-					if(kbhit())
+					if (kbStop())
 					{
-						if (getKey() == CH_STOP)
-						{
-							i=81;
-							break;
-						}
+						// Break out of the outer loop by presetting the
+						// track number beyond the highest supported value.
+						i=77*2+1;
+						break;
 					}
 
-					cbm_write(15, buffer, sprintf(buffer,"u1 2 0 %u %u", i+1, j));
-
+					cbm_write(15,buffer, sprintf(buffer,"u1 2 0 %u %u",i+1,j));
 					cbm_read(2,fileBuffer, 256);
 
 					cbm_write(14, "b-p 3 0", 7);
 					cbm_write(3,fileBuffer,256);
-					cbm_write(14,buffer,
-						sprintf(buffer, "u2 3 0 %u %u", i+1, j));
+					cbm_write(14,buffer, sprintf(buffer,"u2 3 0 %u %u",i+1,j));
 #if size_x > 22
-					writeStatusBarf("Track %u, Sector %u Copied.", i+1, j);
+					writeStatusBarf("Track %u, Sector %2u copied", i+1, j);
 #else
-					writeStatusBarf("%2u:%2u Copied", i+1, j);
+					writeStatusBarf("%u, %2u copied", i+1, j);
 #endif
 				}
 			}
 
-			cbm_close(2);
 			cbm_close(3);
-			cbm_close(15);
+			cbm_close(2);
 			cbm_close(14);
+			cbm_close(15);
 		}
 		else
 		{
-			writeStatusBarf("One or more invalid drives");
+			writeStatusBar("One or two invalid drives");
 			return;
 		}
 
@@ -1495,10 +1660,13 @@ void copyDisk(void)
 		rereadSelectedPanel();
 		writeSelectorPosition(selectedPanel, '>');
 
-		writeStatusBarf("Disk copy complete.");
+		writeStatusBar("Disk-copy finished");
 	}
 	else
 	{
-		writeStatusBarf("Disk copy aborted.");
+		writeStatusBar("Disk-copy aborted");
 	}
+#else
+	writeStatusBar("Not implemented");
+#endif
 }

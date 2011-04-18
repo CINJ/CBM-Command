@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -49,13 +49,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#include "constants.h"
 #include "globalInput.h"
 #include "globals.h"
-//#include "drives.h"
+#include "drives.h"
 #include "screen.h"
 #include "menus.h"
 
 #define BUFFERSIZE (sizeof fileBuffer)
 
-void viewFile(
+void __fastcall viewFile(
 	unsigned char drive,
 	const char *filename)
 {
@@ -71,6 +71,11 @@ void viewFile(
 		currentLine = 1;
 
 #ifdef __CBM__
+	if (checkDrive(drive) != 0)
+	{
+		writeStatusBarf("Can't see drive %u", drive);
+		return;
+	}
 	//strcpy(file, filename);
 	//strcat(file, ",s,r");
 	sprintf(file, ":%s", filename);

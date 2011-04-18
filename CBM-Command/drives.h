@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2011, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -39,6 +39,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _DRIVES_H
 
 #include <stdbool.h>
+#ifdef __CBM__
+#include <cbm.h>
+#endif
 
 #include "constants.h"
 #include "menus.h"
@@ -96,10 +99,14 @@ struct dir_node
  */
 struct panel_drive
 {
-	bool visible;
+	bool visible;			// XXX: obsolete
 	unsigned char* selectedEntries;
 	struct drive_status *drive;
-	struct dir_node header;		// XXX: simplify (no type, index)
+#ifdef __CBM__
+	struct cbm_dirent header;
+#else
+	struct dir_node header;
+#endif
 	struct dir_node slidingWindow[SLIDING_WINDOW_SIZE];
 	int length;
 	int currentIndex;
@@ -117,53 +124,53 @@ extern struct panel_drive *selectedPanel;	// The current panel
 /* METHODS */
 void initializeDrives(void);
 
-static int getDriveStatus(
+static int __fastcall getDriveStatus(
 	struct drive_status *drive);
 
 void __fastcall__ listDrives(const enum menus menu);
 
-#ifndef __PLUS4__
+//#ifndef __PLUS4__
 extern unsigned char __fastcall__ checkDrive(unsigned char drive);
-#else
-static unsigned char checkDrivePlus4(unsigned char drive);
-#endif
+//#else
+//static unsigned char __fastcall checkDrivePlus4(unsigned char drive);
+//#endif
 
-unsigned int getDirectory(
+unsigned int __fastcall getDirectory(
 	struct panel_drive *drive,
 	int slidingWindowStartAt);
 
-void displayDirectory(
+void __fastcall displayDirectory(
 	struct panel_drive *drive);
 
-char getFileType(
+char __fastcall getFileType(
 	unsigned char type);
 
-static void shortenSize(
+static void __fastcall shortenSize(
 	char* buffer,
 	unsigned int value);
 
-static char* shortenString(
+static char* __fastcall shortenString(
 	char* source);
 
-void writeSelectorPosition(
+void __fastcall writeSelectorPosition(
 	struct panel_drive *panel,
 	char character);
 
-void moveSelectorUp(
+void __fastcall moveSelectorUp(
 	struct panel_drive *panel);
 
-void moveSelectorDown(
+void __fastcall moveSelectorDown(
 	struct panel_drive *panel);
 
 void selectCurrentFile(void);
 
-void writeCurrentFilename(
+void __fastcall writeCurrentFilename(
 	struct panel_drive *panel);
 
-void enterDirectory(
+void __fastcall enterDirectory(
 	struct panel_drive *panel);
 
-void leaveDirectory(
+void __fastcall leaveDirectory(
 	struct panel_drive *panel);
 
 static bool __fastcall__ isDiskImage(
@@ -189,10 +196,10 @@ void __fastcall__ selectAllFiles(
 	struct panel_drive *panel,
 	unsigned char select);
 
-void __fastcall__  moveTop(
+void __fastcall__ moveTop(
 	struct panel_drive *panel);
 
-void __fastcall__  movePageUp(
+void __fastcall__ movePageUp(
 	struct panel_drive *panel);
 
 void __fastcall__ movePageDown(
@@ -201,7 +208,7 @@ void __fastcall__ movePageDown(
 void __fastcall__ moveBottom(
 	struct panel_drive *panel);
 
-//bool getDriveError(
+//bool __fastcall__ getDriveError(
 //	unsigned char channel,
 //	char* message,
 //	unsigned size);

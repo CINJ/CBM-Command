@@ -287,7 +287,14 @@ unsigned int __fastcall getDirectory(
 			{
 #ifdef __CBM__
 				// .size holds drive/partition number
-				// .access holds disk-format code
+				// .access holds disk-format code:
+				//  a - 1541/1571/2031/4040
+				//  c - 8050/8250/1001
+				//  d - 1581
+				//  h - CMD native partition
+				//  4 - IDE64
+				//  m - CDROM
+				//  <blank> - VICE
 				drive->header = currentDE;
 #else
 				strcpy(drive->header.name, currentDE.name);
@@ -584,6 +591,17 @@ void __fastcall moveSelectorDown(struct panel_drive *panel)
 	writeCurrentFilename(panel);
 }
 
+// Convert a file-type code-number into the type's initial letter.
+// d - DELeted, but closed
+// S - SEQuential
+// P - PRoGram
+// U - USeR-made format
+// R - RELative
+// C - CBM partition
+// D - DIRectory
+// L - soft-LiNK
+// V - VoRPal fast-loading
+// O - any Other type
 char __fastcall getFileType(unsigned char type)
 {
 	if(type < CBM_T_OTHER) return "dSPURCDLV"[type];

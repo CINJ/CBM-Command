@@ -183,9 +183,11 @@ void loadCBM(void)
 		// if the configuration file can be read.
 		if (cbm_read(1, buffer,
 #ifdef COLOR_RED
-			36) == 36	// expecting drives, keys, and colors on color systems
+			// expecting drives, keys, and colors on color systems
+			11 + sizeof keyMap) == 11 + sizeof keyMap
 #else
-			27) == 27	// expecting only drives and keys on monochrome systems
+			// expecting only drives and keys on monochrome systems
+			2 + sizeof keyMap) == 2 + sizeof keyMap
 #endif
 		   )
 		{

@@ -1046,7 +1046,7 @@ static unsigned char __fastcall getFormat(unsigned char drive)
 //static unsigned char temp[256];
 static const unsigned char l[] =	// sectors per track on 1541/1571 disks
 // Note:  This table can handle both sides of a 1571 because the modulo
-// operator effectively "folds" it on itself.
+// operator effectively "unfolds" it into two copies.
 {	21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
 	19,19,19,19,19,19,19,
 	18,18,18,18,18,18,
@@ -1504,169 +1504,173 @@ void copyDisk(void)
 		{ "Are you ready?" }
 	};
 	static bool yesNo;
-	unsigned char tf, sf;
+	unsigned char sd, td, sf, tf;
 	unsigned char j, i = 0, trackCount = 0, sectorCount = 40;
-	struct panel_drive *targetPanel = (selectedPanel == &leftPanelDrive)
-		? &rightPanelDrive : &leftPanelDrive;
-	unsigned char td = targetPanel->drive->drive, sd = selectedPanel->drive->drive;
 
-	//saveScreen();
-	yesNo = writeYesNo("Copy Disk", message, A_SIZE(message));
-	retrieveScreen();
-	if(yesNo)
+	targetPanel = (selectedPanel == &leftPanelDrive) ?
+		&rightPanelDrive : &leftPanelDrive;
+
+	if ((td =   targetPanel->drive->drive) !=
+		(sd = selectedPanel->drive->drive))
 	{
-		// The two formats must be compatible.
-		if ((sf = getFormat(sd)) == (tf = getFormat(td))
-			// Will change a double-sided into a single-sided disk!
+		//saveScreen();
+		yesNo = writeYesNo("Copy Disk", message, A_SIZE(message));
+		retrieveScreen();
+		if(yesNo)
+		{
+			// The two formats must be compatible.
+			if ((sf = getFormat(sd)) == (tf = getFormat(td))
+				// Will change a double-sided into a single-sided disk!
 #ifndef __PET__
-			|| sf == F_1541 && tf == F_1571
+				|| sf == F_1541 && tf == F_1571
 #endif
 #if defined(__PET__) || defined(__C64__)
-			|| sf == F_8050 && tf == F_8250
+				|| sf == F_8050 && tf == F_8250
 #endif
-			)
-		{
-			// Known floppy-disk formats will set trackCount;
-			// other formats won't set it.
-			switch (sf)
+				)
 			{
-			case F_1541:
-#ifdef __PLUS4__
-				writeStatusBar("1541-/1551-Drive Copy.");
-#else
-				writeStatusBar("1541-/2031-Drive Copy.");
-#endif
-				trackCount = 35;
-				break;
-#ifndef __PET__
-			case F_1571:
-				writeStatusBar("1571-Drive Copy...");
-				trackCount = 35*2;
-				break;
-			case F_1581:
-				writeStatusBar("1581-Drive Copy...");
-				trackCount = 80;
-				break;
-#endif
-#if defined(__PET__) || defined(__C64__)
-			case F_8050:
-				writeStatusBar("8050-Drive Copy...");
-				trackCount = 77;
-				break;
-			case F_8250:
-				writeStatusBar("1001-/8250-Drive Copy.");
-				trackCount = 77*2;
-				break;
-#endif
-			}
-		}
-
-		if (trackCount != 0)
-		{
-			cbm_open(15, sd, 15, "");
-			cbm_open(14, td, 15, "");
-			cbm_open(2, sd, 2, "#");
-			cbm_open(3, td, 3, "#");
-
-			// This is constant if it's a 1581.
-			//sectorCount = 40;
-
-			for(; i < trackCount; ++i)
-			{
-				// Some formats have a variable number of sectors per track.
-				// Change that conut at the appropriate cylinders.
+				// Known floppy-disk formats will set trackCount;
+				// other formats won't set it.
 				switch (sf)
 				{
-				case F_1541:			// single-sided
-				case F_1571:			// double-sided
-					switch (i)
-					{
-					case 0:				// side 0
-					case 0+35:			// side 1
-						sectorCount = 21;
-						break;
-					case 17:
-					case 17+35:
-						sectorCount = 19;
-						break;
-					case 24:
-					case 24+35:
-						sectorCount = 18;
-						break;
-					case 30:
-					case 30+35:
-						sectorCount = 17;
-					}
-					break;
-				case F_8050:			// single-sided
-				case F_8250:			// double-sided
-					switch (i)
-					{
-					case 0:
-					case 0+77:
-						sectorCount = 29;
-						break;
-					case 39:
-					case 39+77:
-						sectorCount = 27;
-						break;
-					case 53:
-					case 53+77:
-						sectorCount = 25;
-						break;
-					case 64:
-					case 64+77:
-						sectorCount = 23;
-					}
-					break;
-				}
-
-				for(j = 0; j < sectorCount; ++j)
-				{
-					if (kbStop())
-					{
-						// Break out of the outer loop by presetting the
-						// track number beyond the highest supported value.
-						i=77*2+1;
-						break;
-					}
-
-					cbm_write(15,buffer, sprintf(buffer,"u1 2 0 %u %u",i+1,j));
-					cbm_read(2,fileBuffer, 256);
-
-					cbm_write(14, "b-p 3 0", 7);
-					cbm_write(3,fileBuffer,256);
-					cbm_write(14,buffer, sprintf(buffer,"u2 3 0 %u %u",i+1,j));
-#if size_x > 22
-					writeStatusBarf("Track %u, Sector %2u copied", i+1, j);
+				case F_1541:
+#ifdef __PLUS4__
+					writeStatusBar("1541-/1551-Drive Copy.");
 #else
-					writeStatusBarf("%u, %2u copied", i+1, j);
+					writeStatusBar("1541-/2031-Drive Copy.");
+#endif
+					trackCount = 35;
+					break;
+#ifndef __PET__
+				case F_1571:
+					writeStatusBar("1571-Drive Copy...");
+					trackCount = 35*2;
+					break;
+				case F_1581:
+					writeStatusBar("1581-Drive Copy...");
+					trackCount = 80;
+					break;
+#endif
+#if defined(__PET__) || defined(__C64__)
+				case F_8050:
+					writeStatusBar("8050-Drive Copy...");
+					trackCount = 77;
+					break;
+				case F_8250:
+					writeStatusBar("1001-/8250-Drive Copy.");
+					trackCount = 77*2;
+					break;
 #endif
 				}
 			}
 
-			cbm_close(3);
-			cbm_close(2);
-			cbm_close(14);
-			cbm_close(15);
+			if (trackCount != 0)
+			{
+				cbm_open(15, sd, 15, "");
+				cbm_open(14, td, 15, "");
+				cbm_open(2, sd, 2, "#");
+				cbm_open(3, td, 3, "#");
+
+				// This is constant if it's a 1581.
+				//sectorCount = 40;
+
+				for(; i < trackCount; ++i)
+				{
+					// Some formats have a variable number of sectors per track.
+					// Change that conut at the appropriate cylinders.
+					switch (sf)
+					{
+					case F_1541:			// single-sided
+					case F_1571:			// double-sided
+						switch (i)
+						{
+						case 0:				// side 0
+						case 0+35:			// side 1
+							sectorCount = 21;
+							break;
+						case 17:
+						case 17+35:
+							sectorCount = 19;
+							break;
+						case 24:
+						case 24+35:
+							sectorCount = 18;
+							break;
+						case 30:
+						case 30+35:
+							sectorCount = 17;
+						}
+						break;
+					case F_8050:			// single-sided
+					case F_8250:			// double-sided
+						switch (i)
+						{
+						case 0:
+						case 0+77:
+							sectorCount = 29;
+							break;
+						case 39:
+						case 39+77:
+							sectorCount = 27;
+							break;
+						case 53:
+						case 53+77:
+							sectorCount = 25;
+							break;
+						case 64:
+						case 64+77:
+							sectorCount = 23;
+						}
+						break;
+					}
+
+					for(j = 0; j < sectorCount; ++j)
+					{
+						if (kbStop())
+						{
+							// Break out of the outer loop by presetting the
+							// track number beyond the highest supported value.
+							i=77*2+1;
+							break;
+						}
+
+						cbm_write(15,buffer, sprintf(buffer,"u1 2 0 %u %u",i+1,j));
+						cbm_read(2,fileBuffer, 256);
+
+						cbm_write(14, "b-p 3 0", 7);
+						cbm_write(3,fileBuffer,256);
+						cbm_write(14,buffer, sprintf(buffer,"u2 3 0 %u %u",i+1,j));
+#if size_x > 22
+						writeStatusBarf("Track %u, Sector %2u copied", i+1, j);
+#else
+						writeStatusBarf("%u, %2u copied", i+1, j);
+#endif
+					}
+				}
+
+				cbm_close(3);
+				cbm_close(2);
+				cbm_close(14);
+				cbm_close(15);
+			}
+			else
+			{
+				writeStatusBar("One or two invalid drives");
+				return;
+			}
+
+			selectedPanel = targetPanel;
+			rereadSelectedPanel();
+			writeSelectorPosition(selectedPanel, '>');
+
+			writeStatusBar("Disk-copy finished");
 		}
 		else
 		{
-			writeStatusBar("One or two invalid drives");
-			return;
+			writeStatusBar("Disk-copy aborted");
 		}
-
-		selectedPanel = targetPanel;
-		rereadSelectedPanel();
-		writeSelectorPosition(selectedPanel, '>');
-
-		writeStatusBar("Disk-copy finished");
-	}
-	else
-	{
-		writeStatusBar("Disk-copy aborted");
 	}
 #else
-	writeStatusBar("Not implemented");
+		writeStatusBar("Not implemented");
 #endif
 }

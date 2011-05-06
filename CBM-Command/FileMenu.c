@@ -313,7 +313,7 @@ void copyFiles(void)
 	// all", then deselect every file one-by-one, this code still might think
 	// that some files are chosen.  Fortunately, that event is rare; and,
 	// "deselecting all" is the easy work-around.
-	for(i=0; i<numSelectors; ++i)
+	for(i=0; i<numSelectors; i++)
 	{
 		if(selectedPanel->selectedEntries[i] != 0x00) multipleSelected = true;
 	}
@@ -330,7 +330,7 @@ void copyFiles(void)
 	timeStart = time(NULL);
 #endif
 #endif
-	for(i=0; i<numSelectors; ++i)
+	for(i=0; i<numSelectors; i++)
 	{
 		for(j=0; j<8; ++j)
 		{
@@ -707,7 +707,7 @@ void deleteFiles(void)
 	{
 		retrieveScreen();
 		writeStatusBar("Deleting files...");
-		for(i=0; i<(selectedPanel->length + (7 - 1)) / 8u; ++i)
+		for(i=0; i<(selectedPanel->length + (7 - 1)) / 8u; i++)
 		{
 			for(j=0; j<8; ++j)
 			{
@@ -1098,61 +1098,43 @@ void createDiskImage(void)
 
 			if((unsigned char)result == OK_RESULT)
 			{
-				strlower(name);
+				//strlower(name);
 				//if(strstr(name,".d64") == NULL &&
 				//	strstr(name,".d41") == NULL)
 				//{
 				//	strcat(name, ".d64");
 				//}
 
-				cbm_open(15, sd, 15, "ui");
-				if ((r = cbm_read(15, buffer, (sizeof buffer) - 1)) > 0)
+				switch (getFormat(sd))
 				{
-					buffer[r] = '\0';
-					if (strstr(buffer,"1541") == NULL &&
-						//strstr(buffer,"1571") == NULL &&
-						strstr(buffer,"2031") == NULL
-					   	// for quick debugging in VICE
-						&& strstr(buffer,"virtual") == NULL
-						)
-					{
-						if(strstr(buffer,"1581") == NULL  && strstr(buffer, "1571") == NULL)
-						{
-							writeStatusBar("Must be 1541, 1571, or 1581 format");
-							//waitForEnterEsc();
-							cbm_close(15);
-							return;
-						}
-						else if(strstr(buffer,"1581") != NULL)
-						{
-							isD64 = false;
-							isD71 = false;
-							size=D81_SIZE;
-//							writeStatusBar("Making D81");
-//							waitForEnterEsc();
-							waitForEnterEscf("Making D81. %u", size);
-						}
-						else // 1571, find out from user if making a D71
-						{
-							isD64 = !(isD71 = selectDiskImageType());
-							size=(isD64 ? D64_SIZE : D71_SIZE);
-						}
-					}
-					else
-					{
-//						writeStatusBar("Making D64");
-//						waitForEnterEsc();
-						waitForEnterEscf("Making D64. %u  %u", size, isD64);
-					}
-				}
-				else
-				{
-					writeStatusBar("Error openning drive");
+				case F_1541:
+//					writeStatusBar("Making D64");
+//					waitForEnterEsc();
+					waitForEnterEscf("Making D64. %u %u", size, isD64);
+					break;
+				case F_1571:
+					isD64 = false;
+					isD71 = true;
+					size=D71_SIZE;
+//					writeStatusBar("Making D71");
+//					waitForEnterEsc();
+					waitForEnterEscf("Making D71. %u", size);
+					break;
+				case F_1581:
+					isD64 = false;
+					//isD71 = false;
+					size=D81_SIZE;
+//					writeStatusBar("Making D81");
+//					waitForEnterEsc();
+					waitForEnterEscf("Making D81. %u", size);
+					break;
+				default:
+					writeStatusBar("Unsupported format");
 					//waitForEnterEsc();
-					cbm_close(15);
 					return;
 				}
 
+				cbm_open(15, sd, 15, "");
 				if(cbm_open(2, sd, 2, "#") == 0)
 				{
 					//saveScreen();
@@ -1307,10 +1289,13 @@ void writeDiskImage(void)
 		{
 			currentNode = getSelectedNode(selectedPanel);
 
-			if(currentNode->size != D64_SIZE && currentNode->size != D81_SIZE
-				&& currentNode->size != D71_SIZE
-				)
+			switch (currentNode->size)
 			{
+			case D64_SIZE:
+			case D71_SIZE:
+			case D81_SIZE:
+				break;
+			default:
 				saveScreen();
 				writeStatusBar(
 #if size_x < 40
@@ -1325,7 +1310,7 @@ void writeDiskImage(void)
 			}
 
 			//saveScreen();
-			confirmed = writeYesNo("Write image?", message, A_SIZE(message));
+			confirmed = writeYesNo("Write image", message, A_SIZE(message));
 			retrieveScreen();
 
 			if(confirmed)
@@ -1483,17 +1468,17 @@ void writeDiskImage(void)
 	}
 }
 
-bool selectDiskImageType(void)
-{
-	static const char* const message[] =
-	{
-		{ "Is the disk" },
-		{ "in the 1571" },
-		{ "double-sided?" }
-	};
-
-	return writeYesNo("Image Type", message, A_SIZE(message));
-}
+//bool selectDiskImageType(void)
+//{
+//	static const char* const message[] =
+//	{
+//		{ "Is the disk" },
+//		{ "in the 1571" },
+//		{ "double-sided?" }
+//	};
+//
+//	return writeYesNo("Image Type", message, A_SIZE(message));
+//}
 #endif
 
 void copyDisk(void)
@@ -1663,7 +1648,8 @@ void copyDisk(void)
 			rereadSelectedPanel();
 			writeSelectorPosition(selectedPanel, '>');
 
-			writeStatusBar("Disk-copy finished");
+			writeStatusBarf("Disk-copy %sed",
+				(i == 77*2+2) ? "stopp" : "finish");
 		}
 		else
 		{

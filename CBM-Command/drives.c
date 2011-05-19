@@ -183,7 +183,7 @@ void __fastcall__ listDrives(const enum menus menu)
 			== 0)
 		{
 			getDriveStatus(&(drives[i]));
-			cputs(drives[i].message);
+			cputs(&(drives[i].message[3]));
 		}
 		else
 		{

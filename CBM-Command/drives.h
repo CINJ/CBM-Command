@@ -59,7 +59,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct drive_status
 {
 	const unsigned char drive;
-	char message[37];
+	char message[40];
 };
 
 /* Directory Node

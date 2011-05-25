@@ -261,12 +261,16 @@ unsigned int __fastcall getDirectory(
 
 	if(isDoubleBuffered) endDoubleBuffer();
 
+	if (slidingWindowStartAt < 0)
+	{
+		slidingWindowStartAt = 0;
+	}
 	drive->slidingWindowStartAt = slidingWindowStartAt;
 
 	drive->header.name[0] = '\0';		// start with no directory-name;
 	drive->header.access  = '\0';		// and, no format-code
 
-	memset(drive->slidingWindow, 0, SLIDING_WINDOW_SIZE);
+	memset(drive->slidingWindow, 0, sizeof drive->slidingWindow);
 
 	dr = drive->drive->drive;
 
@@ -293,7 +297,7 @@ unsigned int __fastcall getDirectory(
 				//  d - 1581
 				//  h - CMD native partition
 				//  4 - IDE64
-				//  m - CDROM
+				//  m - IDE64 CDROM
 				//  <blank> - VICE
 				drive->header = currentDE;
 #else
@@ -454,7 +458,7 @@ void __fastcall displayDirectory(
 			}
 			else
 			{
-				getDirectory(drive, (i > 5) ? i - 5 : 0);
+				getDirectory(drive, i - 5);
 			}
 			currentNode = getSpecificNode(drive, i);
 			//beginDoubleBuffer();
@@ -539,9 +543,11 @@ void __fastcall writeCurrentFilename(struct panel_drive *panel)
 	{
 		//if(panel->drive != NULL)
 		{
-			currentDirNode = getSelectedNode(panel);
-
-			if(currentDirNode != NULL)
+			if ((currentDirNode = getSelectedNode(panel)) == NULL)
+			{
+				writeStatusBar("");
+			}
+			else
 			{
 				writeStatusBarf("%16s%6u",
 					currentDirNode->name,
@@ -650,8 +656,7 @@ void selectCurrentFile(void)
 	{
 		if(selectedPanel->selectedEntries != NULL)
 		{
-			currentDirNode = getSelectedNode(selectedPanel);
-			if(currentDirNode != NULL)
+			if ((currentDirNode = getSelectedNode(selectedPanel)) != NULL)
 			{
 				/* Toggle the selected entry. */
 				selectedPanel->selectedEntries[(currentDirNode->index - 1) / 8u]
@@ -732,8 +737,13 @@ struct dir_node* __fastcall__ getSpecificNode(
 	struct panel_drive *panel, int index)
 {
 	static int offset;
-	offset = index - panel->slidingWindowStartAt;
 
+	if (panel->length == 1)		// is the directory empty?
+	{
+		return NULL;
+	}
+
+	offset = index - panel->slidingWindowStartAt;
 	return (offset >= 0 && offset < SLIDING_WINDOW_SIZE) ?
 		&(panel->slidingWindow[offset]) : NULL;
 }
@@ -852,9 +862,7 @@ void __fastcall__ moveBottom(struct panel_drive *panel)
 		(panel->length > displayHeight) ?
 			panel->length - displayHeight : 0;
 
-	getDirectory(panel,
-		(panel->length > SLIDING_WINDOW_SIZE) ?
-			panel->length - SLIDING_WINDOW_SIZE : 0);
+	getDirectory(panel, panel->length - SLIDING_WINDOW_SIZE);
 	displayDirectory(panel);
 	writeSelectorPosition(panel, '>');
 	writeCurrentFilename(panel);

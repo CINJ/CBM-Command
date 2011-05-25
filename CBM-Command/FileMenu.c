@@ -99,7 +99,7 @@ enum
 	F_1541,						// single-sided
 	F_1571,						// double-sided
 	F_1581,
-	F_2030,
+	F_2040,
 	F_8050,						// single-sided
 	F_8250,						// double-sided
 	F_CMD,
@@ -260,10 +260,116 @@ static bool kbStop(void)
 unsigned char fileBuffer[COPY_BUFFER_SIZE];
 static struct panel_drive *targetPanel, *tempPanel;
 
+#ifdef __CBM__
+// Detect the format of the disk in the named drive.
+//
+static unsigned char __fastcall getFormat(unsigned char drive)
+{
+	int r;
+	unsigned char format = F_UNKNOWN;
+
+	// Decode the drive's reset-message.
+	cbm_open(15, drive, 15, "ui");
+	if ((r = cbm_read(15, buffer, (sizeof buffer) - 1)) > 0)
+	{
+		buffer[r] = '\0';
+		if (
+#ifndef __PET__
+			strstr(buffer,"1541") != NULL ||
+			strstr(buffer,"1540") != NULL ||
+			strstr(buffer,"1570") != NULL ||
+#endif
+#if defined(__PET__) || defined(__C64__) || defined(__C128__)
+			strstr(buffer,"2031") != NULL ||
+#endif
+#ifdef __PLUS4__
+			// VICE says that this device claims to be a tape-disk drive!
+			//strstr(buffer, "1551") != NULL ||
+			strstr(buffer, "tdisk") != NULL ||
+#endif
+			false)
+		{
+			format = F_1541;
+		}
+#ifndef __PET__
+		//else if(strstr(buffer,"1571") != NULL)	// ambiguous
+		//{
+		//	format = F_1571;
+		//}
+		else if(strstr(buffer,"1581") != NULL)
+		{
+			format = F_1581;
+		}
+#ifdef __C64__
+		else if(strstr(buffer,"ide64") != NULL)
+		{
+			format = F_IDE64;
+		}
+#endif
+#endif
+		else
+		{
+			// Either the message doesn't tell the format, or it's ambiguous.
+			// Look at the format-codes at the beginning of the raw directory
+			// file.
+			// (Actually, this method could be used instead of the
+			// reset-message, for almost all formats.)
+			cbm_open(2, drive, 2, "$");
+			if ((r = cbm_read(2, buffer, 2)) > 0)
+			{
+				switch (buffer[0])
+				{
+				case 'a':
+					// See if it's double- or single-sided.
+					format = (buffer[1] == 0x80) ? F_1571 : F_1541;
+					break;
+#if defined(__PET__) || defined(__C64__) || defined(__C128__)
+				case 'c':
+					// The CBM 8050 has two BAM blocks, while the CBM 8250 has
+					// four BAM blocks.  We read to the third block; if it has
+					// the proper format code, then it's a BAM block, and the
+					// format is double-sided.  If not, then it's a directory
+					// block, and the format is single-sided.
+					format = ((r = cbm_read(2, fileBuffer, 254*3)) == 254*3
+						&& *(unsigned*)(&fileBuffer[254*3-2]) == 'c')
+						? F_8250 : F_8050;
+					break;
+#endif
+#ifndef __PET__
+				case 'd':
+					format = F_1581;
+					break;
+				case 'h':
+					format = F_CMD;
+					break;
+//#ifdef __C64__
+//				case 'i':
+//					format = F_IDE64;
+//					break;
+//#endif
+#endif
+				}
+			}
+			cbm_close(2);
+		}
+	}
+	cbm_close(15);
+
+	if (r <= 0)
+	{
+		writeStatusBar("Error getting format");
+		//waitForEnterEsc();
+	}
+
+	return format;
+}
+#endif
+
 void copyFiles(void)
 {
 	bool multipleSelected = false, RELOAD = false;
 	unsigned numSelectors = (selectedPanel->length + (7 - 1)) / 8u;
+	unsigned copyBlocks = COPY_BUFFER_SIZE/254u;
 	unsigned long totalBytes = 0;
 #ifndef __VIC20__
 #ifdef __PET__
@@ -323,6 +429,11 @@ void copyFiles(void)
 		writeSelectorPosition(selectedPanel, '>');
 	}
 
+	if (getFormat(sd) == F_IDE64)
+	{
+		copyBlocks = COPY_BUFFER_SIZE/256u;
+	}
+
 #ifndef __VIC20__
 #ifdef __PET__
 	timeStart = clock();
@@ -365,7 +476,7 @@ void copyFiles(void)
 								color_text_borders,
 								false);
 
-							for(index=0; index < currentNode->size; index+=(COPY_BUFFER_SIZE/254))
+							for(index=0; index < currentNode->size; index+=copyBlocks)
 							{
 								//writeStatusBarf("%s %u/%u",
 								//	currentNode->name, index,
@@ -692,24 +803,29 @@ static signed char __fastcall removeFile(const struct dir_node *selectedNode)
 void deleteFiles(void)
 {
 	const struct dir_node *selectedNode;
-	unsigned i, k;
-	unsigned char j;
-
-
+	unsigned k;
+	int i;
+	signed char j;
 	bool isBatch = false;
 	static const char* const dialogMessage[] =
 	{
 		{ "Are you sure?" }
 	};
 
+	// Don't ask the security question if the directory is empty.
+	if (selectedPanel->length == 1)
+	{
+		return;
+	}
+
 	//saveScreen();
 	if(writeYesNo("Delete files", dialogMessage, A_SIZE(dialogMessage)))
 	{
 		retrieveScreen();
 		writeStatusBar("Deleting files...");
-		for(i=0; i<(selectedPanel->length + (7 - 1)) / 8u; i++)
+		for (i = (selectedPanel->length + (7 - 1)) / 8u; --i >= 0; )
 		{
-			for(j=0; j<8; ++j)
+			for (j = 8; --j >= 0; )
 			{
 				if ((selectedPanel->selectedEntries[i] & (1 << j)) != 0x00
 					&& (k = i*8+j) < selectedPanel->length - 1)
@@ -718,7 +834,7 @@ void deleteFiles(void)
 
 					if ((selectedNode = getSpecificNode(selectedPanel, k)) == NULL)
 					{
-						getDirectory(selectedPanel, k);
+						getDirectory(selectedPanel, k - (SLIDING_WINDOW_SIZE - 1));
 						selectedNode = getSpecificNode(selectedPanel, k);
 					}
 
@@ -945,104 +1061,6 @@ void inputCommand(void)
 }
 
 #if defined(__CBM__) //&& !defined(__VIC20__)
-// Detect the format of the disk in the named drive.
-//
-static unsigned char __fastcall getFormat(unsigned char drive)
-{
-	signed char r;
-	unsigned char format = F_UNKNOWN;
-
-	// Decode the drive's reset-message.
-	cbm_open(15, drive, 15, "ui");
-	if ((r = cbm_read(15, buffer, (sizeof buffer) - 1)) > 0)
-	{
-		buffer[r] = '\0';
-		if (
-#ifndef __PET__
-			strstr(buffer,"1541") != NULL ||
-			strstr(buffer,"1540") != NULL ||
-			strstr(buffer,"1570") != NULL ||
-#endif
-#if defined(__PET__) || defined(__C64__)
-			strstr(buffer,"2031") != NULL ||
-#endif
-#ifdef __PLUS4__
-			// VICE says that this device claims to be a tape-disk drive!
-			//strstr(buffer, "1551") != NULL ||
-			strstr(buffer, "tdisk") != NULL ||
-#endif
-			false)
-		{
-			format = F_1541;
-		}
-#ifndef __PET__
-		//else if(strstr(buffer,"1571") != NULL)	// ambiguous
-		//{
-		//	format = F_1571;
-		//}
-		else if(strstr(buffer,"1581") != NULL)
-		{
-			format = F_1581;
-		}
-#ifdef __C64__
-		else if(strstr(buffer,"ide64") != NULL)
-		{
-			format = F_IDE64;
-		}
-#endif
-#endif
-		else
-		{
-			// Either the message doesn't tell the format, or it's ambiguous.
-			// Look at the format-codes at the beginning of the raw directory
-			// file.
-			// (Actually, this method could be used instead of the
-			// reset-message, for almost all formats.)
-			cbm_open(2, drive, 2, "$");
-			if ((r = cbm_read(2, buffer, 2)) > 0)
-			{
-				switch (buffer[0])
-				{
-				case 'a':
-					// See if it's double- or single-sided.
-					format = (buffer[1] == 0x80) ? F_1571 : F_1541;
-					break;
-#if defined(__PET__) || defined(__C64__)
-				case 'c':
-					// XXX: We need more-complex code
-					// to detect the double-sided CBM 8250.
-					format = F_8050;
-					break;
-#endif
-#ifndef __PET__
-				case 'd':
-					format = F_1581;
-					break;
-				case 'h':
-					format = F_CMD;
-					break;
-//#ifdef __C64__
-//				case 'i':
-//					format = F_IDE64;
-//					break;
-//#endif
-#endif
-				}
-			}
-			cbm_close(2);
-		}
-	}
-	cbm_close(15);
-
-	if (r <= 0)
-	{
-		writeStatusBar("Error getting format");
-		//waitForEnterEsc();
-	}
-
-	return format;
-}
-
 //static unsigned char temp[256];
 static const unsigned char l[] =	// sectors per track on 1541/1571 disks
 // Note:  This table can handle both sides of a 1571 because the modulo
@@ -1086,8 +1104,36 @@ void createDiskImage(void)
 			(td =   targetPanel->drive->drive) !=
 			(sd = selectedPanel->drive->drive))
 		{
-			//currentNode = getSelectedNode(selectedPanel);
+			switch (j = getFormat(sd))
+			{
+			case F_1541:
+//				writeStatusBar("Making D64");
+				//waitForEnterEsc();
+				writeStatusBarf("Making D64. %u %u", size, isD64);
+				break;
+			case F_1571:
+				isD64 = false;
+				isD71 = true;
+				size=D71_SIZE;
+//				writeStatusBar("Making D71");
+				//waitForEnterEsc();
+				writeStatusBarf("Making D71. %u", size);
+				break;
+			case F_1581:
+				isD64 = false;
+				//isD71 = false;
+				size=D81_SIZE;
+//				writeStatusBar("Making D81");
+				//waitForEnterEsc();
+				writeStatusBarf("Making D81. %u", size);
+				break;
+			default:
+				writeStatusBarf("Unsupported format: %u", j);
+				//waitForEnterEsc();
+				return;
+			}
 
+			//currentNode = getSelectedNode(selectedPanel);
 			name[0]='\0';
 			//saveScreen();
 			result = drawInputDialog(
@@ -1104,35 +1150,6 @@ void createDiskImage(void)
 				//{
 				//	strcat(name, ".d64");
 				//}
-
-				switch (getFormat(sd))
-				{
-				case F_1541:
-//					writeStatusBar("Making D64");
-//					waitForEnterEsc();
-					waitForEnterEscf("Making D64. %u %u", size, isD64);
-					break;
-				case F_1571:
-					isD64 = false;
-					isD71 = true;
-					size=D71_SIZE;
-//					writeStatusBar("Making D71");
-//					waitForEnterEsc();
-					waitForEnterEscf("Making D71. %u", size);
-					break;
-				case F_1581:
-					isD64 = false;
-					//isD71 = false;
-					size=D81_SIZE;
-//					writeStatusBar("Making D81");
-//					waitForEnterEsc();
-					waitForEnterEscf("Making D81. %u", size);
-					break;
-				default:
-					writeStatusBar("Unsupported format");
-					//waitForEnterEsc();
-					return;
-				}
 
 				cbm_open(15, sd, 15, "");
 				if(cbm_open(2, sd, 2, "#") == 0)
@@ -1277,18 +1294,16 @@ void writeDiskImage(void)
 	unsigned char tracks, sectors;
 	unsigned int p = 0;
 
-	//if(selectedPanel != NULL && selectedPanel->drive != NULL)
+	targetPanel = (selectedPanel == &leftPanelDrive) ?
+		&rightPanelDrive : &leftPanelDrive;
+
+	if (
+		//targetPanel->drive != NULL &&
+		(td =   targetPanel->drive->drive) !=
+		(sd = selectedPanel->drive->drive))
 	{
-		targetPanel = (selectedPanel == &leftPanelDrive) ?
-			&rightPanelDrive : &leftPanelDrive;
-
-		if(
-			//targetPanel->drive != NULL &&
-			(td =   targetPanel->drive->drive) !=
-			(sd = selectedPanel->drive->drive))
+		if ((currentNode = getSelectedNode(selectedPanel)) != NULL)
 		{
-			currentNode = getSelectedNode(selectedPanel);
-
 			switch (currentNode->size)
 			{
 			case D64_SIZE:
@@ -1505,15 +1520,17 @@ void copyDisk(void)
 		{
 			// The two formats must be compatible.
 			if ((sf = getFormat(sd)) == (tf = getFormat(td))
-				// Will change a double-sided into a single-sided disk!
+				// These matches will change a double-sided
+				// into a single-sided disk!
 #ifndef __PET__
 				|| sf == F_1541 && tf == F_1571
 #endif
-#if defined(__PET__) || defined(__C64__)
+#if defined(__PET__) || defined(__C64__)) || defined(__C128__)
 				|| sf == F_8050 && tf == F_8250
 #endif
 				)
-			{
+
+		{
 				// Known floppy-disk formats will set trackCount;
 				// other formats won't set it.
 				switch (sf)
@@ -1536,7 +1553,7 @@ void copyDisk(void)
 					trackCount = 80;
 					break;
 #endif
-#if defined(__PET__) || defined(__C64__)
+#if defined(__PET__) || defined(__C64__) || defined(__C128__)
 				case F_8050:
 					writeStatusBar("8050-Drive Copy...");
 					trackCount = 77;

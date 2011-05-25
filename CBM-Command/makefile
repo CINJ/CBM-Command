@@ -29,6 +29,7 @@ CONFIG_SOURCES = \
 
 SOURCES	= \
 	CBM-Command.c \
+	CBM-REL.c \
 	Configuration.c \
 	DriveMenu.c \
 	drives.c \
@@ -39,9 +40,8 @@ SOURCES	= \
 	screen.c  \
 	globalInput.c \
 	Viewer.c \
-	CBM-REL.c \
 	builtStamp.c
-# builtStamp.c should be last in that list.
+# builtStamp.c should be last in the list.
 
 ASMFILES= \
 	res\common\driveRoutines.s \

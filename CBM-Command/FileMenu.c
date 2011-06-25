@@ -61,7 +61,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "screen.h"
 #include "Viewer.h"
 
-// Number of CBM blocks in disk images (without error blocks).
+// Number of CBM blocks in disk images (without error blocks or extra tracks).
 #define D64_SIZE  689
 #define D71_SIZE 1377
 #define D80_SIZE 2100
@@ -1203,11 +1203,11 @@ void createDiskImage(void)
 									(long)(size - p) * timeSpent / (long)p;
 								writeStatusBarf(
 #if size_x < 40
-									"%u:%02u et %d Bs %u:%02u",
+									"%u:%02u et %d B/s %u:%02u",
 #elif size_x < 80
-									"%u:%02u et %d Bs %u:%02u rem %4u/%4u",
+									"%u:%02u et %d B/s %u:%02u rem %4u/%4u",
 #else
-									"%u:%02u et %d Bs %u:%02u rem %4u/%4u - %2u:%2u",
+									"%u:%02u et %d B/s %u:%02u rem %4u/%4u - %2u:%2u",
 #endif
 									(unsigned)timeSpent/60u,
 									(unsigned)timeSpent%60u,
@@ -1312,13 +1312,7 @@ void writeDiskImage(void)
 				break;
 			default:
 				saveScreen();
-				writeStatusBar(
-#if size_x < 40
-					"Not valid image"
-#else
-					"Not a valid image"
-#endif
-					);
+				writeStatusBar("Image not supported");
 				waitForEnterEsc();
 				retrieveScreen();
 				return;

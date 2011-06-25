@@ -110,11 +110,11 @@ static void readKeyboard(void)
 		break;
 #endif
 	case 'l':
-		if(++defaultLeftDrive > 15) defaultLeftDrive = 8;
+		if(++defaultLeftDrive > 16) defaultLeftDrive = 8;
 		refreshScreen();
 		break;
 	case 'r':
-		if(++defaultRightDrive > 15) defaultRightDrive = 8;
+		if(++defaultRightDrive > 16) defaultRightDrive = 8;
 		refreshScreen();
 		break;
 	}

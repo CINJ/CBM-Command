@@ -61,7 +61,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "screen.h"
 #include "Viewer.h"
 
-// Number of CBM blocks in disk images (without error blocks or extra tracks).
+// Number of CBM blocks in disk images (without error blocks or extra tracks)
 #define D64_SIZE  689
 #define D71_SIZE 1377
 #define D80_SIZE 2100
@@ -74,6 +74,8 @@ static const char* const quit_message[] =
 };
 #define A_SIZE_QUIT A_SIZE(quit_message)
 
+// Locations of screen and keyboard variables
+// that are used by Commodore Kernals
 #if defined(__VIC20__) || defined(__C64__)
 #define LINE_TABLE ((unsigned char[size_y])0xD9)
 #define KB_COUNT (*(unsigned char*)198)
@@ -92,19 +94,21 @@ static const char* const quit_message[] =
 #define KB_QUEUE ((unsigned char[10])0x0527)
 #endif
 
-/* Names of Unique Disk Formats */
+// Names of Unique Disk Formats
 enum
 {
 	F_UNKNOWN,
 	F_1541,						// single-sided
 	F_1571,						// double-sided
 	F_1581,
+	F_2030,
 	F_2040,
 	F_8050,						// single-sided
 	F_8250,						// double-sided
-	F_CMD,
+	F_D2M,
+	F_DNP,
 	F_FAT,
-	F_IDE64,
+	F_IDE64
 };
 
 
@@ -314,14 +318,15 @@ static unsigned char __fastcall getFormat(unsigned char drive)
 			// file.
 			// (Actually, this method could be used instead of the
 			// reset-message, for almost all formats.)
-			cbm_open(2, drive, 2, "$");
+			cbm_open(2, drive, CBM_SEQ, "$");
 			if ((r = cbm_read(2, buffer, 2)) > 0)
 			{
+				buffer[r] = '\0';
 				switch (buffer[0])
 				{
 				case 'a':
 					// See if it's double- or single-sided.
-					format = (buffer[1] == 0x80) ? F_1571 : F_1541;
+					format = ((signed char)buffer[1] < 0) ? F_1571 : F_1541;
 					break;
 #if defined(__PET__) || defined(__C64__) || defined(__C128__)
 				case 'c':
@@ -340,7 +345,7 @@ static unsigned char __fastcall getFormat(unsigned char drive)
 					format = F_1581;
 					break;
 				case 'h':
-					format = F_CMD;
+					format = F_DNP;
 					break;
 //#ifdef __C64__
 //				case 'i':
@@ -382,8 +387,8 @@ void copyFiles(void)
 	unsigned i, k, index;
 	char targetFilename[2 + 16 + 2 + 2 + 1];
 	const struct dir_node *currentNode;
-	unsigned char j, sd, td, r, rel_size, rel_bytes;
-	int bytes;
+	unsigned char j, sd, td, rel_size, rel_bytes;
+	int r, bytes;
 	static struct position_rel command = {'p', 96 + 2, 0, 1};
 	//static struct rel_file* relativeFile;
 	static struct rel_file_rec relativeRecord;
@@ -459,16 +464,18 @@ void copyFiles(void)
 					//}
 				}
 #ifdef __CBM__
-				/* Copy only sequential and relative files. */
+				// Copy only sequential and relative files.
 				if(currentNode->type < CBM_T_REL)
 				{
-					cbm_open(14, sd, 15, "");
-					if ((r = cbm_open(1, sd, 2, currentNode->name)) == 0)
+					//cbm_open(14, sd, 15, "");
+					if ((r = cbmOpen(1, sd, CBM_SEQ, currentNode->name, 14))
+						== 0)
 					{
+						// Target file will be replaced automatically.
 						sprintf(targetFilename,"@:%s,%c,w",currentNode->name,
 							tolower(getFileType(currentNode->type)));
-						cbm_open(15,td,15,"");
-						if ((r = cbm_open(2, td, 3, targetFilename)) == 0)
+						//cbm_open(15,td,15,"");
+						if ((r = cbmOpen(2, td, 3, targetFilename, 15)) == 0)
 						{
 							drawBox(
 								getCenterX(20), getCenterY(3),
@@ -487,7 +494,12 @@ void copyFiles(void)
 								if ((bytes = cbm_read(1, fileBuffer,
 									COPY_BUFFER_SIZE)) < 0)	// Catch errors.
 								{
-									waitForEnterEscf("Problem (%u) reading %s",
+									waitForEnterEscf(
+#if size_x > 22
+										"Problem (%u) reading %s",
+#else
+										"Can't (%u) read %s",
+#endif
 										_oserror,
 										currentNode->name);
 									bytes = cbm_read(14,
@@ -516,7 +528,12 @@ void copyFiles(void)
 
 								if (cbm_write(2, fileBuffer, bytes) != bytes)
 								{
-									waitForEnterEscf("Problem (%u) writing %s",
+									waitForEnterEscf(
+#if size_x > 22
+										"Problem (%u) writing %s",
+#else
+										"Can't (%u) write %s",
+#endif
 										_oserror,
 										currentNode->name);
 									bytes = cbm_read(15,
@@ -545,22 +562,24 @@ void copyFiles(void)
 						}
 						else
 						{
-							waitForEnterEscf("Can't open %s for write (%u)",
+							waitForEnterEscf("Can't write %s (%d)",
 								currentNode->name, r);
-							bytes = cbm_read(15, buffer, (sizeof buffer) - 1);
-							buffer[bytes < 0 ? 0 : bytes] = '\0';
-							writeStatusBar(buffer);
-							waitForEnterEsc();
+							if (r < 0)
+							{
+								writeStatusBar(buffer);
+								waitForEnterEsc();
+							}
 						}
 					}
 					else
 					{
-						waitForEnterEscf("Can't open %s for read (%u)",
+						waitForEnterEscf("Can't read %s (%d)",
 							currentNode->name, r);
-						bytes = cbm_read(14, buffer, (sizeof buffer) - 1);
-						buffer[bytes < 0 ? 0 : bytes] = '\0';
-						writeStatusBar(buffer);
-						waitForEnterEsc();
+						if (r < 0)
+						{
+							writeStatusBar(buffer);
+							waitForEnterEsc();
+						}
 					}
 
 					cbm_close(2);
@@ -620,13 +639,22 @@ void copyFiles(void)
 							{
 								if (r != 50)	// is it error or end of file?
 								{
-									waitForEnterEscf("Error - rec: %u - result: %u",
+									waitForEnterEscf(
+#if size_x > 22
+										"Error - rec: %u - result: %u",
+#else
+										"rec: %u - res: %u",
+#endif
 										command.rec_number, r);
 								}
 								break;
 							}
 
-							writeStatusBarf("Writing rec. %u, len. %u",
+							writeStatusBarf(
+#if size_x > 22
+								"Writing "
+#endif
+								"rec. %u, len. %u",
 								command.rec_number, rel_bytes);
 							totalBytes += cbm_write(3,
 								relativeRecord.record_data, rel_bytes);
@@ -690,7 +718,7 @@ static void reloadPanels(void)
 
 void renameFile(void)
 {
-	enum results dialogResult;
+	unsigned char dialogResult;
 	const struct dir_node *selectedNode;
 	char command[41];
 	char filename[17];
@@ -720,7 +748,7 @@ void renameFile(void)
 				filename);
 			retrieveScreen();
 
-			if((unsigned char)dialogResult == OK_RESULT && filename[0] != '\0')
+			if(dialogResult == OK_RESULT && filename[0] != '\0')
 			{
 				sprintf(command, "r:%s=%s",
 					filename, selectedNode->name);
@@ -747,7 +775,7 @@ void renameFile(void)
 
 void makeDirectory(void)
 {
-	enum results dialogResult;
+	unsigned char dialogResult;
 	char command[3 + 16 + 1];
 	static const char* const dialogMessage[] =
 	{
@@ -767,7 +795,7 @@ void makeDirectory(void)
 			&command[3]);
 		retrieveScreen();
 
-		if((unsigned char)dialogResult == OK_RESULT)
+		if(dialogResult == OK_RESULT)
 		{
 			sendCommand(selectedPanel, command);
 
@@ -839,7 +867,8 @@ void deleteFiles(void)
 					}
 
 					if (removeFile(selectedNode) < 0 ||
-						// Allow us to change our minds, and stop a batch delete.
+						// Allow us to change our minds,
+						// and stop a batch delete.
 						kbStop())
 					{
 						rereadSelectedPanel();
@@ -941,7 +970,7 @@ void executeSelectedFile(void)
 							currentNode->name, selectedPanel->drive->drive);
 						LINE_TABLE[1] = 0x10;	// link top two physical lines
 
-						KB_QUEUE[0] = 0x13;	/* HOME */
+						KB_QUEUE[0] = 0x13;	// HOME
 						KB_QUEUE[1] = '\n';
 						KB_QUEUE[2] = 'r';
 						KB_QUEUE[3] = 'U';
@@ -966,7 +995,7 @@ void executeSelectedFile(void)
 					break;
 				}
 				retrieveScreen();
-				// fall through
+				// Fall through.
 			case CBM_T_SEQ:
 			//case CBM_T_USR:
 			case CBM_T_OTHER:
@@ -981,7 +1010,7 @@ void executeSelectedFile(void)
 
 void inputCommand(void)
 {
-	//enum results dialogResult;
+	//unsigned char dialogResult;
 	char command[size_x - 4];
 	unsigned char key = '\0';
 	unsigned char count = 0;
@@ -1008,7 +1037,7 @@ void inputCommand(void)
 	//	);
 	//retrieveScreen();
 
-	//if((unsigned char)dialogResult == OK_RESULT)
+	//if(dialogResult == OK_RESULT)
 	//{
 	//}
 
@@ -1078,10 +1107,10 @@ void createDiskImage(void)
 		{ "Type a name for" },
 		{ "the disk image" }
 	};
-	char name[17 + 4 + 1];
+	char name[1 + 16 + 1];
 	unsigned char sd, td, i, j, sectorsThisTrack, tracks;
 	//struct dir_node *currentNode;
-	enum results result;
+	unsigned char result;
 	int r;
 #ifndef __VIC20__
 #ifdef __PET__
@@ -1134,15 +1163,16 @@ void createDiskImage(void)
 			}
 
 			//currentNode = getSelectedNode(selectedPanel);
-			name[0]='\0';
+			name[0]=':';
+			name[1]='\0';
 			//saveScreen();
 			result = drawInputDialog(
-				A_SIZE(message), 17,
+				A_SIZE(message), 16,
 				message, "Make Image",
-				name);
+				&name[1]);
 			retrieveScreen();
 
-			if((unsigned char)result == OK_RESULT)
+			if(result == OK_RESULT)
 			{
 				//strlower(name);
 				//if(strstr(name,".d64") == NULL &&
@@ -1168,8 +1198,8 @@ void createDiskImage(void)
 					timeStart = time(NULL);
 #endif
 #endif
-					cbm_open(14,td,15,"");
-					if(cbm_open(3,td,3,strcat(name,",p,w")) == 0)
+					//cbm_open(14,td,15,"");
+					if((signed char)(r = cbmOpen(3,td,CBM_WRITE,name,14)) == 0)
 					{
 						tracks = isD64 ? 35 : (isD71 ? 35*2 : 80);
 						for(i=0;i<tracks;++i)
@@ -1182,7 +1212,7 @@ void createDiskImage(void)
 									// Break out of the outer loop by presetting
 									// the track number beyond the highest
 									// supported value.
-									i=77*2+1;
+									i=77*2;
 									break;
 								}
 
@@ -1207,7 +1237,7 @@ void createDiskImage(void)
 #elif size_x < 80
 									"%u:%02u et %d B/s %u:%02u rem %4u/%4u",
 #else
-									"%u:%02u et %d B/s %u:%02u rem %4u/%4u - %2u:%2u",
+									"%u:%02u et %d B/s %u:%02u rem %4u/%4u - %3u:%2u",
 #endif
 									(unsigned)timeSpent/60u,
 									(unsigned)timeSpent%60u,
@@ -1239,18 +1269,27 @@ void createDiskImage(void)
 						//retrieveScreen();
 						reloadPanels();
 						writeStatusBarf(
-							(i == 77*2+2) ? "Stopped" : "%u:%02u e.t. %d B/s",
+							(i == 77*2+1) ? "Stopped" : "%u:%02u e.t. %d B/s",
 							(unsigned)timeSpent/60u,
 							(unsigned)timeSpent%60u,
 							(unsigned)(((long)size * 256L)/timeSpent));
+#else
+						reloadPanels();
+						if (i == 77*2+1)
+						{
+							writeStatusBar("Stopped");
+						}
 #endif
 					}
 					else
 					{
-						r = cbm_read(14, buffer, (sizeof buffer) - 1);
-						buffer[r < 0 ? 0 : r] = '\0';
 						retrieveScreen();
-						writeStatusBarf("Target: %s", buffer);
+#if size_x > 22
+						writeStatusBarf("Target: %s",
+							r >= 0 ? "unit not there" : buffer);
+#else
+						writeStatusBar(r >= 0 ? "unit not there" : buffer);
+#endif
 						cbm_close(3); cbm_close(14);
 					}
 				}
@@ -1258,8 +1297,11 @@ void createDiskImage(void)
 				{
 					r = cbm_read(15, buffer, (sizeof buffer) - 1);
 					buffer[r < 0 ? 0 : r] = '\0';
-					retrieveScreen();
+#if size_x > 22
 					writeStatusBarf("Source: %s", buffer);
+#else
+					writeStatusBar(buffer);
+#endif
 				}
 				cbm_close(2); cbm_close(15);
 			}
@@ -1319,13 +1361,14 @@ void writeDiskImage(void)
 			}
 
 			//saveScreen();
-			confirmed = writeYesNo("Write image", message, A_SIZE(message));
+			confirmed = writeYesNo("Put image on disk",
+				message, A_SIZE(message));
 			retrieveScreen();
 
 			if(confirmed)
 			{
-				cbm_open(15, sd, 15, "");
-				if(cbm_open(2, sd, 2, currentNode->name) == 0)
+				//cbm_open(15, sd, 15, "");
+				if((r = cbmOpen(2, sd, CBM_SEQ, currentNode->name, 15)) == 0)
 				{
 					/*
 					100 OPEN 1,8,15
@@ -1366,6 +1409,7 @@ void writeDiskImage(void)
 						break;
 					case D81_SIZE:
 						tracks = 80u;
+						sectors = 40u;
 						break;
 					}
 
@@ -1379,9 +1423,6 @@ void writeDiskImage(void)
 						case D71_SIZE:
 							sectors = l[i%35];
 							break;
-						case D81_SIZE:
-							sectors = 40;
-							break;
 						}
 						for(j=0;j<sectors;++j)
 						{
@@ -1390,7 +1431,7 @@ void writeDiskImage(void)
 								// Break out of the outer loop by presetting
 								// the track number beyond the highest
 								// supported value.
-								i=77*2+1;
+								i=77*2;
 								break;
 							}
 
@@ -1424,7 +1465,7 @@ void writeDiskImage(void)
 #if size_x < 80
 								"%u:%02u e.t. %d B/s, %u:%02u rem",
 #else
-								"%u:%02u e.t. %d B/s, %u:%02u rem - %2u:%2u of %2u:%2u",
+								"%u:%02u e.t. %d B/s, %u:%02u rem - %3u:%2u of %3u:%2u",
 #endif
 								(unsigned)timeSpent/60u,
 								(unsigned)timeSpent%60u,
@@ -1451,7 +1492,7 @@ void writeDiskImage(void)
 					//retrieveScreen();
 					reloadPanels();
 					writeStatusBarf(
-						(i == 77*2+2) ? "Stopped" : "%u:%02u e.t. %d B/s",
+						(i == 77*2+1) ? "Stopped" : "%u:%02u e.t. %d B/s",
 						(unsigned)timeSpent/60u,
 						(unsigned)timeSpent%60u,
 						(unsigned)(((long)currentNode->size * 256uL)/timeSpent));
@@ -1460,14 +1501,15 @@ void writeDiskImage(void)
 #else
 					//retrieveScreen();
 					reloadPanels();
+					if (i == 77*2+1)
+					{
+						writeStatusBar("Stopped");
+					}
 #endif
 				}
 				else
 				{
-					r = cbm_read(15, buffer, (sizeof buffer) - 1);
-					buffer[r < 0 ? 0 : r] = '\0';
-					retrieveScreen();
-					writeStatusBar(buffer);
+					writeStatusBar(r >= 0 ? "source unit not there" : buffer);
 					//waitForEnterEsc();
 				}
 				cbm_close(2);
@@ -1626,7 +1668,7 @@ void copyDisk(void)
 						{
 							// Break out of the outer loop by presetting the
 							// track number beyond the highest supported value.
-							i=77*2+1;
+							i=77*2;
 							break;
 						}
 
@@ -1651,7 +1693,7 @@ void copyDisk(void)
 			}
 			else
 			{
-				writeStatusBar("One or two invalid drives");
+				writeStatusBar("1 or 2 invalid drives");
 				return;
 			}
 
@@ -1660,7 +1702,7 @@ void copyDisk(void)
 			writeSelectorPosition(selectedPanel, '>');
 
 			writeStatusBarf("Disk-copy %sed",
-				(i == 77*2+2) ? "stopp" : "finish");
+				(i == 77*2+1) ? "stopp" : "finish");
 		}
 		else
 		{

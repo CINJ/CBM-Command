@@ -216,14 +216,18 @@ void __fastcall__ listDrives(const enum menus menu)
 			}
 			continue;
 
-		case CH_CURS_UP:
+		case CH_HOME:
+			current = 1;
+			// Fall through.
+
+		case CH_CURS_UP:				// cursor-up
 			if(current > 0)
 			{
 				--current;
 			}
 			continue;
 
-		case CH_CURS_DOWN:
+		case CH_CURS_DOWN:				// cursor-down
 			if (current < A_SIZE(drives) - 1)
 			{
 				++current;
@@ -292,13 +296,14 @@ unsigned int __fastcall getDirectory(
 #ifdef __CBM__
 				// .size holds drive/partition number
 				// .access holds disk-format code:
-				//  a - 1541/1571/2031/4040
+				//  a - 2031/4040/1541/1571
+				//  b - 2030
 				//  c - 8050/8250/1001
 				//  d - 1581
 				//  h - CMD native partition
 				//  4 - IDE64
 				//  m - IDE64 CDROM
-				//  <blank> - VICE
+				//  <space> - VICE
 				drive->header = currentDE;
 #else
 				strcpy(drive->header.name, currentDE.name);
@@ -328,7 +333,7 @@ unsigned int __fastcall getDirectory(
 
 		if (dr == 2)
 		{
-			/* "blocks free/used" line was read. */
+			// "blocks free/used" line was read.
 			drive->header.size = currentDE.size;
 		}
 
@@ -658,7 +663,7 @@ void selectCurrentFile(void)
 		{
 			if ((currentDirNode = getSelectedNode(selectedPanel)) != NULL)
 			{
-				/* Toggle the selected entry. */
+				// Toggle the selected entry.
 				selectedPanel->selectedEntries[(currentDirNode->index - 1) / 8u]
 					^= 1 << ((currentDirNode->index - 1) % 8u);
 
@@ -866,4 +871,31 @@ void __fastcall__ moveBottom(struct panel_drive *panel)
 	displayDirectory(panel);
 	writeSelectorPosition(panel, '>');
 	writeCurrentFilename(panel);
+}
+
+// Use this function, instead of cbm_open(), to open files.  It checks the DOS
+// status message.  It returns a value greater than zero if the device cannot
+// be found.  It returns a negative value if the DOS reports an error;
+// then, the buffer array holds the error string.
+signed char __fastcall__ cbmOpen(unsigned char lfn, unsigned char device,
+	unsigned char sec_addr, const char* name,
+	unsigned char errf)
+{
+	static signed char r;
+
+	// Open the drive's command/status channel.
+	if (errf != 0)
+	{
+		cbm_open(errf, device, 15, "");
+	}
+
+	if ((r = cbm_open(lfn, device, sec_addr, name)) == 0 && errf != 0)
+	{
+		// Check the DOS status.
+		r = cbm_read(errf, buffer, (sizeof buffer) - 1);
+		buffer[r < 0 ? 0 : r] = '\0';
+		r = (buffer[0] != '0') ? -1 : 0;
+	}
+
+	return r;
 }

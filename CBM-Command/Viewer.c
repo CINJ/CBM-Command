@@ -60,7 +60,7 @@ void __fastcall viewFile(
 	const char *filename)
 {
 //#ifndef __VIC20__
-	char file[22];
+	char file[1 + 16 + 1];
 	char line[81];
 	char word[81];
 	int r, i;
@@ -71,21 +71,16 @@ void __fastcall viewFile(
 		currentLine = 1;
 
 #ifdef __CBM__
-	if (checkDrive(drive) != 0)
-	{
-		writeStatusBarf("Can't see drive %u", drive);
-		return;
-	}
 	//strcpy(file, filename);
 	//strcat(file, ",s,r");
 	sprintf(file, ":%s", filename);
 
-	cbm_open(15,drive,15,"");
-
-	saveScreen();
-
-	if(cbm_open(2,drive,2,file) == 0)
+	//cbm_open(15,drive,15,"");
+	if((signed char)(r = cbmOpen(2,drive,CBM_SEQ,file,15)) == 0)
+#endif
 	{
+		saveScreen();
+
 		(void)textcolor(color_text_other);
 		clrscr();
 
@@ -93,13 +88,15 @@ void __fastcall viewFile(
 		do
 		{
 			//memset(fileBuffer, '\0', BUFFERSIZE);
+#ifdef __CBM__
 			r = cbm_read(2, fileBuffer, BUFFERSIZE);
+#endif
 
 			for(i=0; i<r; i++)
 			{
 				last = character;
 				character = fileBuffer[i];
-				if(character == '\n' ||
+				if (character == '\n' ||
 					character == '\r')
 				{
 					if(
@@ -147,7 +144,9 @@ void __fastcall viewFile(
 						if(waitForEnterEsc() == CH_STOP)
 						{
 							retrieveScreen();
+#ifdef __CBM__
 							cbm_close(2); cbm_close(15);
+#endif
 							return;
 						}
 						else
@@ -172,17 +171,22 @@ void __fastcall viewFile(
 #else
 		waitForEnterEscf("Done reading :%s", filename);
 #endif
+		retrieveScreen();
 	}
 	else
 	{
-		r = cbm_read(15, buffer, (sizeof buffer) - 1);
-		buffer[r < 0 ? 0 : r] = '\0';
-		writeStatusBar(buffer);
-		waitForEnterEsc();
+		if (r >= 0)
+		{
+			writeStatusBarf("Can't see drive %u", drive);
+		}
+		else
+		{
+			writeStatusBar(buffer);
+			//waitForEnterEsc();
+		}
 	}
 
-	retrieveScreen();
-
+#ifdef __CBM__
 	cbm_close(2); cbm_close(15);
 #endif
 //#endif

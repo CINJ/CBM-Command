@@ -209,8 +209,16 @@ void __fastcall__ moveBottom(
 	struct panel_drive *panel);
 
 //bool __fastcall__ getDriveError(
-//	unsigned char channel,
+//	unsigned char file,
 //	char* message,
 //	unsigned size);
+
+// Use this function, instead of cbm_open(), to open files.  It checks the DOS
+// status message.  It returns a value greater than zero if the device cannot
+// be found.  It returns a negative value if the DOS reports an error;
+// then, the buffer array holds the error string.
+signed char __fastcall__ cbmOpen(unsigned char lfn, unsigned char device,
+	unsigned char sec_addr, const char* name,
+	unsigned char errf);
 
 #endif

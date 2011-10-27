@@ -43,6 +43,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cbm.h>
 
 #include "CBM-REL.h"
+#include "drives.h"
 #include "globals.h"
 #include "screen.h"
 
@@ -51,9 +52,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 unsigned char __fastcall getRecordSize(
 	const unsigned char command_lfn,
-	const unsigned char logical_file_number,
 	const unsigned char unit_number,
-	const unsigned char secondary,
 	const char* file_name)
 {
 	//const static unsigned char s=128;
@@ -63,39 +62,31 @@ unsigned char __fastcall getRecordSize(
 
 	sprintf(relFileName, ":%s,l", file_name);
 
-	if (cbm_open(
-		logical_file_number, unit_number,
-		secondary, relFileName) == 0)
+	if (cbmOpen(2, unit_number, 2, relFileName, command_lfn) == 0)
 	{
-		// Learn if the drive found the file.
-		cbm_read(command_lfn, buffer, sizeof buffer);
-		if(buffer[0] == '0')
+		// File found -- find the record length.  Start at the maximum;
+		// and, shrink.  The position command fails when the target is
+		// beyond the end of the record; it succeeds when the target
+		// reaches the last byte in the record -- that spot is the size.
+		//
+		writeStatusBar("Getting record size");
+		command.position = 254;
+		do
 		{
-			// File found -- find the record length.  Start at the maximum;
-			// and, shrink.  The position command fails when the target is
-			// beyond the end of the record; it succeeds when the target
-			// reaches the last byte in the record -- that spot is the size.
-			//
-			writeStatusBar("Getting record size");
-			command.channel = secondary;
-			command.position = 254;
-			do
+			cbm_write(command_lfn, &command, sizeof command);
+
+			cbm_read(command_lfn, buffer, sizeof buffer);
+			if(buffer[0] == '0')
 			{
-				cbm_write(command_lfn, &command, sizeof command);
-
-				cbm_read(command_lfn, buffer, sizeof buffer);
-				if(buffer[0] == '0')
-				{
-					break;
-				}
+				break;
 			}
-			while (--command.position > 0);
-
-			cbm_close(logical_file_number);
-			return command.position;
 		}
-		cbm_close(logical_file_number);
+		while (--command.position > 0);
+
+		cbm_close(2);
+		return command.position;
 	}
+	cbm_close(2);
 	return 0;
 }
 //

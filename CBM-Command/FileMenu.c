@@ -287,7 +287,6 @@ static unsigned char __fastcall getFormat(unsigned char drive)
 			strstr(buffer,"2031") != NULL ||
 #endif
 #ifdef __PLUS4__
-			// VICE says that this device claims to be a tape-disk drive!
 			//strstr(buffer, "1551") != NULL ||
 			strstr(buffer, "tdisk") != NULL ||
 #endif
@@ -583,101 +582,109 @@ void copyFiles(void)
 					}
 
 					cbm_close(2);
-					cbm_close(1);
 					cbm_close(15);
+					cbm_close(1);
 					cbm_close(14);
 				}
 				else if(currentNode->type == CBM_T_REL)
 				{
-					cbm_open(127, sd, 15, "");
-					cbm_open(126, td, 15, "");
+					//cbm_open(127, sd, 15, "");
 
 					// Get record size.
-					rel_size = getRecordSize(127, 2, sd, 2, currentNode->name);
-
-					// Make read- and write-filename string.
-					// Set the last byte to the size of the records.
-					sprintf(targetFilename, ":%s,l,%c",
+					if ((rel_size = getRecordSize(127, sd, currentNode->name))
+						== 0)
+					{
+						writeStatusBar(buffer);
+						waitForEnterEsc();
+					}
+					else
+					{
+						// Make a read- and write-filename string.
+						// Set the last byte to the size of the records.
+						sprintf(targetFilename, ":%s,l,%c",
 							currentNode->name, rel_size);
 
-					// Open the source file.
-					cbm_open(2, sd, 2, targetFilename);
+						// Open the source file.
+						cbm_open(2, sd, 2, targetFilename);
 
-					// Open the target file.
-					cbm_open(3, td, 3, targetFilename);
+						//cbm_open(126, td, 15, "");
 
-					// Close it to make sure the file was created.
-					cbm_close(3);
-
-					// Re-open it.
-					cbm_open(3, td, 3, targetFilename);
-
-					// Get the status of the target file operation.
-					cbm_read(126, buffer, sizeof buffer);
-
-					// Get the first two bytes of the status.
-					//buffer[2] = '\0';
-
-					// Convert them to an integer.
-					// r == 0 means the target file was openned.
-					if ((r=atoi(buffer)) == 0)
-					{
-						writeStatusBar("Copying file...");
-						command.rec_number = 0;
-						for (;;)
-						{
-							//relativeRecord.record_number =
-							++command.rec_number;
-							cbm_write(127u, &command, sizeof command);
-
-							rel_bytes = cbm_read(2, relativeRecord.record_data,
-								rel_size);
-
-							cbm_read(127u, buffer, sizeof buffer);
-							//buffer[2] = '\0';
-							if ((r=atoi(buffer)) != 00)
-							{
-								if (r != 50)	// is it error or end of file?
-								{
-									waitForEnterEscf(
-#if size_x > 22
-										"Error - rec: %u - result: %u",
-#else
-										"rec: %u - res: %u",
-#endif
-										command.rec_number, r);
-								}
-								break;
-							}
-
-							writeStatusBarf(
-#if size_x > 22
-								"Writing "
-#endif
-								"rec. %u, len. %u",
-								command.rec_number, rel_bytes);
-							totalBytes += cbm_write(3,
-								relativeRecord.record_data, rel_bytes);
-
-							if (kbStop())
-							{
-								cbm_close(3); cbm_close(2);
-								cbm_close(126); cbm_close(127);
-
-								reloadPanels();
-								writeStatusBar("Aborted copy");
-								return;
-							}
+						// Open the target file.
+						if (cbmOpen(3, td, 3, targetFilename, 126) != 0) {
+							writeStatusBar(buffer);
+							waitForEnterEsc();
 						}
-						//waitForEnterEscf("Stopped at rec. %u, len. %u",
-						//	command.rec_number, rel_bytes);
+						else
+						{
+							// Close it to make sure the file was created.
+							cbm_close(3);
+
+							// Re-open it.
+							cbm_open(3, td, 3, targetFilename);
+
+							writeStatusBar("Copying file...");
+							command.rec_number = 0;
+							for (;;)
+							{
+								//relativeRecord.record_number =
+								++command.rec_number;
+								cbm_write(127u, &command, sizeof command);
+
+								rel_bytes = cbm_read(2,
+									relativeRecord.record_data, rel_size);
+
+								// Get the status of the source file operation.
+								cbm_read(127u, buffer, sizeof buffer);
+
+								// Look at the first two bytes of the status.
+								//buffer[2] = '\0';
+
+								// Convert them to an integer.
+								if ((r=atoi(buffer)) != 00)
+								{
+									if (r != 50)	// is it error or end of file?
+									{
+										waitForEnterEscf(
+#if size_x > 22
+											"Error - rec: %u - result: %u",
+#else
+											"rec: %u - res: %u",
+#endif
+											command.rec_number, r);
+									}
+									break;
+								}
+
+								writeStatusBarf(
+#if size_x > 22
+									"Writing "
+#endif
+									"rec. %u, len. %u",
+									command.rec_number, rel_bytes);
+								totalBytes += cbm_write(3,
+									relativeRecord.record_data, rel_bytes);
+
+								if (kbStop())
+								{
+									cbm_close(3); cbm_close(126);
+									cbm_close(2); cbm_close(127);
+
+									reloadPanels();
+									writeStatusBar("Aborted copy");
+									return;
+								}
+							}
+							//waitForEnterEscf("Stopped at rec. %u, len. %u",
+							//	command.rec_number, rel_bytes);
+
+							RELOAD = true;
+							writeStatusBar("Closing...");
+						}
+
+						cbm_close(3); cbm_close(126);
+						cbm_close(2);
 					}
-
-					writeStatusBar("Closing...");
-					cbm_close(3); cbm_close(2);
-					cbm_close(126); cbm_close(127);
-
-					RELOAD = true;
+					cbm_close(127);
 				}
 #endif
 			}
@@ -1181,16 +1188,9 @@ void createDiskImage(void)
 				//	strcat(name, ".d64");
 				//}
 
-				cbm_open(15, sd, 15, "");
-				if(cbm_open(2, sd, 2, "#") == 0)
+				//cbm_open(15, sd, 15, "");
+				if((r = cbmOpen(2, sd, 2, "#", 15)) == 0)
 				{
-					//saveScreen();
-					drawBox(
-						getCenterX(20), getCenterY(3),
-						19, 3,
-						color_text_borders,
-						false);
-
 #ifndef __VIC20__
 #ifdef __PET__
 					timeStart = clock();
@@ -1201,6 +1201,13 @@ void createDiskImage(void)
 					//cbm_open(14,td,15,"");
 					if((signed char)(r = cbmOpen(3,td,CBM_WRITE,name,14)) == 0)
 					{
+						//saveScreen();
+						drawBox(
+							getCenterX(20), getCenterY(3),
+							19, 3,
+							color_text_borders,
+							false);
+
 						tracks = isD64 ? 35 : (isD71 ? 35*2 : 80);
 						for(i=0;i<tracks;++i)
 						{
@@ -1237,7 +1244,7 @@ void createDiskImage(void)
 #elif size_x < 80
 									"%u:%02u et %d B/s %u:%02u rem %4u/%4u",
 #else
-									"%u:%02u et %d B/s %u:%02u rem %4u/%4u - %3u:%2u",
+									"%u:%02u et %d B/s %u:%02u rem %4u/%4u - %3u,%2u",
 #endif
 									(unsigned)timeSpent/60u,
 									(unsigned)timeSpent%60u,
@@ -1283,24 +1290,22 @@ void createDiskImage(void)
 					}
 					else
 					{
-						retrieveScreen();
 #if size_x > 22
 						writeStatusBarf("Target: %s",
 							r >= 0 ? "unit not there" : buffer);
 #else
-						writeStatusBar(r >= 0 ? "unit not there" : buffer);
+						writeStatusBar(r >= 0 ? "Target not there" : buffer);
 #endif
 						cbm_close(3); cbm_close(14);
 					}
 				}
 				else
 				{
-					r = cbm_read(15, buffer, (sizeof buffer) - 1);
-					buffer[r < 0 ? 0 : r] = '\0';
 #if size_x > 22
-					writeStatusBarf("Source: %s", buffer);
+					writeStatusBarf("Source: %s",
+						r >= 0 ? "unit not there" : buffer);
 #else
-					writeStatusBar(buffer);
+					writeStatusBar(r >= 0 ? "Source not there" : buffer);
 #endif
 				}
 				cbm_close(2); cbm_close(15);
@@ -1379,137 +1384,156 @@ void writeDiskImage(void)
 					*/
 
 					writeStatusBar("Formatting disk...");
-					cbm_open(14, td, 15, "n:temp,00");
-					cbm_open(3,td,3,"#");
+					//cbm_open(14, td, 15, "n:temp,00");
+					if ((r = cbmOpen(3, td, 15, "n:temp,00", 14)) == 0)
+					{
+						cbm_close(3); cbm_open(3,td,3,"#");
 
-					drawBox(
-						getCenterX(20), getCenterY(3),
-						19, 3,
-						color_text_borders,
-						false);
+						drawBox(
+							getCenterX(20), getCenterY(3),
+							19, 3,
+							color_text_borders,
+							false);
 
-					writeStatusBar("Making disk...");
+						writeStatusBar("Making disk...");
 #ifndef __VIC20__
 #ifdef __PET__
-					timeStart = clock();
+						timeStart = clock();
 #else
-					timeStart = time(NULL);
+						timeStart = time(NULL);
 #endif
 #endif
 
-					(void)textcolor(color_text_other);
+						(void)textcolor(color_text_other);
 
-					switch(currentNode->size)
-					{
-					case D64_SIZE:
-						tracks = 35u;
-						break;
-					case D71_SIZE:
-						tracks = 35u*2;
-						break;
-					case D81_SIZE:
-						tracks = 80u;
-						sectors = 40u;
-						break;
-					}
-
-					//waitForEnterEscf("size: %4u, tracks: %2u", currentNode->size, tracks);
-
-					for(i=0;i<tracks;++i)
-					{
 						switch(currentNode->size)
 						{
-						case D64_SIZE:
-						case D71_SIZE:
-							sectors = l[i%35];
+						  case D64_SIZE:
+							tracks = 35u;
+							break;
+						  case D71_SIZE:
+							tracks = 35u*2;
+							break;
+						  case D81_SIZE:
+							sectors = 40u;
+							tracks = 80u;
 							break;
 						}
-						for(j=0;j<sectors;++j)
+
+						//waitForEnterEscf("size: %4u, tracks: %2u", currentNode->size, tracks);
+
+						for(i=0;i<tracks;++i)
 						{
-							if(kbStop())
+							switch(currentNode->size)
 							{
-								// Break out of the outer loop by presetting
-								// the track number beyond the highest
-								// supported value.
-								i=77*2;
+							  case D64_SIZE:
+							  case D71_SIZE:
+								sectors = l[i%35];
 								break;
 							}
+							for(j=0;j<sectors;++j)
+							{
+								if(kbStop())
+								{
+									// Break out of the outer loop by presetting
+									// the track number beyond the highest
+									// supported value.
+									i=77*2;
+									break;
+								}
 
-							drawProgressBar(currentNode->name,
-								++p, currentNode->size);
+								drawProgressBar(currentNode->name,
+									++p, currentNode->size);
 
-							r = cbm_read(2,fileBuffer,256);
-							// XXX: Check that r==256.
+								r = cbm_read(2,fileBuffer,256);
+								// XXX: Check that r==256.
 
-							//memcpy(temp, (fileBuffer + 1), 256-1);
-							//temp[256-1] = fileBuffer[0];
-
-							//cbm_write(3,temp,256);
-							cbm_write(14, "b-p 3 0", 7);
-							cbm_write(3,fileBuffer,256);
-							cbm_write(14,buffer,
-								sprintf(buffer, "u2 3 0 %u %u", i+1, j));
+								//memcpy(temp, (fileBuffer + 1), 256-1);
+								//temp[256-1] = fileBuffer[0];
+								//
+								//cbm_write(3,temp,256);
+								cbm_write(14, "b-p 3 0", 7);
+								cbm_write(3,fileBuffer,256);
+								cbm_write(14,buffer,
+									sprintf(buffer, "u2 3 0 %u %u", i+1, j));
 
 #ifndef __VIC20__
 #ifdef __PET__
-							timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+								timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
 #else
-							timeSpent = (time(NULL) - timeStart);
+								timeSpent = (time(NULL) - timeStart);
 #endif
-							timeLeft =
-								//((long)(currentNode->size - p) * 256L) // bytes remaining
-								// / (((long)p * 256L)/timeSpent);
-								(long)(currentNode->size - p) * timeSpent
-								/ (long)p;
-							writeStatusBarf(
+								timeLeft =
+									//((long)(currentNode->size - p) * 256L) // bytes remaining
+									// / (((long)p * 256L)/timeSpent);
+									(long)(currentNode->size - p) * timeSpent
+									/ (long)p;
+								writeStatusBarf(
 #if size_x < 80
-								"%u:%02u e.t. %d B/s, %u:%02u rem",
+									"%u:%02u e.t. %d B/s, %u:%02u rem",
 #else
-								"%u:%02u e.t. %d B/s, %u:%02u rem - %3u:%2u of %3u:%2u",
+									"%u:%02u e.t. %d B/s, %u:%02u rem - %3u:%2u of %3u,%2u",
 #endif
-								(unsigned)timeSpent/60u,
-								(unsigned)timeSpent%60u,
-								(unsigned)(((long)p * 256L)/timeSpent),
-								(unsigned)timeLeft/60u,
-								(unsigned)timeLeft%60u
+									(unsigned)timeSpent/60u,
+									(unsigned)timeSpent%60u,
+									(unsigned)(((long)p * 256L)/timeSpent),
+									(unsigned)timeLeft/60u,
+									(unsigned)timeLeft%60u
 #if size_x >= 80
-								, i + 1, j, tracks, sectors - 1
+									, i + 1, j, tracks, sectors - 1
 #endif
-								);
+									);
 #endif
+							}
 						}
-					}
-					cbm_close(2);
-					cbm_close(3);
-					cbm_close(14);
-					cbm_close(15);
+						cbm_close(2);
+						cbm_close(3);
+						cbm_close(14);
+						cbm_close(15);
 #ifndef __VIC20__
 #ifdef __PET__
-					timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
+						timeSpent = (clock() - timeStart) / CLOCKS_PER_SEC;
 #else
-					timeSpent = (time(NULL) - timeStart);
+						timeSpent = (time(NULL) - timeStart);
 #endif
-					//retrieveScreen();
-					reloadPanels();
-					writeStatusBarf(
-						(i == 77*2+1) ? "Stopped" : "%u:%02u e.t. %d B/s",
-						(unsigned)timeSpent/60u,
-						(unsigned)timeSpent%60u,
-						(unsigned)(((long)currentNode->size * 256uL)/timeSpent));
-					//waitForEnterEsc();
-					//retrieveScreen();
+						//retrieveScreen();
+						reloadPanels();
+						writeStatusBarf(
+							(i == 77*2+1) ? "Stopped" : "%u:%02u e.t. %d B/s",
+							(unsigned)timeSpent/60u,
+							(unsigned)timeSpent%60u,
+							(unsigned)(((long)currentNode->size * 256uL)/timeSpent));
+						//waitForEnterEsc();
+						//retrieveScreen();
 #else
-					//retrieveScreen();
-					reloadPanels();
-					if (i == 77*2+1)
-					{
-						writeStatusBar("Stopped");
+						//retrieveScreen();
+						reloadPanels();
+						if (i == 77*2+1)
+						{
+							writeStatusBar("Stopped");
+						}
+#endif
 					}
+					else
+					{
+#if size_x > 22
+						writeStatusBarf("Target: %s",
+							r >= 0 ? "unit not there" : buffer);
+#else
+						writeStatusBar(r >= 0 ? "Target not there" : buffer);
 #endif
+						cbm_close(3); cbm_close(14);
+						//waitForEnterEsc();
+					}
 				}
 				else
 				{
-					writeStatusBar(r >= 0 ? "source unit not there" : buffer);
+#if size_x > 22
+					writeStatusBarf("Source: %s",
+						r >= 0 ? "unit not there" : buffer);
+#else
+					writeStatusBar(r >= 0 ? "Source not there" : buffer);
+#endif
 					//waitForEnterEsc();
 				}
 				cbm_close(2);

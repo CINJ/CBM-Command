@@ -68,9 +68,7 @@ struct rel_file_rec
 
 unsigned char __fastcall getRecordSize(
 	const unsigned char command_lfn,
-	const unsigned char logical_file_number,
 	const unsigned char unit_number,
-	const unsigned char secondary,
 	const char* file_name);
 //
 //struct rel_file* __fastcall openRelativeFile(

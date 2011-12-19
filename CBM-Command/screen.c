@@ -420,7 +420,7 @@ enum results __fastcall drawInputDialog(
 {
 	unsigned char h = lineCount + 6, w = length + 3;
 	unsigned char x = getCenterX(w) + 2, y = getCenterY(h);
-	unsigned char count = 0, i, key;
+	unsigned char count = strlen(resultText), i, key;
 
 	writePanel(
 		true, false, color_text_borders,
@@ -434,7 +434,7 @@ enum results __fastcall drawInputDialog(
 	{
 		cputsxy(x, i+2+y, message[i]);
 	}
-	++i;						// i = linecount + 1;
+	++i;						// i = lineCount + 1;
 	// XXX: factor out i+2+y
 
 	revers(true);
@@ -442,7 +442,6 @@ enum results __fastcall drawInputDialog(
 	cclearxy(x, i+2+y, length + 1);
 
 	cputsxy(x, i+2+y, resultText);
-	count = strlen(resultText);
 	do
 	{
 		cputcxy(count+x, i+2+y, '<');
@@ -475,7 +474,7 @@ enum results __fastcall drawInputDialog(
 
 	revers(false);
 
-	if (key == CH_ENTER)
+	if (key == CH_ENTER && count != 0)
 	{
 		return OK_RESULT;
 	}

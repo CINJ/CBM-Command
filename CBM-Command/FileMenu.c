@@ -725,6 +725,7 @@ static void reloadPanels(void)
 
 void renameFile(void)
 {
+	signed char commandResult;
 	unsigned char dialogResult;
 	const struct dir_node *selectedNode;
 	char command[41];
@@ -755,11 +756,11 @@ void renameFile(void)
 				filename);
 			retrieveScreen();
 
-			if(dialogResult == OK_RESULT && filename[0] != '\0')
+			if(dialogResult == OK_RESULT)
 			{
 				sprintf(command, "r:%s=%s",
 					filename, selectedNode->name);
-				sendCommand(selectedPanel, command);
+				commandResult = sendCommand(selectedPanel, command);
 				strcpy(filename, selectedNode->name);
 
 				// Show the new file-name (but, don't move the directory).
@@ -768,13 +769,15 @@ void renameFile(void)
 				displayDirectory(selectedPanel);
 				writeSelectorPosition(selectedPanel, '>');
 
-				writeStatusBarf(
+				if (commandResult >= 0) {
+					writeStatusBarf(
 #if size_x > 22
-					"Renamed from %s",
+						"Renamed from %s",
 #else
-					"From %s",
+						"From %s",
 #endif
-					filename);
+						filename);
+				}
 			}
 		}
 	}
@@ -1090,7 +1093,15 @@ void inputCommand(void)
 	if(key != CH_STOP)
 	{
 		sendCommand(selectedPanel, command);
-		rereadSelectedPanel();
+
+		// Merely checking the status doesn't change the directory;
+		// therefore, don't reread it, in that case.
+		if (count != 0) {
+			rereadSelectedPanel();
+		}
+		else {
+			writeStatusBar("");
+		}
 	}
 
 	cclearxy(0, y, size_x);

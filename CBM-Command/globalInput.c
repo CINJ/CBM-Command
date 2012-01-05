@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2010, Payton Byrd
+Copyright (c) 2012, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -47,6 +47,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Configuration.h"
 //#include "constants.h"
+//#include "drives.h"
 #include "globalInput.h"
 #include "globals.h"
 #include "screen.h"
@@ -67,7 +68,7 @@ char waitForEnterEsc(void)
 	revers(true);
 	(void)textcolor(color_text_highlight);
 	cputsxy(size_x - 5, 0, "(RET)");
-	revers(false);
+	//revers(false);
 
 	do
 	{
@@ -76,6 +77,8 @@ char waitForEnterEsc(void)
 	while (key != CH_ENTER
 		&& key != CH_STOP);
 
+	//writeCurrentFilename(selectedPanel);
+	writeStatusBar("");
 	return key;
 }
 

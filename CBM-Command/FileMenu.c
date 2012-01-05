@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2011, Payton Byrd
+Copyright (c) 2012, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -610,7 +610,8 @@ void copyFiles(void)
 						//cbm_open(126, td, 15, "");
 
 						// Open the target file.
-						if (cbmOpen(3, td, 3, targetFilename, 126) != 0) {
+						if (cbmOpen(3, td, 3, targetFilename, 126) != 0)
+						{
 							writeStatusBar(buffer);
 							waitForEnterEsc();
 						}
@@ -769,7 +770,8 @@ void renameFile(void)
 				displayDirectory(selectedPanel);
 				writeSelectorPosition(selectedPanel, '>');
 
-				if (commandResult >= 0) {
+				if (commandResult >= 0)
+				{
 					writeStatusBarf(
 #if size_x > 22
 						"Renamed from %s",
@@ -1096,11 +1098,9 @@ void inputCommand(void)
 
 		// Merely checking the status doesn't change the directory;
 		// therefore, don't reread it, in that case.
-		if (count != 0) {
+		if (count != 0)
+		{
 			rereadSelectedPanel();
-		}
-		else {
-			writeStatusBar("");
 		}
 	}
 
@@ -1596,12 +1596,11 @@ void copyDisk(void)
 #ifndef __PET__
 				|| sf == F_1541 && tf == F_1571
 #endif
-#if defined(__PET__) || defined(__C64__)) || defined(__C128__)
+#if defined(__PET__) || defined(__C64__) || defined(__C128__)
 				|| sf == F_8050 && tf == F_8250
 #endif
 				)
-
-		{
+			{
 				// Known floppy-disk formats will set trackCount;
 				// other formats won't set it.
 				switch (sf)

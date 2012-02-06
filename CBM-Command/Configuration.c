@@ -83,6 +83,7 @@ char keyMap[] =
 	HK_TO_BOTTOM,		//23
 	HK_EXECUTE_SELECTED,//24
 	HK_COPY_DISK,		//25
+	HK_BATCH_CREATE_D64
 };
 
 
@@ -156,7 +157,7 @@ void loadCBM(void)
 	if (cbm_open(1,
 		// Get the drive from which the program was loaded.
 		defaultLeftDrive = defaultRightDrive = _curunit,
-		2, ":cbmcmd2cfg."
+		2, ":cbmcmd22cfg."
 
 	// We use different filenames for the various
 	// models, so that different versions can be

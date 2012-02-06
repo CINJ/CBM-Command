@@ -291,7 +291,7 @@ static void save(void)
 	signed char r;
 
 	cbm_open(15,_curunit,15,"");	// open the status channel
-	d = cbm_open(1, _curunit, 3, "@0:cbmcmd2cfg."
+	d = cbm_open(1, _curunit, 3, "@0:cbmcmd22cfg."
 #ifdef __C64__
 		"c64"
 #endif
@@ -521,6 +521,7 @@ static void keys(void)
 	cputsxy(12u, 11u, "To Bottom");
 	cputsxy(12u, 12u, "Exc/Read");
 	cputsxy(12u, 13u, "Copy Disk");
+	cputsxy(12u, 14u, "Batch Img");
 
 	(void)textcolor(color_text_highlight);
 	cputsxy(getCenterX((unsigned char)(sizeof KEYS_HELP - 1)), 17u, KEYS_HELP);
@@ -542,7 +543,7 @@ static void keys(void)
 			return;
 
 		case CH_CURS_DOWN:
-			if(y < (x == 1u ? 15u : 13u))
+			if(y < (x == 1u ? 15u : 14u))
 			{
 				drawCursor(x, y, false);
 				++y;
@@ -561,7 +562,7 @@ static void keys(void)
 			if(x != 11u)
 			{
 				drawCursor(x, y, false);
-				if(y > 13u) y = 13u;
+				if(y > 14u) y = 14u;
 				x = 11u;
 			}
 			break;

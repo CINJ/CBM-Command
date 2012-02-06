@@ -91,6 +91,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_HELP				'h'
 #define HK_DRIVE_COMMAND	'@'
 #define HK_CREATE_D64		'x'
+#define HK_BATCH_CREATE_D64	'b'
 #define HK_WRITE_D64		'X'
 
 #ifdef __C128__

@@ -1118,7 +1118,7 @@ static const unsigned char l[] =	// sectors per track on 1541/1571 disks
 	17,17,17,17,17
 };
 
-void createDiskImage(void)
+void createDiskImage(char *filename)
 {
 	static const char* const message[] =
 	{
@@ -1184,11 +1184,21 @@ void createDiskImage(void)
 			name[0]=':';
 			name[1]='\0';
 			//saveScreen();
-			result = drawInputDialog(
-				A_SIZE(message), 16,
-				message, "Make Image",
-				&name[1]);
-			retrieveScreen();
+
+			if(filename == NULL)
+			{
+				result = drawInputDialog(
+					A_SIZE(message), 16,
+					message, "Make Image",
+					&name[1]);
+				retrieveScreen();
+			}
+			else
+			{
+				result = OK_RESULT;
+
+				sprintf(name, ":%s", filename);
+			}
 
 			if(result == OK_RESULT)
 			{
@@ -1746,4 +1756,38 @@ void copyDisk(void)
 #else
 		writeStatusBar("Not implemented");
 #endif
+}
+
+void batchCreateDiskImage(void)
+{
+	unsigned char key;
+	unsigned int count;
+
+	char input[15], filename[17];
+	const char *message[] = { "Enter the start-", "ing disk number", "(0 to 9999)" };
+
+	for(count = 0; count < 15; count++) input[count] = '\0';
+
+	saveScreen();
+	drawInputDialog(A_SIZE(message), sizeof input, message, "Batch Mode", input);
+	retrieveScreen();
+
+	input[5] = '\0';
+
+	if(sscanf(input, "%d", &count) == 1)
+	{
+		while(true)
+		{
+			sprintf(filename, "disk%04d.d64", count++);
+
+			createDiskImage(filename);
+
+			key = waitForEnterEscf("RETURN next image, STOP/ESC quit.");
+
+			if(key == CH_STOP || key == CH_ESC)
+			{
+				break;
+			}
+		}
+	}
 }

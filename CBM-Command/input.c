@@ -137,7 +137,10 @@ void readKeyboard(void)
 		writeDiskImage();
 		return;
 	case KM_CREATE_D64:
-		createDiskImage();
+		createDiskImage(NULL);
+		return;
+	case KM_BATCH_CREATE_D64:
+		batchCreateDiskImage();
 		return;
 #endif
 	case KM_COPY_DISK:

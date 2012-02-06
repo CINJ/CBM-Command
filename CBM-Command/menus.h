@@ -143,10 +143,11 @@ void renameFile(void);
 void makeDirectory(void);
 void deleteFiles(void);
 void writeDiskImage(void);
-void createDiskImage(void);
+void createDiskImage(char *filename);
 bool selectDiskImageType(void);
 void copyDisk(void);
 void quit(void);
+void batchCreateDiskImage(void);
 #ifdef __C128__
 void go64(void);
 #endif

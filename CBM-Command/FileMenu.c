@@ -1343,6 +1343,47 @@ bool __fastcall createDiskImage(const char *filename)
 	return created;
 }
 
+void batchCreateDiskImage(void)
+{
+#ifndef __VIC20__
+	unsigned int count;
+	char input[17], filename[16 + 1];
+	static const char* const message[] =
+	{
+		"Enter the start-",
+		"ing disk number",
+		"(0 to 9999)"
+	};
+
+	input[0] = '\0';
+	//saveScreen();
+	if (drawInputDialog(
+		A_SIZE(message), sizeof input - 1,
+		message, "Batch Imaging", input) == OK_RESULT)
+	{
+		//retrieveScreen();
+
+		//input[4] = '\0';
+		if(sscanf(input, "%4u", &count) == 1)
+		{
+			do
+			{
+				sprintf(filename, "disk%04u.d64", count++);
+				if (!createDiskImage(filename))
+				{
+					break;
+				}
+
+				writeStatusBar("RETURN: next image, STOP/ESC: quit");
+			}
+			while (waitForEnterEsc() != CH_STOP);
+		}
+	}
+#else
+	writeStatusBar("Not implemented");
+#endif
+}
+
 void writeDiskImage(void)
 {
 	static const char* const message[] =
@@ -1755,47 +1796,6 @@ void copyDisk(void)
 		else
 		{
 			writeStatusBar("Disk-copy aborted");
-		}
-	}
-#else
-	writeStatusBar("Not implemented");
-#endif
-}
-
-void batchCreateDiskImage(void)
-{
-#if defined(__CBM__) && !defined(__VIC20__)
-	unsigned int count;
-	char input[17], filename[16 + 1];
-	static const char* const message[] =
-	{
-		"Enter the start-",
-		"ing disk number",
-		"(0 to 9999)"
-	};
-
-	input[0] = '\0';
-	//saveScreen();
-	if (drawInputDialog(
-		A_SIZE(message), sizeof input - 1,
-		message, "Batch Imaging", input) == OK_RESULT)
-	{
-		//retrieveScreen();
-
-		//input[4] = '\0';
-		if(sscanf(input, "%4u", &count) == 1)
-		{
-			do
-			{
-				sprintf(filename, "disk%04u.d64", count++);
-				if (!createDiskImage(filename))
-				{
-					break;
-				}
-
-				writeStatusBar("RETURN: next image, STOP/ESC: quit");
-			}
-			while (waitForEnterEsc() != CH_STOP);
 		}
 	}
 #else

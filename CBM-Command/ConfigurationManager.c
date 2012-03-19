@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2011 Payton Byrd
+Copyright (c) 2012 Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -185,7 +185,7 @@ static void help(void)
 
 	drawDialog(help_message, A_SIZE(help_message), "Help", OK);
 
-	retrieveScreen();
+	//retrieveScreen();
 }
 
 static void quit(void)
@@ -208,7 +208,7 @@ static void quit(void)
 		exit(EXIT_SUCCESS);
 	}
 
-	retrieveScreen();
+	//retrieveScreen();
 }
 
 static void writeMenu(void)
@@ -458,6 +458,7 @@ static void __fastcall setHotKey(const unsigned char index)
 			keyMap[index] = newKey;
 			// Fall through.
 		case CH_STOP:
+			retrieveScreen();
 			return;
 
 		// Ignore keys that mustn't be reconfigured.
@@ -533,10 +534,10 @@ static void keys(void)
 		switch (getKey())
 		{
 		case CH_ENTER:
-			saveScreen();
+			//saveScreen();
 			//setHotKey((x == 1u ? 0u : 14u) + y - 2u);
 			setHotKey(y + (x == 1u ? 0u - 2u : 14 - 2));	// XXX: examine asm output
-			retrieveScreen();
+			//retrieveScreen();
 			break;
 
 		case CH_STOP:

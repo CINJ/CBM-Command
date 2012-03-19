@@ -755,7 +755,7 @@ void renameFile(void)
 				dialogMessage,
 				"Rename",
 				filename);
-			retrieveScreen();
+			//retrieveScreen();
 
 			if(dialogResult == OK_RESULT)
 			{
@@ -805,7 +805,7 @@ void makeDirectory(void)
 			dialogMessage,
 			"New Directory",
 			&command[3]);
-		retrieveScreen();
+		//retrieveScreen();
 
 		if(dialogResult == OK_RESULT)
 		{
@@ -861,7 +861,7 @@ void deleteFiles(void)
 	//saveScreen();
 	if(writeYesNo("Delete files", dialogMessage, A_SIZE(dialogMessage)))
 	{
-		retrieveScreen();
+		//retrieveScreen();
 		writeStatusBar("Deleting files...");
 		for (i = (selectedPanel->length + (7 - 1)) / 8u; --i >= 0; )
 		{
@@ -906,7 +906,7 @@ void deleteFiles(void)
 	}
 	else
 	{
-		retrieveScreen();
+		//retrieveScreen();
 	}
 }
 
@@ -919,7 +919,7 @@ void go64(void)
 		c64mode();
 	}
 
-	retrieveScreen();
+	//retrieveScreen();
 }
 #endif
 
@@ -937,7 +937,7 @@ void quit(void)
 		exit(EXIT_SUCCESS);
 	}
 
-	retrieveScreen();
+	//retrieveScreen();
 }
 
 #if 0
@@ -966,7 +966,7 @@ void executeSelectedFile(void)
 			case CBM_T_PRG:
 				if(!writeYesNo(currentNode->name, message, A_SIZE(message)))
 				{
-					retrieveScreen();
+					//retrieveScreen();
 #ifdef KB_COUNT
 					if(writeYesNo("Confirm execute", quit_message, A_SIZE_QUIT))
 					{
@@ -1002,11 +1002,11 @@ void executeSelectedFile(void)
 
 						exit(EXIT_SUCCESS);
 					}
-					retrieveScreen();
+					//retrieveScreen();
 #endif
 					break;
 				}
-				retrieveScreen();
+				//retrieveScreen();
 				// Fall through.
 			case CBM_T_SEQ:
 			//case CBM_T_USR:
@@ -1118,7 +1118,7 @@ static const unsigned char l[] =	// sectors per track on 1541/1571 disks
 	17,17,17,17,17
 };
 
-void createDiskImage(char *filename)
+bool __fastcall createDiskImage(const char *filename)
 {
 	static const char* const message[] =
 	{
@@ -1138,7 +1138,7 @@ void createDiskImage(char *filename)
 #endif
 	time_t timeSpent, timeLeft;
 #endif
-	bool isD64 = true, isD71 = false;
+	bool isD64 = true, isD71 = false, created = false;
 	unsigned int p = 0, size = D64_SIZE;
 
 	//if(selectedPanel != NULL && selectedPanel->drive != NULL)
@@ -1177,27 +1177,25 @@ void createDiskImage(char *filename)
 			default:
 				writeStatusBarf("Unsupported format: %u", j);
 				//waitForEnterEsc();
-				return;
+				return created;
 			}
 
 			//currentNode = getSelectedNode(selectedPanel);
-			name[0]=':';
-			name[1]='\0';
-			//saveScreen();
-
 			if(filename == NULL)
 			{
+				name[0]=':';
+				name[1]='\0';
+				//saveScreen();
 				result = drawInputDialog(
 					A_SIZE(message), 16,
 					message, "Make Image",
 					&name[1]);
-				retrieveScreen();
+				//retrieveScreen();
 			}
 			else
 			{
-				result = OK_RESULT;
-
 				sprintf(name, ":%s", filename);
+				result = OK_RESULT;
 			}
 
 			if(result == OK_RESULT)
@@ -1297,7 +1295,8 @@ void createDiskImage(char *filename)
 						//retrieveScreen();
 						reloadPanels();
 						writeStatusBarf(
-							(i == 77*2+1) ? "Stopped" : "%u:%02u e.t. %d B/s",
+							(i == 77*2+1) ? "Stopped" :
+								(created = true, "%u:%02u e.t. %d B/s"),
 							(unsigned)timeSpent/60u,
 							(unsigned)timeSpent%60u,
 							(unsigned)(((long)size * 256L)/timeSpent));
@@ -1306,6 +1305,10 @@ void createDiskImage(char *filename)
 						if (i == 77*2+1)
 						{
 							writeStatusBar("Stopped");
+						}
+						else
+						{
+							created = true;
 						}
 #endif
 					}
@@ -1337,6 +1340,7 @@ void createDiskImage(char *filename)
 			}
 		}
 	}
+	return created;
 }
 
 void writeDiskImage(void)
@@ -1389,7 +1393,7 @@ void writeDiskImage(void)
 			//saveScreen();
 			confirmed = writeYesNo("Put image on disk",
 				message, A_SIZE(message));
-			retrieveScreen();
+			//retrieveScreen();
 
 			if(confirmed)
 			{
@@ -1596,7 +1600,7 @@ void copyDisk(void)
 	{
 		//saveScreen();
 		yesNo = writeYesNo("Copy Disk", message, A_SIZE(message));
-		retrieveScreen();
+		//retrieveScreen();
 		if(yesNo)
 		{
 			// The two formats must be compatible.
@@ -1754,40 +1758,47 @@ void copyDisk(void)
 		}
 	}
 #else
-		writeStatusBar("Not implemented");
+	writeStatusBar("Not implemented");
 #endif
 }
 
 void batchCreateDiskImage(void)
 {
-	unsigned char key;
+#if defined(__CBM__) && !defined(__VIC20__)
 	unsigned int count;
-
-	char input[15], filename[17];
-	const char *message[] = { "Enter the start-", "ing disk number", "(0 to 9999)" };
-
-	for(count = 0; count < 15; count++) input[count] = '\0';
-
-	saveScreen();
-	drawInputDialog(A_SIZE(message), sizeof input, message, "Batch Mode", input);
-	retrieveScreen();
-
-	input[5] = '\0';
-
-	if(sscanf(input, "%d", &count) == 1)
+	char input[17], filename[16 + 1];
+	static const char* const message[] =
 	{
-		while(true)
+		"Enter the start-",
+		"ing disk number",
+		"(0 to 9999)"
+	};
+
+	input[0] = '\0';
+	//saveScreen();
+	if (drawInputDialog(
+		A_SIZE(message), sizeof input - 1,
+		message, "Batch Imaging", input) == OK_RESULT)
+	{
+		//retrieveScreen();
+
+		//input[4] = '\0';
+		if(sscanf(input, "%4u", &count) == 1)
 		{
-			sprintf(filename, "disk%04d.d64", count++);
-
-			createDiskImage(filename);
-
-			key = waitForEnterEscf("RETURN next image, STOP/ESC quit.");
-
-			if(key == CH_STOP || key == CH_ESC)
+			do
 			{
-				break;
+				sprintf(filename, "disk%04u.d64", count++);
+				if (!createDiskImage(filename))
+				{
+					break;
+				}
+
+				writeStatusBar("RETURN: next image, STOP/ESC: quit");
 			}
+			while (waitForEnterEsc() != CH_STOP);
 		}
 	}
+#else
+	writeStatusBar("Not implemented");
+#endif
 }

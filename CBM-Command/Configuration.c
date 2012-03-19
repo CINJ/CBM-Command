@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2011, Payton Byrd
+Copyright (c) 2012, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -83,7 +83,7 @@ char keyMap[] =
 	HK_TO_BOTTOM,		//23
 	HK_EXECUTE_SELECTED,//24
 	HK_COPY_DISK,		//25
-	HK_BATCH_CREATE_D64
+	HK_BATCH_CREATE_D64	//26
 };
 
 

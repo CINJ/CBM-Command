@@ -389,7 +389,7 @@ enum results __fastcall drawDialog(
 		break;
 	}
 
-//	retrieveScreen();	// XXX: Dialogs should remove themselves from screen.
+	retrieveScreen();
 
 	switch(key)
 	{
@@ -473,6 +473,7 @@ enum results __fastcall drawInputDialog(
 	while (key != CH_ENTER && key != CH_STOP);
 
 	revers(false);
+	retrieveScreen();
 
 	if (key == CH_ENTER && count != 0)
 	{

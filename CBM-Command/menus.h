@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2011, Payton Byrd
+Copyright (c) 2012, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -143,7 +143,7 @@ void renameFile(void);
 void makeDirectory(void);
 void deleteFiles(void);
 void writeDiskImage(void);
-void createDiskImage(char *filename);
+bool __fastcall createDiskImage(const char *filename);
 bool selectDiskImageType(void);
 void copyDisk(void);
 void quit(void);

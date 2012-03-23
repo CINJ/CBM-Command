@@ -1345,7 +1345,7 @@ bool __fastcall createDiskImage(const char *filename)
 
 void batchCreateDiskImage(void)
 {
-#ifndef __VIC20__
+#if !defined(__VIC20__) && !defined(__PET__)
 	unsigned int count;
 	char input[17], filename[16 + 1];
 	static const char* const message[] =

@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2011, Payton Byrd
+Copyright (c) 2012, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -57,10 +57,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void __fastcall viewFile(
 	unsigned char drive,
+	const char *path,
 	const char *filename)
 {
 //#ifndef __VIC20__
-	char file[1 + 16 + 1];
+	char file[3 + 1 + 16 + 1];
 	char line[81];
 	char word[81];
 	int r, i;
@@ -73,7 +74,7 @@ void __fastcall viewFile(
 #ifdef __CBM__
 	//strcpy(file, filename);
 	//strcat(file, ",s,r");
-	sprintf(file, ":%s", filename);
+	sprintf(file, "%s:%s", path, filename);
 
 	//cbm_open(15,drive,15,"");
 	if((signed char)(r = cbmOpen(2,drive,CBM_SEQ,file,15)) == 0)

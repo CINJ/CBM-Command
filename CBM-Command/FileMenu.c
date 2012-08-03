@@ -253,7 +253,7 @@ enum
 
 void writeHelpPanel(void)
 {
-	viewFile(_curunit,"cbmcmd.help");
+	viewFile(_curunit,"0","cbmcmd.help");
 }
 
 static bool kbStop(void)
@@ -1014,6 +1014,7 @@ void executeSelectedFile(void)
 #endif
 				retrieveScreen();
 				viewFile(selectedPanel->drive->drive,
+					selectedPanel->path,
 					currentNode->name);
 			}
 		}

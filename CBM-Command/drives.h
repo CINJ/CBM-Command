@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2011, Payton Byrd
+Copyright (c) 2012, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -102,6 +102,8 @@ struct panel_drive
 	bool visible;			// XXX: obsolete
 	unsigned char* selectedEntries;
 	struct drive_status *drive;
+	char dollar;				// '$'
+	char path[3 + 1];			// "123", "\0"
 #ifdef __CBM__
 	struct cbm_dirent header;
 #else

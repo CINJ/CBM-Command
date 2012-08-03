@@ -6,6 +6,7 @@
 
 void __fastcall viewFile(
 	unsigned char drive,
+	const char *path,
 	const char *filename);
 
 #endif

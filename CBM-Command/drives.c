@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2011, Payton Byrd
+Copyright (c) 2012, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -80,11 +80,18 @@ static unsigned char currentRight;
 
 void initializeDrives(void)
 {
-	memset(& leftPanelDrive, 0, sizeof  leftPanelDrive);
-	memset(&rightPanelDrive, 0, sizeof rightPanelDrive);
+	// We will save some space by doing something that is discouraged.
+	// We will rely on the fact that the library start-up code pre-fills
+	// uninitiated global variables with zeroes.
+	//memset(& leftPanelDrive, 0, sizeof  leftPanelDrive);
+	//memset(&rightPanelDrive, 0, sizeof rightPanelDrive);
 
 	 leftPanelDrive.drive = &(drives[currentLeft  = defaultLeftDrive  - 8]);
 	rightPanelDrive.drive = &(drives[currentRight = defaultRightDrive - 8]);
+
+	leftPanelDrive.dollar  = rightPanelDrive.dollar  = '$';
+	leftPanelDrive.path[0] = rightPanelDrive.path[0] = '0';
+	leftPanelDrive.path[1] = rightPanelDrive.path[1] = '\0';
 
 #ifdef __VIC20__
 	 leftPanelDrive.selectedEntries = (unsigned char *) 0xA100;
@@ -143,12 +150,12 @@ void __fastcall__ listDrives(const enum menus menu)
 {
 	static const unsigned char h = A_SIZE(drives) + 6;
 	static const unsigned char w = size_x - 1u;
-	//unsigned char x = getCenterX(w) + 1, y = getCenterY(h);
+	unsigned char x = getCenterX(w) + 1, y = getCenterY(h);
 	unsigned char current = 0, original = 0, i = 0;
-	unsigned char x, y;
+	//unsigned char x, y;
 
-	x = getCenterX(w) + 1;
-	y = getCenterY(h);
+	//x = getCenterX(w) + 1;
+	//y = getCenterY(h);
 
 	writePanel(true, false,
 		color_text_borders,
@@ -287,7 +294,7 @@ unsigned int __fastcall getDirectory(
 	//}
 
 	writeStatusBar("Reading directory...");
-	if (cbm_opendir(2, dr) == 0)
+	if (cbm_opendir(2, dr, &drive->dollar) == 0)
 	{
 		while (!(dr = cbm_readdir(2, &currentDE)))
 		{
@@ -438,7 +445,7 @@ void __fastcall displayDirectory(
 		"[%s]", drive->header.name
 #endif
 		);
-	gotoxy(x+1, panelHeight); cprintf("[%2u]", drive->drive->drive);
+	gotoxy(x+1, panelHeight); cprintf("[%2u;%s]", drive->drive->drive, drive->path);
 #if size_x < 40
 	gotox(getCenterX(5)); cputs((drive == &leftPanelDrive) ? "Left" : "Right");
 #endif
@@ -615,8 +622,13 @@ void __fastcall moveSelectorDown(struct panel_drive *panel)
 // O - any Other type
 char __fastcall getFileType(unsigned char type)
 {
-	if(type < CBM_T_OTHER) return "dSPURCDLV"[type];
-	return 'O';
+	// The CBM file-type codes were changed
+	// on 2012-6-24 (Subversion revision 5736).
+	// Shift them into something that is more useful here.
+	if ((type & _CBM_T_REG) != 0x00) {
+		type -= (_CBM_T_SEQ - _CBM_T_HEADER);
+	}
+	return "dCDLOSPURV"[type];
 }
 
 static void __fastcall shortenSize(char* buffer, unsigned int value)
@@ -677,12 +689,10 @@ void selectCurrentFile(void)
 
 void __fastcall enterDirectory(struct panel_drive *panel)
 {
-	char command[41];
-
 	if(isDiskImage(panel) || isDirectory(panel))
 	{
-		sprintf(command, "cd:%s", getSelectedNode(panel)->name);
-		sendCommand(panel, command);
+		sprintf(buffer, "cd%s:%s", panel->path, getSelectedNode(panel)->name);
+		sendCommand(panel, buffer);
 		//panel->currentIndex = panel->displayStartAt = 0;
 		rereadSelectedPanel();
 	}
@@ -690,14 +700,14 @@ void __fastcall enterDirectory(struct panel_drive *panel)
 
 void __fastcall leaveDirectory(struct panel_drive *panel)
 {
-	static const char buffer[] =
+	static const char format[] =
 	{
-		'c',
-		'd',
+		'c', 'd', '%', 's', ':',
 		0x5f,					// PetSCII left-arrow
 		'\0'
 	};
 
+	sprintf(buffer, format, panel->path);
 	sendCommand(panel, buffer);
 	//panel->currentIndex = panel->displayStartAt = 0;
 	rereadSelectedPanel();
@@ -717,9 +727,9 @@ static bool __fastcall__ isDiskImage(struct panel_drive *panel)
 				strlower(strcpy(name, currentDirNode->name)), ".d64") != NULL
 			|| strstr(name, ".d71") != NULL
 			|| strstr(name, ".d81") != NULL
+			|| strstr(name, ".dnp") != NULL
 			|| strstr(name, ".d80") != NULL
 			|| strstr(name, ".d82") != NULL
-			|| strstr(name, ".dnp") != NULL
 			|| strstr(name, ".d41") != NULL;
 	}
 

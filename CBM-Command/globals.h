@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2011, Payton Byrd
+Copyright (c) 2012, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -70,7 +70,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_COPY				'c'
 #define HK_RENAME			'n'
 #define HK_DELETE			'l'
-#define HK_MAKE_DIRECTORY	'm'			// KEY_CTRL_K
+#define HK_MAKE_DIRECTORY	'm'
 #define HK_ENTER_DIRECTORY	0xdb
 #define HK_LEAVE_DIRECTORY	0xdd
 #ifdef __CBM__
@@ -92,7 +92,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_DRIVE_COMMAND	'@'
 #define HK_CREATE_D64		'x'
 #define HK_BATCH_CREATE_D64	'b'
-#define HK_WRITE_D64		'X'
+#define HK_WRITE_D64		'X'	// SHIFT-X
+#define HK_PATH				'p'
 
 #ifdef __C128__
 #define HK_HELP_128			0x84	// HELP key

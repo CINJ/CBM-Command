@@ -400,16 +400,22 @@ void __fastcall displayDirectory(
 	struct panel_drive *drive)
 {
 	static const unsigned char w = size_x /
+#if size_x == 40
+		1u;
+#define panelHeight 11u
+#else
 #if size_x < 40
 		1u;						// only one panel at-a-time, on a VIC-20
 // The function-key menu must be folded on the VIC-20's narrow screen.
 // So, the panels are one line shorter.
-#define panelHeight (size_y - 4u)
-#else
+#define panelHeight (size_y - 5u)
+#else if size_x > 40
 		2u;
-#define panelHeight (size_y - 3u)
+#define panelHeight (size_y - 4u)
 #endif
-	unsigned char x = 0;
+#endif
+
+	unsigned char x = 0, y = 0;
 	unsigned int i, start;
 	char fileType;
 	const struct dir_node *currentNode;
@@ -427,25 +433,32 @@ void __fastcall displayDirectory(
 
 	//if(size_x > 40) w=40;
 
-#if size_x > 22
+#if size_x > 40
 	if(drive == &rightPanelDrive) x=w;
 #endif
 
-	(void)textcolor(color_text_borders);
-	cvlinexy(0, 1, panelHeight);
-#if size_x > 22
-	cvlinexy(w, 1, panelHeight);
+#if size_x == 40
+	if(drive == &rightPanelDrive) y=12;
+	else y = 1;
+#else
+	y = 1;
 #endif
-	chlinexy(x+1, panelHeight, w - 1u);
-	cclearxy(x+1, 1, w-1);
-	gotoxy(x+1, 1); cprintf(
+
+	(void)textcolor(color_text_borders);
+	cvlinexy(0, y, panelHeight);
+#if size_x > 40
+	cvlinexy(w, y, panelHeight);
+#endif
+	chlinexy(x+1, y + panelHeight - 1, w - 1u);
+	cclearxy(x+1, y, w-1);
+	gotoxy(x+1, y); cprintf(
 #ifdef __CBM__
 		"[%s]%c", drive->header.name, drive->header.access
 #else
 		"[%s]", drive->header.name
 #endif
 		);
-	gotoxy(x+1, panelHeight); cprintf("[%2u;%s]", drive->drive->drive, drive->path);
+	gotoxy(x+1, y + panelHeight - 1); cprintf("[%2u;%s]", drive->drive->drive, drive->path);
 #if size_x < 40
 	gotox(getCenterX(5)); cputs((drive == &leftPanelDrive) ? "Left" : "Right");
 #endif
@@ -484,15 +497,15 @@ void __fastcall displayDirectory(
 		revers(drive->selectedEntries[(currentNode->index - 1) / 8u]
 			& (unsigned char)(1 << ((currentNode->index - 1) % 8u)));
 
-		gotoxy(x + 1, i - start + 2);
+		gotoxy(x + 1, i - start + y + 1);
 		cprintf(
 #if size_x < 40
 			"%c%3s %-16s",
-#elif size_x == 40
-			"%3s %-14s%c",
+//#elif size_x == 40
+//			"%3s %-14s%c",
 #else
 			// 80 columns
-			"%4s   %-20s%c ",
+			"%5s %-16s %c",
 #endif
 #if size_x < 40
 			fileType,
@@ -500,7 +513,8 @@ void __fastcall displayDirectory(
 			currentNode->name
 #else
 			size,
-			shortenString(currentNode->name),
+			//shortenString(currentNode->name),
+			currentNode->name,
 			fileType
 #endif
 			);
@@ -511,19 +525,19 @@ void __fastcall displayDirectory(
 	while(i<start + (panelHeight - 2u))
 	{
 		// Draw the rest of the lines as blank.
-		cclearxy(x  + 1, i - start + 2, w-1);
+		cclearxy(x  + 1, i - start + y + 1, w-1);
 		++i;
 	}
 
-#if size_x > 40
-	(void)textcolor(color_text_borders);
-	cputcxy(x + 6, 22, CH_BTEE);
-	gotox(x + 26); cputc(CH_BTEE);
-	gotox(x + 30); cputc(CH_BTEE);
-	cvlinexy(x +  6, 2, panelHeight - 2);
-	cvlinexy(x + 26, 2, panelHeight - 2);
-	cvlinexy(x + 30, 2, panelHeight - 2);
-#endif
+//#if size_x >= 40
+//	(void)textcolor(color_text_borders);
+//	cputcxy(x + 7, y + panelHeight - 1, CH_BTEE);
+//	gotox(x + 26); cputc(CH_BTEE);
+//	gotox(x + 30); cputc(CH_BTEE);
+//	cvlinexy(x +  7, y + 1, panelHeight - 2);
+//	cvlinexy(x + 26, y + 1, panelHeight - 2);
+//	cvlinexy(x + 30, y + 1, panelHeight - 2);
+//#endif
 	endDoubleBuffer();
 }
 
@@ -538,12 +552,18 @@ void __fastcall writeSelectorPosition(struct panel_drive *panel,
 		character = CH_VLINE;
 	}
 	cputcxy(
-#if size_x < 40
+#if size_x <= 40
 		0u,
 #else
 		panel == &leftPanelDrive ? 0u : size_x / 2u,
 #endif
+#if size_x != 40
 		panel->currentIndex - panel->displayStartAt + 2,
+#else
+		(panel == &leftPanelDrive  
+			? panel->currentIndex - panel->displayStartAt + 2
+			: panel->currentIndex - panel->displayStartAt + 13),
+#endif
 		character);
 }
 
@@ -589,7 +609,11 @@ void __fastcall moveSelectorUp(struct panel_drive *panel)
 #if size_x < 40
 #define displayHeight (size_y - 5u)
 #else
+#if size_x == 40
+#define displayHeight 10u
+#else
 #define displayHeight (size_y - 4u)
+#endif
 #endif
 
 void __fastcall moveSelectorDown(struct panel_drive *panel)
@@ -633,7 +657,7 @@ char __fastcall getFileType(unsigned char type)
 
 static void __fastcall shortenSize(char* buffer, unsigned int value)
 {
-	if(value < 1000u)
+	if(value < 10000u)
 	{
 		sprintf(buffer, "%u", value);
 	}

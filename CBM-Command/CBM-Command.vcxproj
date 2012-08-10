@@ -143,11 +143,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C128|Win32'">
-    <NMakeBuildCommandLine>make T:=c128</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>make D64 T:=c128</NMakeBuildCommandLine>
     <NMakeOutput>
     </NMakeOutput>
     <NMakeCleanCommandLine>make clean T:=c128</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>make T:=c128</NMakeReBuildCommandLine>
+    <NMakeReBuildCommandLine>make D64 T:=c128</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>__C128__; __CBM__</NMakePreprocessorDefinitions>
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
     <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>

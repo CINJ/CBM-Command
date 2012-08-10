@@ -38,7 +38,7 @@
 		.export		_saveScreen, _retrieveScreen
 		.import		pushax, _memcpy
 
-		.include	"res/macroes.inc"
+		.include	"../macroes.inc"
 		.include	"c64.inc"
 
 SCREEN_SIZE		=	XSIZE * YSIZE

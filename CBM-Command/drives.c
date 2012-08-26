@@ -667,7 +667,8 @@ static void __fastcall shortenSize(char* buffer, unsigned int value)
 	}
 }
 
-#if size_x > 22
+#if 0
+//#if size_x > 22
 static char* __fastcall shortenString(char* source)
 {
 #if size_x == 40
@@ -849,8 +850,13 @@ void __fastcall__ moveTop(struct panel_drive *panel)
 }
 
 #if size_x < 40
+/* Panels are on different screens; and, there are two menu lines. */
 #define indexJump (size_y - 7u)
+#elif size_x == 40
+/* Panels are over-under. */
+#define indexJump ((size_y - 3u) / 2u - 3u)
 #else
+/* Panels are side-by-side. */
 #define indexJump (size_y - 6u)
 #endif
 

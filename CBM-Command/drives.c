@@ -298,7 +298,7 @@ unsigned int __fastcall getDirectory(
 	{
 		while (!(dr = cbm_readdir(2, &currentDE)))
 		{
-			if(counter == 0 && currentDE.type == CBM_T_HEADER)
+			if(counter == 0 && currentDE.type == _CBM_T_HEADER)
 			{
 #ifdef __CBM__
 				// .size holds drive/partition number
@@ -316,7 +316,7 @@ unsigned int __fastcall getDirectory(
 				strcpy(drive->header.name, currentDE.name);
  				////strncat(drive->header.name, currentDE.name,
 				////	(sizeof drive->header.name) - 1);
-				//drive->header.type = CBM_T_HEADER;
+				//drive->header.type = _CBM_T_HEADER;
 				//drive->header.index = 0;
 #endif
 			}
@@ -419,7 +419,9 @@ void __fastcall displayDirectory(
 	unsigned int i, start;
 	char fileType;
 	const struct dir_node *currentNode;
+#if size_x < 40
 	char size[4];
+#endif
 
 	beginDoubleBuffer();
 
@@ -491,7 +493,9 @@ void __fastcall displayDirectory(
 			(void)textcolor(color_text_files);
 		}
 
+#if size_x < 40
 		shortenSize(size, currentNode->size);
+#endif
 		fileType = getFileType(currentNode->type);
 
 		revers(drive->selectedEntries[(currentNode->index - 1) / 8u]
@@ -505,14 +509,15 @@ void __fastcall displayDirectory(
 //			"%3s %-14s%c",
 #else
 			// 80 columns
-			"%5s %-16s %c",
+			"%5u %-17s%c ",
 #endif
 #if size_x < 40
 			fileType,
 			size,
 			currentNode->name
 #else
-			size,
+			//size,
+			currentNode->size,
 			//shortenString(currentNode->name),
 			currentNode->name,
 			fileType
@@ -520,12 +525,15 @@ void __fastcall displayDirectory(
 			);
 
 		(void)revers(false);
+#if size_x == 40
+		cclear(4);
+#endif
 	}
 
 	while(i<start + (panelHeight - 2u))
 	{
 		// Draw the rest of the lines as blank.
-		cclearxy(x  + 1, i - start + y + 1, w-1);
+		cclearxy(x + 1, i - start + y + 1, w-1);
 		++i;
 	}
 
@@ -655,9 +663,10 @@ char __fastcall getFileType(unsigned char type)
 	return "dCDLOSPURV"[type];
 }
 
+#if size_x < 40
 static void __fastcall shortenSize(char* buffer, unsigned int value)
 {
-	if(value < 10000u)
+	if(value < 1000u)
 	{
 		sprintf(buffer, "%u", value);
 	}
@@ -666,6 +675,7 @@ static void __fastcall shortenSize(char* buffer, unsigned int value)
 		sprintf(buffer, "%uK", (unsigned int)((value + 1024uL/2)/1024uL));
 	}
 }
+#endif
 
 #if 0
 //#if size_x > 22
@@ -765,7 +775,7 @@ static bool __fastcall__ isDirectory(struct panel_drive *panel)
 {
 	const struct dir_node *currentDirNode = getSelectedNode(panel);
 
-	return currentDirNode != NULL && currentDirNode->type == CBM_T_DIR;
+	return currentDirNode != NULL && currentDirNode->type == _CBM_T_DIR;
 }
 
 struct dir_node* __fastcall__ getSelectedNode(struct panel_drive *panel)

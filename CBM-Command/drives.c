@@ -402,16 +402,16 @@ void __fastcall displayDirectory(
 	static const unsigned char w = size_x /
 #if size_x == 40
 		1u;
-#define panelHeight 11u
+#define panelHeight ((size_y - 3u) / 2u)
 #else
 #if size_x < 40
 		1u;						// only one panel at-a-time, on a VIC-20
 // The function-key menu must be folded on the VIC-20's narrow screen.
 // So, the panels are one line shorter.
-#define panelHeight (size_y - 5u)
+#define panelHeight (size_y - 4u)
 #else if size_x > 40
 		2u;
-#define panelHeight (size_y - 4u)
+#define panelHeight (size_y - 3u)
 #endif
 #endif
 
@@ -614,15 +614,7 @@ void __fastcall moveSelectorUp(struct panel_drive *panel)
 	writeCurrentFilename(panel);
 }
 
-#if size_x < 40
-#define displayHeight (size_y - 5u)
-#else
-#if size_x == 40
-#define displayHeight 10u
-#else
-#define displayHeight (size_y - 4u)
-#endif
-#endif
+#define displayHeight (panelHeight - 1u)
 
 void __fastcall moveSelectorDown(struct panel_drive *panel)
 {
@@ -859,16 +851,7 @@ void __fastcall__ moveTop(struct panel_drive *panel)
 	writeCurrentFilename(panel);
 }
 
-#if size_x < 40
-/* Panels are on different screens; and, there are two menu lines. */
-#define indexJump (size_y - 7u)
-#elif size_x == 40
-/* Panels are over-under. */
-#define indexJump ((size_y - 3u) / 2u - 3u)
-#else
-/* Panels are side-by-side. */
-#define indexJump (size_y - 6u)
-#endif
+#define indexJump (displayHeight - 2u)
 
 void __fastcall__ movePageUp(struct panel_drive *panel)
 {

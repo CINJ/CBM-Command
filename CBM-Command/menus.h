@@ -125,6 +125,7 @@ enum menus
 
 // Menu actions
 void inputCommand(void);
+void setPath(void);
 void executeSelectedFile(void);
 void __fastcall rereadDrivePanel(enum menus menu);
 void rereadSelectedPanel(void);

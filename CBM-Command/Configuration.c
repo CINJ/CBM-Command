@@ -53,6 +53,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Drive Configuration */
 unsigned char defaultLeftDrive;
 unsigned char defaultRightDrive;
+char defaultLeftDisk[4]  = "0";
+char defaultRightDisk[4] = "0";
 
 /* Keys Configuration */
 char keyMap[] =
@@ -152,13 +154,19 @@ void load(void)
 }
 
 #if defined(__CBM__)
-void loadCBM(void)
+static void loadCBM(void)
 {
 	//cbm_open(15, _curunit, 15, "");	// open the status channel
 	if (cbm_open(1,
 		// Get the drive from which the program was loaded.
-		defaultLeftDrive = defaultRightDrive = _curunit,
-		2, ":cbmcmd22cfg."
+		defaultLeftDrive = defaultRightDrive = _curunit, 2,
+#ifdef __PET__
+		// We assume that IEEE systems have dual-drives.
+		"cbmcmd22cfg."
+#else
+		// We assume that IEC systems have single-drives.
+		":cbmcmd22cfg."
+#endif
 
 	// We use different filenames for the various
 	// models, so that different versions can be
@@ -174,7 +182,7 @@ void loadCBM(void)
 		"pet"
 #endif
 #ifdef __VIC20__
-		"vic20"
+		"vc20"
 #endif
 #ifdef __PLUS4__
 		"plus4"
@@ -186,10 +194,10 @@ void loadCBM(void)
 		if (cbm_read(1, buffer,
 #ifdef COLOR_RED
 			// expecting drives, keys, and colors on color systems
-			11 + sizeof keyMap) == 11 + sizeof keyMap
+			19 + sizeof keyMap) == 19 + sizeof keyMap
 #else
 			// expecting only drives and keys on monochrome systems
-			2 + sizeof keyMap) == 2 + sizeof keyMap
+			10 + sizeof keyMap) == 10 + sizeof keyMap
 #endif
 		   )
 		{
@@ -197,25 +205,27 @@ void loadCBM(void)
 
 			/* Drive Settings */
 			defaultLeftDrive	= buffer[0];
-			defaultRightDrive	= buffer[1];
+			strcpy(defaultLeftDisk, &buffer[1]);
+			defaultRightDrive	= buffer[5];
+			strcpy(defaultRightDisk, &buffer[6]);
 
 // The CBM/PET clan (except the CBM510) doesn't support color.
 // Don't change colors if only black and white are defined.
 #ifdef COLOR_RED
 			/* Color settings */
-			color_background	= buffer[2];
-			color_border		= buffer[3];
-			color_selector		= buffer[4];
-			color_text_borders	= buffer[5];
-			color_text_menus	= buffer[6];
-			color_text_files	= buffer[7];
-			color_text_status	= buffer[8];
-			color_text_other	= buffer[9];
-			color_text_highlight= buffer[10];
+			color_background	= buffer[10];
+			color_border		= buffer[11];
+			color_selector		= buffer[12];
+			color_text_borders	= buffer[13];
+			color_text_menus	= buffer[14];
+			color_text_files	= buffer[15];
+			color_text_status	= buffer[16];
+			color_text_other	= buffer[17];
+			color_text_highlight= buffer[18];
 
-			memcpy(keyMap, buffer + 11, sizeof keyMap);
+			memcpy(keyMap, buffer + 19, sizeof keyMap);
 #else
-			memcpy(keyMap, buffer +  2, sizeof keyMap);
+			memcpy(keyMap, buffer + 10, sizeof keyMap);
 #endif
 		}
 	}

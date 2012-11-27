@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2011, Payton Byrd
+Copyright (c) 2012, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -53,16 +53,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 unsigned char __fastcall getRecordSize(
 	const unsigned char command_lfn,
 	const unsigned char unit_number,
+	const char* path,
 	const char* file_name)
 {
 	//const static unsigned char s=128;
-	char relFileName[1+16+2+1];
+	char relFileName[16+2+1];
 	static struct position_rel command = {'p', 2, 1};
 	//static char errorBuffer[256];
 
-	sprintf(relFileName, ":%s,l", file_name);
+	sprintf(relFileName, "%s,l", file_name);
 
-	if (cbmOpen(2, unit_number, 2, relFileName, command_lfn) == 0)
+	if (cbmOpen(2, unit_number, 2, path, relFileName, command_lfn) == 0)
 	{
 		// File found -- find the record length.  Start at the maximum;
 		// and, shrink.  The position command fails when the target is

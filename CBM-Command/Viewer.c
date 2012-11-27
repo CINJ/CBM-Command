@@ -61,7 +61,7 @@ void __fastcall viewFile(
 	const char *filename)
 {
 //#ifndef __VIC20__
-	char file[3 + 1 + 16 + 1];
+	//char file[3 + 1 + 16 + 1];
 	char line[81];
 	char word[81];
 	int r, i;
@@ -74,10 +74,10 @@ void __fastcall viewFile(
 #ifdef __CBM__
 	//strcpy(file, filename);
 	//strcat(file, ",s,r");
-	sprintf(file, "%s:%s", path, filename);
+	//sprintf(file, "%s:%s", path, filename);
 
 	//cbm_open(15,drive,15,"");
-	if((signed char)(r = cbmOpen(2,drive,CBM_SEQ,file,15)) == 0)
+	if((signed char)(r = cbmOpen(2,drive,CBM_SEQ,path,filename,15)) == 0)
 #endif
 	{
 		saveScreen();
@@ -170,7 +170,7 @@ void __fastcall viewFile(
 		writeStatusBar("Done reading");
 		waitForEnterEsc();
 #else
-		waitForEnterEscf("Done reading :%s", filename);
+		waitForEnterEscf("Done reading %s", filename);
 #endif
 		retrieveScreen();
 	}

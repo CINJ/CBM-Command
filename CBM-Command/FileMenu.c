@@ -253,7 +253,18 @@ enum
 
 void writeHelpPanel(void)
 {
-	viewFile(_curunit,"0","cbmcmd.help");
+	viewFile(_curunit,
+#if __PET__
+		// Most IEEE units are dual-drives.
+		// Look for the help file on both disks.
+		""
+#else
+		// Most non-IEEE units are single-drives (or, they can have partitions).
+		// Avoid a CBM-DOS bug by explicitly naming the one disk
+		// (or, the current partition).
+		"0"
+#endif
+		,"cbmcmd.help");
 }
 
 static bool kbStop(void)
@@ -267,9 +278,10 @@ static struct panel_drive *targetPanel, *tempPanel;
 #ifdef __CBM__
 // Detect the format of the disk in the named drive.
 //
-static unsigned char __fastcall getFormat(unsigned char drive)
+static unsigned char __fastcall getFormat(struct panel_drive *panel)
 {
 	int r;
+	unsigned char drive = panel->drive->drive;
 	unsigned char format = F_UNKNOWN;
 
 	// Decode the drive's reset-message.
@@ -317,9 +329,11 @@ static unsigned char __fastcall getFormat(unsigned char drive)
 			// file.
 			// (Actually, this method could be used instead of the
 			// reset-message, for almost all formats.)
-			cbm_open(2, drive, CBM_SEQ, "$");
+			cbm_open(2, drive, CBM_SEQ, panel->dollar);	// I hope drive numbers work, here.
 			if ((r = cbm_read(2, buffer, 2)) > 0)
 			{
+				// Two bytes might be tested; zero the second one
+				// if only one of them could be read.
 				buffer[r] = '\0';
 				switch (buffer[0])
 				{
@@ -329,6 +343,8 @@ static unsigned char __fastcall getFormat(unsigned char drive)
 					break;
 #if defined(__PET__) || defined(__C64__) || defined(__C128__)
 				case 'c':
+					// Unfortunately, the CBM 8250 doesn't say
+					// "double-sided" as directly as the 1571 does.
 					// The CBM 8050 has two BAM blocks, while the CBM 8250 has
 					// four BAM blocks.  We read to the third block; if it has
 					// the proper format code, then it's a BAM block, and the
@@ -384,9 +400,10 @@ void copyFiles(void)
 	time_t timeSpent;
 #endif
 	unsigned i, k, index;
-	char targetFilename[2 + 16 + 2 + 2 + 1];
+	char targetFilename[3 + 2 + 16 + 2 + 2 + 1];
 	const struct dir_node *currentNode;
 	unsigned char j, sd, td, rel_size, rel_bytes;
+	const char *sp, *tp;
 	int r, bytes;
 	static struct position_rel command = {'p', 96 + 2, 0, 1};
 	//static struct rel_file* relativeFile;
@@ -399,8 +416,10 @@ void copyFiles(void)
 		return;
 	}
 
-	if ((td =   targetPanel->drive->drive) ==
-		(sd = selectedPanel->drive->drive))
+	if(((td =   targetPanel->drive->drive) ==
+		(sd = selectedPanel->drive->drive)) &
+		(strcmp(tp =   targetPanel->path,
+				sp = selectedPanel->path) == 0))
 	{
 		//saveScreen();
 		writeStatusBar(
@@ -433,7 +452,7 @@ void copyFiles(void)
 		writeSelectorPosition(selectedPanel, '>');
 	}
 
-	if (getFormat(sd) == F_IDE64)
+	if (getFormat(selectedPanel) == F_IDE64)
 	{
 		copyBlocks = COPY_BUFFER_SIZE/256u;
 	}
@@ -464,17 +483,18 @@ void copyFiles(void)
 				}
 #ifdef __CBM__
 				// Copy only sequential and relative files.
-				if(currentNode->type < CBM_T_REL)
+				if(currentNode->type < _CBM_T_REL)
 				{
 					//cbm_open(14, sd, 15, "");
-					if ((r = cbmOpen(1, sd, CBM_SEQ, currentNode->name, 14))
+					if ((r = cbmOpen(1, sd, CBM_SEQ, sp, currentNode->name, 14))
 						== 0)
 					{
 						// Target file will be replaced automatically.
-						sprintf(targetFilename,"@:%s,%c,w",currentNode->name,
+						sprintf(targetFilename,"@%s:%s,%c,w",
+							tp,currentNode->name,
 							tolower(getFileType(currentNode->type)));
 						//cbm_open(15,td,15,"");
-						if ((r = cbmOpen(2, td, 3, targetFilename, 15)) == 0)
+						if ((r = cbmOpen(2, td, 3, "", targetFilename, 15)) == 0)
 						{
 							drawBox(
 								getCenterX(20), getCenterY(3),
@@ -586,12 +606,12 @@ void copyFiles(void)
 					cbm_close(1);
 					cbm_close(14);
 				}
-				else if(currentNode->type == CBM_T_REL)
+				else if(currentNode->type == _CBM_T_REL)
 				{
 					//cbm_open(127, sd, 15, "");
 
 					// Get record size.
-					if ((rel_size = getRecordSize(127, sd, currentNode->name))
+					if ((rel_size = getRecordSize(127, sd, sp, currentNode->name))
 						== 0)
 					{
 						writeStatusBar(buffer);
@@ -601,8 +621,8 @@ void copyFiles(void)
 					{
 						// Make a read- and write-filename string.
 						// Set the last byte to the size of the records.
-						sprintf(targetFilename, ":%s,l,%c",
-							currentNode->name, rel_size);
+						sprintf(targetFilename, "%s:%s,l,%c",
+							tp, currentNode->name, rel_size);
 
 						// Open the source file.
 						cbm_open(2, sd, 2, targetFilename);
@@ -610,7 +630,7 @@ void copyFiles(void)
 						//cbm_open(126, td, 15, "");
 
 						// Open the target file.
-						if (cbmOpen(3, td, 3, targetFilename, 126) != 0)
+						if (cbmOpen(3, td, 3, "", targetFilename, 126) != 0)
 						{
 							writeStatusBar(buffer);
 							waitForEnterEsc();
@@ -741,6 +761,7 @@ void renameFile(void)
 	{
 		if ((selectedNode = getSelectedNode(selectedPanel)) != NULL)
 		{
+			// Let the user edit the original name -- a little bit.
 #if size_x > 22
 			writeStatusBarf("Old name: %s",
 				strcpy(filename, selectedNode->name));
@@ -759,9 +780,11 @@ void renameFile(void)
 
 			if(dialogResult == OK_RESULT)
 			{
-				sprintf(command, "r:%s=%s",
+				sprintf(command, "r%s:%s=%s", selectedPanel->path,
 					filename, selectedNode->name);
 				commandResult = sendCommand(selectedPanel, command);
+
+				// Keep a copy of the original name.
 				strcpy(filename, selectedNode->name);
 
 				// Show the new file-name (but, don't move the directory).
@@ -788,7 +811,7 @@ void renameFile(void)
 void makeDirectory(void)
 {
 	unsigned char dialogResult;
-	char command[3 + 16 + 1];
+	char command[3 + 3 + 16 + 1];
 	static const char* const dialogMessage[] =
 	{
 		{ "Enter name for" },
@@ -797,14 +820,14 @@ void makeDirectory(void)
 
 	//if(selectedPanel != NULL)
 	{
-		strcpy(command, "md:");
+		sprintf(command, "md%3s:", selectedPanel->path);
 
 		//saveScreen();
 		dialogResult = drawInputDialog(
 			A_SIZE(dialogMessage), (sizeof command) - 3 - 1,
 			dialogMessage,
 			"New Directory",
-			&command[3]);
+			&command[6]);
 		//retrieveScreen();
 
 		if(dialogResult == OK_RESULT)
@@ -832,8 +855,8 @@ static signed char __fastcall removeFile(const struct dir_node *selectedNode)
 		selectedNode->name);
 #ifdef __CBM__
 	sprintf(command,
-		(selectedNode->type == CBM_T_DIR) ? "rd:%s" : "s:%s",
-		 selectedNode->name);
+		(selectedNode->type == _CBM_T_DIR) ? "rd%s:%s" : "s%s:%s",
+		 selectedPanel->path, selectedNode->name);
 #else
 	command[0] = '\0';
 #endif
@@ -963,7 +986,7 @@ void executeSelectedFile(void)
 			switch (currentNode->type)
 			{
 #ifdef __CBM__
-			case CBM_T_PRG:
+			case _CBM_T_PRG:
 				if(!writeYesNo(currentNode->name, message, A_SIZE(message)))
 				{
 					//retrieveScreen();
@@ -1008,9 +1031,9 @@ void executeSelectedFile(void)
 				}
 				//retrieveScreen();
 				// Fall through.
-			case CBM_T_SEQ:
-			//case CBM_T_USR:
-			case CBM_T_OTHER:
+			case _CBM_T_SEQ:
+			//case _CBM_T_USR:
+			case _CBM_T_OTHER:
 #endif
 				retrieveScreen();
 				viewFile(selectedPanel->drive->drive,
@@ -1021,24 +1044,15 @@ void executeSelectedFile(void)
 	}
 }
 
-void inputCommand(void)
+static char __fastcall__ inputLine(char line[], unsigned char width)
 {
 	//unsigned char dialogResult;
-	char command[size_x - 4];
-	unsigned char key = '\0';
+	unsigned char key;
 	unsigned char count = 0;
-	unsigned char x = 3, y = size_y -
-#if size_x < 40
-		3;
-#else
-		2;
-#endif
 	//static const char* const dialogMessage[] =
 	//{
 	//	{ "Type drive-command" }
 	//};
-
-	command[0] = '\0';
 
 	//saveScreen();
 	//dialogResult = drawInputDialog(
@@ -1055,25 +1069,31 @@ void inputCommand(void)
 	//}
 
 	(void)textcolor(color_text_other);
-	gotoxy(0, y);
+	gotoxy(0, size_y -
+#if size_x < 40
+		3
+#else
+		2
+#endif
+		);
 	cprintf("%2u>", selectedPanel->drive->drive);
 
 	revers(true);
-	cclearxy(x, y, size_x - 3);
+	cclear(width);
 
 	do
 	{
-		cputcxy(count + x, y, '_');
+		gotox(count + 3); cputc('_');
 		key = getKey();
 
-		if (count < size_x - 3 &&
+		if (count < width &&
 			(
 				(key >= ' ' && key <= '^'+1) ||
 				(key >= 'A' && key <= 'Z')
 			)
 		   )
 		{
-			cputcxy(count+x, y, command[count] = key);
+			gotox(count + 3); cputc(line[count] = key);
 			++count;
 		}
 		else if (key ==
@@ -1084,28 +1104,52 @@ void inputCommand(void)
 #endif
 			&& count > 0)
 		{
-			cputcxy(count+x, y, ' ');
+			gotox(count + 3); cputc(' ');
 			--count;
 		}
-		command[count] = '\0';
 	}
 	while (key != CH_ENTER && key != CH_STOP);
+	line[count] = '\0';
 
 	revers(false);
+	gotox(0); cclear(size_x);
 
-	if(key != CH_STOP)
+	if (count == 0 && key == CH_ENTER)
+	{
+		return '\0';
+	}
+	else
+	{
+		return key;
+	}
+}
+
+void inputCommand(void)
+{
+	char command[size_x - 4], key;
+
+	if ((key = inputLine(command, sizeof command - 1)) != CH_STOP)
 	{
 		sendCommand(selectedPanel, command);
 
 		// Merely checking the status doesn't change the directory;
 		// therefore, don't reread it, in that case.
-		if (count != 0)
+		if (key != '\0')
 		{
 			rereadSelectedPanel();
 		}
 	}
+}
 
-	cclearxy(0, y, size_x);
+void setPath(void)
+{
+	char path[sizeof selectedPanel->path];
+
+	if (inputLine(path, sizeof path - 1) != CH_STOP)
+	{
+		strcpy(selectedPanel->path, path);
+		rereadSelectedPanel();
+	}
 }
 
 #if defined(__CBM__) //&& !defined(__VIC20__)
@@ -1126,8 +1170,9 @@ bool __fastcall createDiskImage(const char *filename)
 		{ "Type a name for" },
 		{ "the disk image" }
 	};
-	char name[1 + 16 + 1];
+	char name[16 + 1];
 	unsigned char sd, td, i, j, sectorsThisTrack, tracks;
+	const char *sp, *tp;
 	//struct dir_node *currentNode;
 	unsigned char result;
 	int r;
@@ -1147,12 +1192,14 @@ bool __fastcall createDiskImage(const char *filename)
 		targetPanel = (selectedPanel == &leftPanelDrive) ?
 			&rightPanelDrive : &leftPanelDrive;
 
-		if(
+		if((
 			//targetPanel->drive != NULL &&
 			(td =   targetPanel->drive->drive) !=
-			(sd = selectedPanel->drive->drive))
+			(sd = selectedPanel->drive->drive)) |
+			(strcmp(tp =   targetPanel->path,
+					sp = selectedPanel->path) != 0))
 		{
-			switch (j = getFormat(sd))
+			switch (j = getFormat(selectedPanel))
 			{
 			case F_1541:
 //				writeStatusBar("Making D64");
@@ -1184,18 +1231,17 @@ bool __fastcall createDiskImage(const char *filename)
 			//currentNode = getSelectedNode(selectedPanel);
 			if(filename == NULL)
 			{
-				name[0]=':';
-				name[1]='\0';
+				name[0]='\0';
 				//saveScreen();
 				result = drawInputDialog(
-					A_SIZE(message), 16,
+					A_SIZE(message), (sizeof name) - 1,
 					message, "Make Image",
-					&name[1]);
+					(char *)(filename = name));
 				//retrieveScreen();
 			}
 			else
 			{
-				sprintf(name, ":%s", filename);
+				//sprintf(name, ":%s", filename);
 				result = OK_RESULT;
 			}
 
@@ -1209,7 +1255,7 @@ bool __fastcall createDiskImage(const char *filename)
 				//}
 
 				//cbm_open(15, sd, 15, "");
-				if((r = cbmOpen(2, sd, 2, "#", 15)) == 0)
+				if((r = cbmOpen(2, sd, 2, "", "#", 15)) == 0)
 				{
 #ifndef __VIC20__
 #ifdef __PET__
@@ -1219,7 +1265,7 @@ bool __fastcall createDiskImage(const char *filename)
 #endif
 #endif
 					//cbm_open(14,td,15,"");
-					if((signed char)(r = cbmOpen(3,td,CBM_WRITE,name,14)) == 0)
+					if((signed char)(r = cbmOpen(3,td,CBM_WRITE,tp,filename,14)) == 0)
 					{
 						//saveScreen();
 						drawBox(
@@ -1364,12 +1410,13 @@ void batchCreateDiskImage(void)
 	{
 		//retrieveScreen();
 
-		//input[4] = '\0';
-		if(sscanf(input, "%4u", &count) == 1)
+		input[4] = '\0';
+		count = atoi(input);
+		//if(sscanf(input, "%4u", &count) == 1)
 		{
 			do
 			{
-				sprintf(filename, "disk%04u.d64", count++);
+				sprintf(filename, "disk%04u.d64", count); ++count;
 				if (!createDiskImage(filename))
 				{
 					break;
@@ -1395,6 +1442,7 @@ void writeDiskImage(void)
 	};
 	bool confirmed;
 	unsigned char sd, td, i, j;
+	const char *sp, *tp;
 	const struct dir_node *currentNode;
 #ifndef __VIC20__
 #ifdef __PET__
@@ -1411,10 +1459,12 @@ void writeDiskImage(void)
 	targetPanel = (selectedPanel == &leftPanelDrive) ?
 		&rightPanelDrive : &leftPanelDrive;
 
-	if (
+	if ((
 		//targetPanel->drive != NULL &&
 		(td =   targetPanel->drive->drive) !=
-		(sd = selectedPanel->drive->drive))
+		(sd = selectedPanel->drive->drive)) |
+		(strcmp(tp =   targetPanel->path,
+				sp = selectedPanel->path) != 0))
 	{
 		if ((currentNode = getSelectedNode(selectedPanel)) != NULL)
 		{
@@ -1423,6 +1473,9 @@ void writeDiskImage(void)
 			case D64_SIZE:
 			case D71_SIZE:
 			case D81_SIZE:
+			case D64_SIZE * 254 / 256:		// IDE64 sizes
+			case D71_SIZE * 254 / 256 + 1:
+			case D81_SIZE * 254 / 256 + 1:
 				break;
 			default:
 				saveScreen();
@@ -1440,7 +1493,7 @@ void writeDiskImage(void)
 			if(confirmed)
 			{
 				//cbm_open(15, sd, 15, "");
-				if((r = cbmOpen(2, sd, CBM_SEQ, currentNode->name, 15)) == 0)
+				if((r = cbmOpen(2, sd, CBM_SEQ, sp, currentNode->name, 15)) == 0)
 				{
 					/*
 					100 OPEN 1,8,15
@@ -1452,7 +1505,8 @@ void writeDiskImage(void)
 
 					writeStatusBar("Formatting disk...");
 					//cbm_open(14, td, 15, "n:temp,00");
-					if ((r = cbmOpen(3, td, 15, "n:temp,00", 14)) == 0)
+					sprintf(buffer, "n%s:temp,00", tp);
+					if ((r = cbmOpen(3, td, 15, "", buffer, 14)) == 0)
 					{
 						cbm_close(3); cbm_open(3,td,3,"#");
 
@@ -1476,12 +1530,15 @@ void writeDiskImage(void)
 						switch(currentNode->size)
 						{
 						  case D64_SIZE:
+						  case D64_SIZE * 254 / 256:
 							tracks = 35u;
 							break;
 						  case D71_SIZE:
+						  case D71_SIZE * 254 / 256 + 1:
 							tracks = 35u*2;
 							break;
 						  case D81_SIZE:
+						  case D81_SIZE * 254 / 256 + 1:
 							sectors = 40u;
 							tracks = 80u;
 							break;
@@ -1495,6 +1552,8 @@ void writeDiskImage(void)
 							{
 							  case D64_SIZE:
 							  case D71_SIZE:
+							  case D64_SIZE * 254 / 256:
+							  case D71_SIZE * 254 / 256 + 1:
 								sectors = l[i%35];
 								break;
 							}
@@ -1632,13 +1691,16 @@ void copyDisk(void)
 	};
 	static bool yesNo;
 	unsigned char sd, td, sf, tf;
+	const char *sp, *tp;
 	unsigned char j, i = 0, trackCount = 0, sectorCount = 40;
 
 	targetPanel = (selectedPanel == &leftPanelDrive) ?
 		&rightPanelDrive : &leftPanelDrive;
 
-	if ((td =   targetPanel->drive->drive) !=
-		(sd = selectedPanel->drive->drive))
+	if(((td =   targetPanel->drive->drive) !=
+		(sd = selectedPanel->drive->drive)) |
+		(strcmp(tp =   targetPanel->path,
+				sp = selectedPanel->path) != 0))
 	{
 		//saveScreen();
 		yesNo = writeYesNo("Copy Disk", message, A_SIZE(message));
@@ -1646,7 +1708,7 @@ void copyDisk(void)
 		if(yesNo)
 		{
 			// The two formats must be compatible.
-			if ((sf = getFormat(sd)) == (tf = getFormat(td))
+			if ((sf = getFormat(selectedPanel)) == (tf = getFormat(targetPanel))
 				// These matches will change a double-sided
 				// into a single-sided disk!
 #ifndef __PET__

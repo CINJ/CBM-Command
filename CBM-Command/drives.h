@@ -102,7 +102,7 @@ struct panel_drive
 	bool visible;			// XXX: obsolete
 	unsigned char* selectedEntries;
 	struct drive_status *drive;
-	char dollar;				// '$'
+	char dollar[1];				// '$'
 	char path[3 + 1];			// "123", "\0"
 #ifdef __CBM__
 	struct cbm_dirent header;
@@ -220,7 +220,7 @@ void __fastcall__ moveBottom(
 // be found.  It returns a negative value if the DOS reports an error;
 // then, the buffer array holds the error string.
 signed char __fastcall__ cbmOpen(unsigned char lfn, unsigned char device,
-	unsigned char sec_addr, const char* name,
+	unsigned char sec_addr, const char* path, const char* name,
 	unsigned char errf);
 
 #endif

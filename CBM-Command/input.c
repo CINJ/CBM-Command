@@ -117,6 +117,9 @@ void readKeyboard(void)
 	case KM_DRIVE_COMMAND:
 		inputCommand();
 		return;
+	case KM_PATH:
+		setPath();
+		return;
 	case KM_MAKE_DIRECTORY:
 		key = CH_F7;
 		break;

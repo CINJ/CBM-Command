@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2011, Payton Byrd
+Copyright (c) 2012, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -69,6 +69,7 @@ struct rel_file_rec
 unsigned char __fastcall getRecordSize(
 	const unsigned char command_lfn,
 	const unsigned char unit_number,
+	const char* path,
 	const char* file_name);
 //
 //struct rel_file* __fastcall openRelativeFile(

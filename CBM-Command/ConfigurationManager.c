@@ -38,7 +38,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __fastcall __fastcall__
 #include <conio.h>
 #include <stdbool.h>
-//#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 //#include <string.h>
 #ifdef __C128__
@@ -51,6 +51,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "globalInput.h"
 #include "globals.h"
 #include "screen.h"
+
+static unsigned char defaultDisk[2];
 
 static void refreshScreen(void)
 {
@@ -68,11 +70,48 @@ void main(void)
 #endif
 
 	initialize();
+	defaultDisk[0] = atoi(defaultLeftDisk);
+	defaultDisk[1] = atoi(defaultRightDisk);
+
 	refreshScreen();
 
 	while(true)
 	{
 		readKeyboard();
+	}
+}
+
+static void __fastcall spin(unsigned char row) {
+	revers(true);
+	for (;;)
+	{
+		gotoxy(
+#if size_x > 22
+			32
+#else
+			18
+#endif
+			, row + 5);
+		cprintf("%-3u", defaultDisk[row]);
+		switch (cgetc())
+		{
+		case CH_CURS_DOWN:
+		case CH_CURS_LEFT:
+			if (--defaultDisk[row] == 255) {
+				defaultDisk[row] = 254;
+			}
+			break;
+		case CH_CURS_RIGHT:
+		case CH_CURS_UP:
+			if (++defaultDisk[row] == 255) {
+				defaultDisk[row] = 0;
+			}
+			break;
+		case CH_ENTER:
+			revers(false);
+			refreshScreen();
+			return;
+		}
 	}
 }
 
@@ -116,6 +155,12 @@ static void readKeyboard(void)
 	case 'r':
 		if(++defaultRightDrive > 16) defaultRightDrive = 8;
 		refreshScreen();
+		break;
+	case 'p':
+		spin(0);
+		break;
+	case 'd':
+		spin(1);
 		break;
 	}
 }
@@ -225,11 +270,11 @@ static void writeMenu(void)
 	(void)textcolor(color_text_menus);
 	cputsxy(1, 4, "Drives:");
 #if size_x > 22
-	gotox(2); cprintf("\nL - Default  Left Drive:%3u", defaultLeftDrive);
-	gotox(2); cprintf("\nR - Default Right Drive:%3u", defaultRightDrive);
+	gotox(2); cprintf("\nL;P - Default  Left Drive:%3u;%u", defaultLeftDrive, defaultDisk[0]);
+	gotox(2); cprintf("\nR;D - Default Right Drive:%3u;%u", defaultRightDrive, defaultDisk[1]);
 #else
-	gotox(2); cprintf("\nL - Def  Lft Dr:%2u", defaultLeftDrive);
-	gotox(2); cprintf("\nR - Def Rght Dr:%2u", defaultRightDrive);
+	gotox(1); cprintf("\nL;P -  Lft Dr:%2u;%u", defaultLeftDrive, defaultDisk[0]);
+	gotox(1); cprintf("\nR;D - Rght Dr:%2u;%u", defaultRightDrive, defaultDisk[1]);
 #endif
 
 #ifdef COLOR_RED
@@ -299,7 +344,7 @@ static void save(void)
 		"c128"
 #endif
 #ifdef __VIC20__
-		"vic20"
+		"vc20"
 #endif
 #ifdef __PET__
 		"pet"
@@ -310,8 +355,13 @@ static void save(void)
 		",s,w");
 	if(d == 0)			// XXX: success means only that the drive exists
 	{
+		sprintf(defaultLeftDisk, "%u", defaultDisk[0]);
+		sprintf(defaultRightDisk,"%u", defaultDisk[1]);
+
 		cbm_write(1, &defaultLeftDrive, 1);
+		cbm_write(1,  defaultLeftDisk, sizeof defaultLeftDisk);
 		cbm_write(1, &defaultRightDrive, 1);
+		cbm_write(1,  defaultRightDisk, sizeof defaultRightDisk);
 
 // The CBM/Pet clan (except the CBM510) doesn't support color.
 // Don't save colors if only black and white are defined.
@@ -523,6 +573,7 @@ static void keys(void)
 	cputsxy(12u, 12u, "Exc/Read");
 	cputsxy(12u, 13u, "Copy Disk");
 	cputsxy(12u, 14u, "Batch Img");
+	cputsxy(12u, 15u, "Set Path");
 
 	(void)textcolor(color_text_highlight);
 	cputsxy(getCenterX((unsigned char)(sizeof KEYS_HELP - 1)), 17u, KEYS_HELP);
@@ -544,7 +595,7 @@ static void keys(void)
 			return;
 
 		case CH_CURS_DOWN:
-			if(y < (x == 1u ? 15u : 14u))
+			if(y < (x == 1u ? 15u : 15u))
 			{
 				drawCursor(x, y, false);
 				++y;
@@ -563,7 +614,7 @@ static void keys(void)
 			if(x != 11u)
 			{
 				drawCursor(x, y, false);
-				if(y > 14u) y = 14u;
+				//if(y > 15u) y = 15u;
 				x = 11u;
 			}
 			break;

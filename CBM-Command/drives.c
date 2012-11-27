@@ -73,7 +73,7 @@ static struct drive_status drives[] =
 
 struct panel_drive  leftPanelDrive;
 struct panel_drive rightPanelDrive;
-struct panel_drive *selectedPanel;
+struct panel_drive *selectedPanel = &leftPanelDrive;
 
 static unsigned char currentLeft;
 static unsigned char currentRight;
@@ -89,9 +89,11 @@ void initializeDrives(void)
 	 leftPanelDrive.drive = &(drives[currentLeft  = defaultLeftDrive  - 8]);
 	rightPanelDrive.drive = &(drives[currentRight = defaultRightDrive - 8]);
 
-	leftPanelDrive.dollar  = rightPanelDrive.dollar  = '$';
-	leftPanelDrive.path[0] = rightPanelDrive.path[0] = '0';
-	leftPanelDrive.path[1] = rightPanelDrive.path[1] = '\0';
+	leftPanelDrive.dollar[0] = rightPanelDrive.dollar[0] = '$';
+	//leftPanelDrive.path[0] = rightPanelDrive.path[0] = '0';
+	//leftPanelDrive.path[1] = rightPanelDrive.path[1] = '\0';
+	strcpy( leftPanelDrive.path, defaultLeftDisk);
+	strcpy(rightPanelDrive.path, defaultRightDisk);
 
 #ifdef __VIC20__
 	 leftPanelDrive.selectedEntries = (unsigned char *) 0xA100;
@@ -102,7 +104,7 @@ void initializeDrives(void)
 	// leftPanelDrive.position =  left;
 	//rightPanelDrive.position = right;
 
-	selectedPanel = &leftPanelDrive;
+	//selectedPanel = &leftPanelDrive;
 }
 
 static int __fastcall getDriveStatus(
@@ -294,7 +296,7 @@ unsigned int __fastcall getDirectory(
 	//}
 
 	writeStatusBar("Reading directory...");
-	if (cbm_opendir(2, dr, &drive->dollar) == 0)
+	if (cbm_opendir(2, dr, drive->dollar) == 0)
 	{
 		while (!(dr = cbm_readdir(2, &currentDE)))
 		{
@@ -452,7 +454,7 @@ void __fastcall displayDirectory(
 	cvlinexy(w, y, panelHeight);
 #endif
 	chlinexy(x+1, y + panelHeight - 1, w - 1u);
-	cclearxy(x+1, y, w-1);
+	//cclearxy(x+1, y, w-1);
 	gotoxy(x+1, y); cprintf(
 #ifdef __CBM__
 		"[%s]%c", drive->header.name, drive->header.access
@@ -460,9 +462,14 @@ void __fastcall displayDirectory(
 		"[%s]", drive->header.name
 #endif
 		);
+#if size_x == 40
+	cclear(11);
+#endif
 	gotoxy(x+1, y + panelHeight - 1); cprintf("[%2u;%s]", drive->drive->drive, drive->path);
 #if size_x < 40
-	gotox(getCenterX(5)); cputs((drive == &leftPanelDrive) ? "Left" : "Right");
+	//gotox(getCenterX(5));
+	gotox(9);
+	cputs((drive == &leftPanelDrive) ? "Left" : "Right");
 #endif
 
 	gotox(x + w - 7); cprintf("[%5u]", drive->header.size);
@@ -508,8 +515,8 @@ void __fastcall displayDirectory(
 //#elif size_x == 40
 //			"%3s %-14s%c",
 #else
-			// 80 columns
-			"%5u %-17s%c ",
+			// 40/80 columns
+			"%5u %-17s%c",
 #endif
 #if size_x < 40
 			fileType,
@@ -526,7 +533,7 @@ void __fastcall displayDirectory(
 
 		(void)revers(false);
 #if size_x == 40
-		cclear(4);
+		cclear(5);
 #endif
 	}
 
@@ -911,7 +918,7 @@ void __fastcall__ moveBottom(struct panel_drive *panel)
 // be found.  It returns a negative value if the DOS reports an error;
 // then, the buffer array holds the error string.
 signed char __fastcall__ cbmOpen(unsigned char lfn, unsigned char device,
-	unsigned char sec_addr, const char* name,
+	unsigned char sec_addr, const char* path, const char* name,
 	unsigned char errf)
 {
 	static signed char r;
@@ -922,7 +929,9 @@ signed char __fastcall__ cbmOpen(unsigned char lfn, unsigned char device,
 		cbm_open(errf, device, 15, "");
 	}
 
-	if ((r = cbm_open(lfn, device, sec_addr, name)) == 0 && errf != 0)
+	// Don't add a colon when path is empty.
+	sprintf(fileBuffer, (path[0] == '\0') ? "%s%s" : "%s:%s", path, name);
+	if ((r = cbm_open(lfn, device, sec_addr, fileBuffer)) == 0 && errf != 0)
 	{
 		// Check the DOS status.
 		r = cbm_read(errf, buffer, (sizeof buffer) - 1);

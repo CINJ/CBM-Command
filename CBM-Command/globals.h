@@ -103,7 +103,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 //extern bool arePanelsOn;
-extern unsigned char buffer[41];
+extern unsigned char buffer[47];	// (must be long enough to hold configuration file)
 
 #ifdef COLOR_RED
 extern unsigned char outsideFrame;

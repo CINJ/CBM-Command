@@ -39,8 +39,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _CONFIGURATION_H
 
 /* Drive Configuration */
-extern unsigned char defaultLeftDrive;		// Left Panel drive on start-up
-extern unsigned char defaultRightDrive;		// Right Panel drive on start-up
+extern unsigned char defaultLeftDrive;		// Left Panel unit on start-up
+extern unsigned char defaultRightDrive;		// Right Panel unit on start-up
+extern char defaultLeftDisk[4];				// Left Panel drive/partition on start-up
+extern char defaultRightDisk[4];			// Right Panel drive/partition on start-up
 
 /* Color Configuration */
 extern unsigned char color_background;		// Background color for application

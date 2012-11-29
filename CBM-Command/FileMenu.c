@@ -43,6 +43,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ctype.h>
 #include <errno.h>
 #include <time.h>
+#include <device.h>
 #ifdef __C128__
 #include <c128.h>
 #endif
@@ -253,7 +254,7 @@ enum
 
 void writeHelpPanel(void)
 {
-	viewFile(_curunit,
+	viewFile(getcurrentdevice(),
 #if __PET__
 		// Most IEEE units are dual-drives.
 		// Look for the help file on both disks.

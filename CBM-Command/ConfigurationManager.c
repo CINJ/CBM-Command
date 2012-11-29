@@ -37,6 +37,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define __fastcall __fastcall__
 #include <conio.h>
+#include <device.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -335,8 +336,8 @@ static void save(void)
 	unsigned char d;
 	signed char r;
 
-	cbm_open(15,_curunit,15,"");	// open the status channel
-	d = cbm_open(1, _curunit, 3, "@0:cbmcmd22cfg."
+	cbm_open(15,getcurrentdevice(),15,"");	// open the status channel
+	d = cbm_open(1, getcurrentdevice(), 3, "@0:cbmcmd22cfg."
 #ifdef __C64__
 		"c64"
 #endif

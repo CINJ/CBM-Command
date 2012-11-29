@@ -40,6 +40,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 //#include <conio.h>
 //#include <errno.h>
+#include <device.h>
 #ifdef __CBM__
 #include <cbm.h>
 #include "Configuration-CBM.h"
@@ -156,10 +157,10 @@ void load(void)
 #if defined(__CBM__)
 static void loadCBM(void)
 {
-	//cbm_open(15, _curunit, 15, "");	// open the status channel
+	//cbm_open(15, getcurrentdevice(), 15, "");	// open the status channel
 	if (cbm_open(1,
 		// Get the drive from which the program was loaded.
-		defaultLeftDrive = defaultRightDrive = _curunit, 2,
+		defaultLeftDrive = defaultRightDrive = getcurrentdevice(), 2,
 #ifdef __PET__
 		// We assume that IEEE systems have dual-drives.
 		"cbmcmd22cfg."

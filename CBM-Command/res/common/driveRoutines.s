@@ -1,5 +1,5 @@
 ;/***************************************************************
-;Copyright (c) 2011, Payton Byrd
+;Copyright (c) 2012, Payton Byrd
 ;All rights reserved.
 ;
 ;Redistribution and use in source and binary forms, with or
@@ -48,9 +48,11 @@
 		TYA					; .Y -> .A (Logical file number)
 		JSR		SETLFS		; (15, drive, 15)
 
+; The IEEE bus needs to send a command, in order to get results;
+; the IEC bus doesn't.
 .ifdef	__PET__
 		.rodata
-cmd:	.byte	"ui"
+cmd:	.byte	"u0"		; Effectively, does nothing
 		.code
 		LDA		#.sizeof(cmd)
 		ldx		#<cmd

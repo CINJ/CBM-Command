@@ -484,7 +484,7 @@ void copyFiles(void)
 				}
 #ifdef __CBM__
 				// Copy only sequential and relative files.
-				if(currentNode->type < _CBM_T_REL)
+				if(currentNode->type >= _CBM_T_SEQ && currentNode->type < _CBM_T_REL)
 				{
 					//cbm_open(14, sd, 15, "");
 					if ((r = cbmOpen(1, sd, CBM_SEQ, sp, currentNode->name, 14))

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="A2|Win32">
@@ -58,46 +58,68 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C128|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>$(Configuration)</OutDir>
+    <IntDir>$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='A2|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>$(Configuration)</OutDir>
+    <IntDir>$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C128_Config|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>$(Configuration)</OutDir>
+    <IntDir>$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>$(Configuration)</OutDir>
+    <IntDir>$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VIC20|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>$(Configuration)</OutDir>
+    <IntDir>$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VIC20 Config|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>$(Configuration)</OutDir>
+    <IntDir>$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PLUS4|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>$(Configuration)</OutDir>
+    <IntDir>$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PLUS4 Config|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>$(Configuration)</OutDir>
+    <IntDir>$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PET|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>$(Configuration)</OutDir>
+    <IntDir>$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PET40|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>$(Configuration)</OutDir>
+    <IntDir>$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64_Config|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>$(Configuration)</OutDir>
+    <IntDir>$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='C= 64|Win32'">
     <ConfigurationType>Makefile</ConfigurationType>
@@ -148,9 +170,9 @@
     </NMakeOutput>
     <NMakeCleanCommandLine>make clean T:=c128</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>make D64 T:=c128</NMakeReBuildCommandLine>
-    <NMakePreprocessorDefinitions>__C128__; __CBM__</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions>__C128__; __CBM__; __fastcall__=__fastcall</NMakePreprocessorDefinitions>
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
-    <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeIncludeSearchPath>$(CC65_INC)</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='A2|Win32'">
     <NMakeBuildCommandLine>make T:=apple2enh</NMakeBuildCommandLine>
@@ -166,7 +188,7 @@
     <NMakeOutput />
     <NMakeCleanCommandLine>make clean T:=c128</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>make T:=c128</NMakeReBuildCommandLine>
-    <NMakePreprocessorDefinitions>__C128__; __CBM__</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions>__C128__; __CBM__; __fastcall__=__fastcall</NMakePreprocessorDefinitions>
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
     <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
@@ -182,7 +204,7 @@
     <ReferencePath />
     <LibraryPath />
     <SourcePath />
-    <ExcludePath />
+    <ExcludePath>$(CC65_INC);$(CA65_INC)</ExcludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VIC20|Win32'">
     <NMakeBuildCommandLine>make T:=vic20</NMakeBuildCommandLine>
@@ -326,31 +348,81 @@
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="cbmcommand_master.d64" />
-    <None Include="res\common\CommandMenu.s" />
-    <None Include="res\c128\PlatformSpecific.s" />
-    <None Include="res\c64\FileMenu.s" />
-    <None Include="res\c64\OptionsMenu.s" />
-    <None Include="res\c64\PlatformSpecific.s" />
-    <None Include="res\common\DriveMenu.s" />
-    <None Include="res\c128\Text.s" />
-    <None Include="res\c64\Text.s" />
-    <None Include="res\common\Common.s" />
-    <None Include="res\c128\FileMenu.s" />
-    <None Include="res\c128\OptionsMenu.s" />
-    <None Include="res\common\driveRoutines.s" />
-    <None Include="res\pet\FileMenu.s" />
-    <None Include="res\pet\OptionsMenu.s" />
-    <None Include="res\pet\PlatformSpecific.s" />
-    <None Include="res\pet\Text.s" />
-    <None Include="res\plus4\FileMenu.s" />
-    <None Include="res\plus4\OptionsMenu.s" />
-    <None Include="res\plus4\PlatformSpecific.s" />
-    <None Include="res\plus4\Text.s" />
-    <None Include="res\vic20\FileMenu.s" />
-    <None Include="res\vic20\OptionsMenu.s" />
-    <None Include="res\vic20\PlatformSpecific.s" />
-    <None Include="res\vic20\Text.s" />
+    <Resource Include="cbmcommand_master.d64">
+      <FileType>RES</FileType>
+    </Resource>
+    <None Include="res\common\CommandMenu.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <ClCompile Include="res\c128\PlatformSpecific.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <None Include="res\c64\FileMenu.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="res\c64\OptionsMenu.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <ClCompile Include="res\c64\PlatformSpecific.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <None Include="res\common\DriveMenu.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="res\c128\Text.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="res\c64\Text.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="res\common\Common.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="res\c128\FileMenu.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="res\c128\OptionsMenu.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <ClCompile Include="res\common\driveRoutines.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <None Include="res\pet\FileMenu.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="res\pet\OptionsMenu.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <ClCompile Include="res\pet\PlatformSpecific.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <None Include="res\pet\Text.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="res\plus4\FileMenu.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="res\plus4\OptionsMenu.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <ClCompile Include="res\plus4\PlatformSpecific.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <None Include="res\plus4\Text.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="res\vic20\FileMenu.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="res\vic20\OptionsMenu.s">
+      <FileType>CppCode</FileType>
+    </None>
+    <ClCompile Include="res\vic20\PlatformSpecific.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <None Include="res\vic20\Text.s">
+      <FileType>CppCode</FileType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="builtStamp.c" />
@@ -365,7 +437,9 @@
     <ClCompile Include="globalInput.c" />
     <ClCompile Include="globals.c" />
     <ClCompile Include="input.c" />
-    <ClCompile Include="makefile" />
+    <CustomBuild Include="makefile">
+      <FileType>Makefile</FileType>
+    </CustomBuild>
     <ClCompile Include="menus.c" />
     <ClCompile Include="OptionMenu.c" />
     <ClCompile Include="screen.c" />
@@ -385,7 +459,9 @@
     <ClInclude Include="PlatformSpecific.h" />
     <ClInclude Include="screen.h" />
     <ClInclude Include="Viewer.h" />
-    <ClInclude Include="res\macroes.inc" />
+    <ClInclude Include="res\macroes.inc">
+      <FileType>CppHeader</FileType>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

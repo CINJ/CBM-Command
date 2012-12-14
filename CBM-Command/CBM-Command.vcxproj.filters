@@ -28,19 +28,16 @@
     <Filter Include="Source Files\PLUS4">
       <UniqueIdentifier>{80573763-d241-45ab-82ac-5f2dcbcdc652}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\COMMON">
+      <UniqueIdentifier>{6514e590-2832-4f48-bdea-8aff1d4c0124}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\c64\Text.s">
       <Filter>Source Files\C64</Filter>
     </None>
-    <None Include="res\common\Common.s">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="res\c128\Text.s">
       <Filter>Source Files\C128</Filter>
-    </None>
-    <None Include="res\common\DriveMenu.s">
-      <Filter>Source Files</Filter>
     </None>
     <None Include="res\c64\FileMenu.s">
       <Filter>Source Files\C64</Filter>
@@ -53,9 +50,6 @@
     </None>
     <None Include="res\c128\OptionsMenu.s">
       <Filter>Source Files\C128</Filter>
-    </None>
-    <None Include="res\common\CommandMenu.s">
-      <Filter>Source Files</Filter>
     </None>
     <None Include="res\pet\FileMenu.s">
       <Filter>Source Files\PET</Filter>
@@ -83,6 +77,15 @@
     </None>
     <None Include="res\plus4\Text.s">
       <Filter>Source Files\PLUS4</Filter>
+    </None>
+    <None Include="res\common\CommandMenu.s">
+      <Filter>Source Files\COMMON</Filter>
+    </None>
+    <None Include="res\common\Common.s">
+      <Filter>Source Files\COMMON</Filter>
+    </None>
+    <None Include="res\common\DriveMenu.s">
+      <Filter>Source Files\COMMON</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -138,7 +141,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="res\common\driveRoutines.s">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\COMMON</Filter>
     </ClCompile>
     <ClCompile Include="res\c128\PlatformSpecific.s">
       <Filter>Source Files\C128</Filter>

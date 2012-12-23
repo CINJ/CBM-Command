@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="A2|Win32">
@@ -225,10 +225,10 @@
     <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PLUS4|Win32'">
-    <NMakeBuildCommandLine>make T:=plus4</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>make D64 T:=plus4</NMakeBuildCommandLine>
     <NMakeOutput />
     <NMakeCleanCommandLine>make clean T:=plus4</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>make T:=plus4</NMakeReBuildCommandLine>
+    <NMakeReBuildCommandLine>make D64 T:=plus4</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>__PLUS4__; __CBM__; __fastcall__=__fastcall</NMakePreprocessorDefinitions>
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
     <NMakeIncludeSearchPath>$(CC65_INC);$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>

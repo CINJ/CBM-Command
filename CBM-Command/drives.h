@@ -123,6 +123,8 @@ extern struct panel_drive leftPanelDrive;	// The left panel
 extern struct panel_drive rightPanelDrive;	// The right panel
 extern struct panel_drive *selectedPanel;	// The current panel
 
+extern unsigned char displayHeight;
+
 /* METHODS */
 void initializeDrives(void);
 

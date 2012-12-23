@@ -44,16 +44,16 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum results { OK_RESULT, CANCEL_RESULT, YES_RESULT, NO_RESULT };
 enum buttons { OK = 1, CANCEL = 2, YES = 4, NO = 8 };	// bit-masks
+enum orientations { ORIENT_VERT, ORIENT_HORIZ };
 
-//enum buttonTypes { cancel, ok, other };
-//typedef void *ButtonCallback(enum buttonTypes buttonType);
+extern enum orientations screenOrientation;
 
 extern bool isDoubleBuffered;
 void beginDoubleBuffer(void);
 void endDoubleBuffer(void);
 
 void setupScreen(void);
-
+void swapOrientation(void);
 void __fastcall writeStatusBar(const char[]);
 void __fastcall vwriteStatusBarf(const char[], va_list);
 void writeStatusBarf(const char[], ...);

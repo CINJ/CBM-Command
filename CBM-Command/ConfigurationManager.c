@@ -559,22 +559,23 @@ static void keys(void)
 	cputsxy(2u, 13u, "Lv Dir");
 	cputsxy(2u, 14u, "Pg Up");
 	cputsxy(2u, 15u, "Pg Down");
+	cputsxy(2u, 16u, "Quit");
 
 // Right column:
-	cputsxy(12u, 2u, "Quit");
-	cputsxy(12u, 3u, "Rename");
-	cputsxy(12u, 4u, "Read Lft");
-	cputsxy(12u, 5u, "Read Rgt");
-	cputsxy(12u, 6u, "Refresh");
-	cputsxy(12u, 7u, "Select");
-	cputsxy(12u, 8u, "S. All");
-	cputsxy(12u, 9u, "S. None");
-	cputsxy(12u, 10u, "To Top");
-	cputsxy(12u, 11u, "To Bottom");
-	cputsxy(12u, 12u, "Exc/Read");
-	cputsxy(12u, 13u, "Copy Disk");
-	cputsxy(12u, 14u, "Batch Img");
-	cputsxy(12u, 15u, "Set Path");
+	cputsxy(12u, 2u, "Rename");
+	cputsxy(12u, 3u, "Read Lft");
+	cputsxy(12u, 4u, "Read Rgt");
+	cputsxy(12u, 5u, "Refresh");
+	cputsxy(12u, 6u, "Select");
+	cputsxy(12u, 7u, "S. All");
+	cputsxy(12u, 8u, "S. None");
+	cputsxy(12u, 9u, "To Top");
+	cputsxy(12u, 10u, "To Bottom");
+	cputsxy(12u, 11u, "Exc/Read");
+	cputsxy(12u, 12u, "Copy Disk");
+	cputsxy(12u, 13u, "Batch Img");
+	cputsxy(12u, 14u, "Set Path");
+	cputsxy(12u, 15u, "Orientation");
 
 	(void)textcolor(color_text_highlight);
 	cputsxy(getCenterX((unsigned char)(sizeof KEYS_HELP - 1)), 17u, KEYS_HELP);
@@ -588,7 +589,7 @@ static void keys(void)
 		case CH_ENTER:
 			//saveScreen();
 			//setHotKey((x == 1u ? 0u : 14u) + y - 2u);
-			setHotKey(y + (x == 1u ? 0u - 2u : 14 - 2));	// XXX: examine asm output
+			setHotKey(y + (x == 1u ? 0u - 2u : 15 - 2));	// XXX: examine asm output
 			//retrieveScreen();
 			break;
 
@@ -596,7 +597,7 @@ static void keys(void)
 			return;
 
 		case CH_CURS_DOWN:
-			if(y < (x == 1u ? 15u : 15u))
+			if(y < (x == 1u ? 16u : 15u))
 			{
 				drawCursor(x, y, false);
 				++y;
@@ -615,7 +616,7 @@ static void keys(void)
 			if(x != 11u)
 			{
 				drawCursor(x, y, false);
-				//if(y > 15u) y = 15u;
+				if(y > 15u) y = 15u;
 				x = 11u;
 			}
 			break;

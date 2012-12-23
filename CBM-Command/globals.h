@@ -94,6 +94,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HK_BATCH_CREATE_D64	'b'
 #define HK_WRITE_D64		'X'	// SHIFT-X
 #define HK_PATH				'p'
+#define HK_ORIENTATION		'i'
 
 #ifdef __C128__
 #define HK_HELP_128			0x84	// HELP key

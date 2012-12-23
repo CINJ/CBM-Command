@@ -88,6 +88,7 @@ enum keymap
 	KM_COPY_DISK,
 	KM_BATCH_CREATE_D64,
 	KM_PATH,
+	KM_ORIENTATION,
 	KM_KEYMAP_SIZE
 };
 extern char keyMap[KM_KEYMAP_SIZE];

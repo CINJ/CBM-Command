@@ -87,7 +87,8 @@ char keyMap[] =
 	HK_EXECUTE_SELECTED,//24
 	HK_COPY_DISK,		//25
 	HK_BATCH_CREATE_D64,//26
-	HK_PATH				//27
+	HK_PATH,			//27
+	HK_ORIENTATION		//28
 };
 
 

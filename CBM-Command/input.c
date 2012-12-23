@@ -47,7 +47,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "input.h"
 #include "menus.h"
 #include "globalInput.h"
-//#include "screen.h"
+#include "screen.h"
 
 void readKeyboard(void)
 {
@@ -148,6 +148,20 @@ void readKeyboard(void)
 #endif
 	case KM_COPY_DISK:
 		copyDisk();
+		return;
+	case KM_ORIENTATION:
+		swapOrientation();
+
+		displayDirectory(&leftPanelDrive);
+		leftPanelDrive.currentIndex = leftPanelDrive.displayStartAt;
+
+		if(rightPanelDrive.visible)
+		{
+			displayDirectory(&rightPanelDrive);
+			rightPanelDrive.currentIndex = rightPanelDrive.displayStartAt;
+		}
+
+		writeSelectorPosition(selectedPanel, '>');
 		return;
 	}
 

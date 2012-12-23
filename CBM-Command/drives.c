@@ -398,32 +398,45 @@ void __fastcall__ resetSelectedFiles(struct panel_drive *panel)
 #endif
 }
 
+unsigned char displayHeight = 1;
+
 void __fastcall displayDirectory(
 	struct panel_drive *drive)
 {
-	static const unsigned char w = size_x /
-#if size_x == 40
-		1u;
-#define panelHeight ((size_y - 3u) / 2u)
-#else
-#if size_x < 40
-		1u;						// only one panel at-a-time, on a VIC-20
-// The function-key menu must be folded on the VIC-20's narrow screen.
-// So, the panels are one line shorter.
-#define panelHeight (size_y - 4u)
-#else if size_x > 40
-		2u;
-#define panelHeight (size_y - 3u)
-#endif
-#endif
-
+	static unsigned char w;
+	static unsigned char panelHeight;
 	unsigned char x = 0, y = 0;
 	unsigned int i, start;
 	char fileType;
 	const struct dir_node *currentNode;
+	static char filenameFormat[20];
+	char size[7];
+
+	w = size_x / (screenOrientation == ORIENT_HORIZ || size_x < 40u ? 1u : 2u);
+
+	panelHeight = (screenOrientation == ORIENT_HORIZ ? ((size_y - 3u) / 2u) : 
+												(size_x < 40 ? (size_y - 4u): (size_y - 3u)));
+
+
 #if size_x < 40
-	char size[4];
+		strcpy(filenameFormat, "%c%3s %-16s");
 #endif
+#if size_x > 40
+			// 40/80 columns
+		strcpy(filenameFormat, "%5u %-17s%c");
+#endif
+#if size_x == 40
+		if(screenOrientation == ORIENT_VERT)
+		{
+			strcpy(filenameFormat, "%3s %-14s%c");
+		}
+		else
+		{
+			strcpy(filenameFormat, "%5s %-17s%c");
+		}
+#endif
+
+	displayHeight = panelHeight - 1;
 
 	beginDoubleBuffer();
 
@@ -435,24 +448,28 @@ void __fastcall displayDirectory(
 
 	drive->visible = true;
 
-	//if(size_x > 40) w=40;
+	y = 1u;
 
-#if size_x > 40
-	if(drive == &rightPanelDrive) x=w;
-#endif
+	if(drive == &rightPanelDrive)
+	{
+		if(screenOrientation == ORIENT_VERT)
+		{
+			x = w;
+		}
 
-#if size_x == 40
-	if(drive == &rightPanelDrive) y=12;
-	else y = 1;
-#else
-	y = 1;
-#endif
+		if(screenOrientation == ORIENT_HORIZ
+			&& drive == &rightPanelDrive) 
+		{
+			y = 12u;
+		}		
+	}
 
 	(void)textcolor(color_text_borders);
 	cvlinexy(0, y, panelHeight);
-#if size_x > 40
-	cvlinexy(w, y, panelHeight);
-#endif
+	if(screenOrientation == ORIENT_VERT)
+	{
+		cvlinexy(w, y, panelHeight);
+	}
 	chlinexy(x+1, y + panelHeight - 1, w - 1u);
 	//cclearxy(x+1, y, w-1);
 	gotoxy(x+1, y); cprintf(
@@ -462,10 +479,13 @@ void __fastcall displayDirectory(
 		"[%s]", drive->header.name
 #endif
 		);
-#if size_x == 40
-	cclear(11);
-#endif
+	if(screenOrientation == ORIENT_HORIZ)
+	{
+		cclear(20);
+	}
+
 	gotoxy(x+1, y + panelHeight - 1); cprintf("[%2u;%s]", drive->drive->drive, drive->path);
+
 #if size_x < 40
 	//gotox(getCenterX(5));
 	gotox(9);
@@ -500,41 +520,40 @@ void __fastcall displayDirectory(
 			(void)textcolor(color_text_files);
 		}
 
-#if size_x < 40
-		shortenSize(size, currentNode->size);
-#endif
+		if (size_x < 40 || screenOrientation == ORIENT_VERT)
+		{
+			shortenSize(size, currentNode->size);
+		}
+		else
+		{
+			sprintf(size, "%5u", currentNode->size);
+		}
+
 		fileType = getFileType(currentNode->type);
 
 		revers(drive->selectedEntries[(currentNode->index - 1) / 8u]
 			& (unsigned char)(1 << ((currentNode->index - 1) % 8u)));
 
 		gotoxy(x + 1, i - start + y + 1);
-		cprintf(
-#if size_x < 40
-			"%c%3s %-16s",
-//#elif size_x == 40
-//			"%3s %-14s%c",
-#else
-			// 40/80 columns
-			"%5u %-17s%c",
-#endif
+		cprintf(filenameFormat,
+
 #if size_x < 40
 			fileType,
 			size,
 			currentNode->name
 #else
-			//size,
-			currentNode->size,
-			//shortenString(currentNode->name),
-			currentNode->name,
+			size,
+			shortenString(currentNode->name),
 			fileType
 #endif
 			);
 
 		(void)revers(false);
-#if size_x == 40
-		cclear(5);
-#endif
+
+		if(screenOrientation == ORIENT_HORIZ)
+		{
+			cclear(15);
+		}
 	}
 
 	while(i<start + (panelHeight - 2u))
@@ -559,6 +578,21 @@ void __fastcall displayDirectory(
 void __fastcall writeSelectorPosition(struct panel_drive *panel,
 	char character)
 {
+	unsigned char x = 0u;
+	unsigned char y;
+	
+	if(screenOrientation == ORIENT_HORIZ)
+	{
+		y = (panel == &leftPanelDrive  
+			? panel->currentIndex - panel->displayStartAt + 2
+			: panel->currentIndex - panel->displayStartAt + 13);
+	}
+	else
+	{
+		x = (panel == &leftPanelDrive ? 0u : size_x / 2u);
+		y = panel->currentIndex - panel->displayStartAt + 2;
+	}
+
 	revers(false);
 	(void)textcolor(color_selector);
 	if(character == ' ')
@@ -566,20 +600,7 @@ void __fastcall writeSelectorPosition(struct panel_drive *panel,
 		(void)textcolor(color_text_borders);
 		character = CH_VLINE;
 	}
-	cputcxy(
-#if size_x <= 40
-		0u,
-#else
-		panel == &leftPanelDrive ? 0u : size_x / 2u,
-#endif
-#if size_x != 40
-		panel->currentIndex - panel->displayStartAt + 2,
-#else
-		(panel == &leftPanelDrive  
-			? panel->currentIndex - panel->displayStartAt + 2
-			: panel->currentIndex - panel->displayStartAt + 13),
-#endif
-		character);
+	cputcxy(x, y, character);
 }
 
 void __fastcall writeCurrentFilename(struct panel_drive *panel)
@@ -621,8 +642,6 @@ void __fastcall moveSelectorUp(struct panel_drive *panel)
 	writeCurrentFilename(panel);
 }
 
-#define displayHeight (panelHeight - 1u)
-
 void __fastcall moveSelectorDown(struct panel_drive *panel)
 {
 	writeSelectorPosition(panel, ' ');
@@ -662,7 +681,7 @@ char __fastcall getFileType(unsigned char type)
 	return "dCDLOSPURV"[type];
 }
 
-#if size_x < 40
+#if size_x <= 40
 static void __fastcall shortenSize(char* buffer, unsigned int value)
 {
 	if(value < 1000u)
@@ -676,24 +695,21 @@ static void __fastcall shortenSize(char* buffer, unsigned int value)
 }
 #endif
 
-#if 0
-//#if size_x > 22
+#if size_x > 22
 static char* __fastcall shortenString(char* source)
 {
-#if size_x == 40
 #define targetLength 13u
 	// buffer[] must be static because it's passed back to the caller.
 	static char buffer[targetLength + 1];
 
-	//if(size_x == 40)
-	//{
+	if(size_x == 40 && screenOrientation == ORIENT_VERT)
+	{
 		if(strlen(source) > targetLength)
 		{
 			sprintf(buffer, "%.11s..", source);
 			return buffer;
 		}
-	//}
-#endif
+	}
 
 	return source;
 }

@@ -80,6 +80,14 @@ static unsigned char dd00;
 //static unsigned char dd02;
 #endif
 
+enum orientations screenOrientation = 
+#if size_x == 40
+	ORIENT_HORIZ;
+#else
+	ORIENT_VERT;
+#endif
+	
+bool copiedCharacters = false;
 void beginDoubleBuffer(void)
 {
 #ifdef __C64__
@@ -91,7 +99,11 @@ void beginDoubleBuffer(void)
 		POKE(0x01, PEEK(0x01) & ~0x04);	// Switch in character ROM
 
 		// Copy the lower-/upper-case font into VIC-II RAM bank 3.
-		memcpy((void*)0xF800, (void*)0xD800, 0x0800);
+		if(!copiedCharacters)
+		{
+			memcpy((void*)0xF800, (void*)0xD800, 0x0800);
+			copiedCharacters = true;
+		}
 
 		POKE(0x01, PEEK(0x01) | 0x04);	// Switch out character ROM
 		++CIA1.cra;						// Turn on interrupt timer
@@ -556,4 +568,19 @@ void __fastcall drawProgressBar(
 
 	gotox(x + 11); cputc(171);
 	gotox(x + 14); cprintf("%3u%%", (unsigned int)result);
+}
+
+void swapOrientation(void)
+{
+#if size_x == 40
+	int y;
+
+	for(y = 1; y < 24; ++y)
+	{
+		gotoxy(0, y); cclear(40);
+	}
+
+	if(screenOrientation == ORIENT_HORIZ) screenOrientation = ORIENT_VERT;
+	else screenOrientation = ORIENT_HORIZ;
+#endif
 }

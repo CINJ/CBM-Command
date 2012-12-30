@@ -410,7 +410,9 @@ void __fastcall displayDirectory(
 	char fileType;
 	const struct dir_node *currentNode;
 	static char filenameFormat[20];
+#if size_x < 80
 	char size[7];
+#endif
 
 	w = size_x / (screenOrientation == ORIENT_HORIZ || size_x < 40u ? 1u : 2u);
 
@@ -520,14 +522,18 @@ void __fastcall displayDirectory(
 			(void)textcolor(color_text_files);
 		}
 
-		if (size_x < 40 || screenOrientation == ORIENT_VERT)
+#if size_x < 80
+#if size_x > 22
+		if (screenOrientation != ORIENT_VERT)
+		{
+			sprintf(size, "%u", currentNode->size);
+		}
+		else
+#endif
 		{
 			shortenSize(size, currentNode->size);
 		}
-		else
-		{
-			sprintf(size, "%5u", currentNode->size);
-		}
+#endif
 
 		fileType = getFileType(currentNode->type);
 
@@ -542,7 +548,11 @@ void __fastcall displayDirectory(
 			size,
 			currentNode->name
 #else
+#if size_x > 40
+			currentNode->size,
+#else
 			size,
+#endif
 			shortenString(currentNode->name),
 			fileType
 #endif
@@ -681,7 +691,7 @@ char __fastcall getFileType(unsigned char type)
 	return "dCDLOSPURV"[type];
 }
 
-#if size_x <= 40
+#if size_x < 80
 static void __fastcall shortenSize(char* buffer, unsigned int value)
 {
 	if(value < 1000u)

@@ -70,8 +70,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C128_Config|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>$(Configuration)</OutDir>
-    <IntDir>$(Configuration)</IntDir>
+    <OutDir>C128</OutDir>
+    <IntDir>C128</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
@@ -88,8 +88,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VIC20 Config|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>$(Configuration)</OutDir>
-    <IntDir>$(Configuration)</IntDir>
+    <OutDir>VIC20</OutDir>
+    <IntDir>VIC20</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PLUS4|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
@@ -100,8 +100,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PLUS4 Config|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>$(Configuration)</OutDir>
-    <IntDir>$(Configuration)</IntDir>
+    <OutDir>PLUS4</OutDir>
+    <IntDir>PLUS4</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PET|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
@@ -118,8 +118,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='C64_Config|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>$(Configuration)</OutDir>
-    <IntDir>$(Configuration)</IntDir>
+    <OutDir>C64</OutDir>
+    <IntDir>C64</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='C= 64|Win32'">
     <ConfigurationType>Makefile</ConfigurationType>
@@ -299,7 +299,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='C128_Config|Win32'">
     <BuildLog>
-      <Path>$(Configuration).log</Path>
+      <Path>C128.log</Path>
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='C64|Win32'">
@@ -314,7 +314,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='VIC20 Config|Win32'">
     <BuildLog>
-      <Path>$(Configuration).log</Path>
+      <Path>VIC20.log</Path>
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PLUS4|Win32'">
@@ -324,7 +324,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PLUS4 Config|Win32'">
     <BuildLog>
-      <Path>$(Configuration).log</Path>
+      <Path>PLUS4.log</Path>
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PET|Win32'">
@@ -339,7 +339,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='C64_Config|Win32'">
     <BuildLog>
-      <Path>$(Configuration).log</Path>
+      <Path>C64.log</Path>
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='C= 128|Win32'">

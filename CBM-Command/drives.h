@@ -99,7 +99,7 @@ struct dir_node
  */
 struct panel_drive
 {
-	bool visible;			// XXX: obsolete
+	bool visible;
 	unsigned char* selectedEntries;
 	struct drive_status *drive;
 	char dollar[1];				// '$'

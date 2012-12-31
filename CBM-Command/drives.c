@@ -405,7 +405,7 @@ void __fastcall displayDirectory(
 {
 	static unsigned char w;
 	static unsigned char panelHeight;
-	unsigned char x = 0, y = 0;
+	unsigned char x = 0, y = 1;
 	unsigned int i, start;
 	char fileType;
 	const struct dir_node *currentNode;
@@ -450,21 +450,21 @@ void __fastcall displayDirectory(
 
 	drive->visible = true;
 
-	y = 1u;
-
+#if size_x > 22
 	if(drive == &rightPanelDrive)
 	{
-		if(screenOrientation == ORIENT_VERT)
-		{
-			x = w;
-		}
-
-		if(screenOrientation == ORIENT_HORIZ
-			&& drive == &rightPanelDrive) 
+#if size_x == 40
+		if(screenOrientation != ORIENT_VERT)
 		{
 			y = 12u;
+		}
+		else
+#endif
+		{
+			x = w;
 		}		
 	}
+#endif
 
 	(void)textcolor(color_text_borders);
 	cvlinexy(0, y, panelHeight);
@@ -590,7 +590,8 @@ void __fastcall writeSelectorPosition(struct panel_drive *panel,
 {
 	unsigned char x = 0u;
 	unsigned char y;
-	
+
+#if size_x == 40
 	if(screenOrientation == ORIENT_HORIZ)
 	{
 		y = (panel == &leftPanelDrive  
@@ -598,8 +599,11 @@ void __fastcall writeSelectorPosition(struct panel_drive *panel,
 			: panel->currentIndex - panel->displayStartAt + 13);
 	}
 	else
+#endif
 	{
+#if size_x > 22
 		x = (panel == &leftPanelDrive ? 0u : size_x / 2u);
+#endif
 		y = panel->currentIndex - panel->displayStartAt + 2;
 	}
 

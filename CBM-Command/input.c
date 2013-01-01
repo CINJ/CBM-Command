@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2011, Payton Byrd
+Copyright (c) 2012, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or

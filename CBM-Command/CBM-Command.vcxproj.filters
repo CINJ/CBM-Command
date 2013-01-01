@@ -31,6 +31,33 @@
     <Filter Include="Source Files\COMMON">
       <UniqueIdentifier>{6514e590-2832-4f48-bdea-8aff1d4c0124}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\LIBRARY">
+      <UniqueIdentifier>{bab9b9d3-f512-4ff5-8602-5aec702facab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LIBRARY\C128">
+      <UniqueIdentifier>{ac556202-9606-49ae-a002-263ba042e06f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LIBRARY\C64">
+      <UniqueIdentifier>{37a6b234-2d3c-4102-b4c3-aa0d56184530}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LIBRARY\CBM">
+      <UniqueIdentifier>{d3ea8624-b1d8-4419-a7d6-7fb54edf86c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LIBRARY\COMMON">
+      <UniqueIdentifier>{9a45ba98-f183-4ce0-9ae5-940d1847e83d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LIBRARY\CONIO">
+      <UniqueIdentifier>{905b1482-cde9-4dd3-bc20-21cb9b75809a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LIBRARY\PET">
+      <UniqueIdentifier>{429c9d31-1988-429b-bf0c-49e6526f0ef8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LIBRARY\PLUS4">
+      <UniqueIdentifier>{f82fdba6-3232-4eca-9ebc-35bbe10c8b62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LIBRARY\VIC20">
+      <UniqueIdentifier>{4078bd27-d260-4551-85df-f21c78050efb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\c64\Text.s">
@@ -157,6 +184,57 @@
     </ClCompile>
     <ClCompile Include="res\vic20\PlatformSpecific.s">
       <Filter>Source Files\VIC20</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\c128\cputc.s">
+      <Filter>Source Files\LIBRARY\C128</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\c128\systime.s">
+      <Filter>Source Files\LIBRARY\C128</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\c64\cputc.s">
+      <Filter>Source Files\LIBRARY\C64</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\c64\systime.s">
+      <Filter>Source Files\LIBRARY\C64</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\cbm\cbm_dir.c">
+      <Filter>Source Files\LIBRARY\CBM</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\cbm\cbm_open.s">
+      <Filter>Source Files\LIBRARY\CBM</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\cbm\cclear.s">
+      <Filter>Source Files\LIBRARY\CBM</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\cbm\chline.s">
+      <Filter>Source Files\LIBRARY\CBM</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\cbm\cvline.s">
+      <Filter>Source Files\LIBRARY\CBM</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\common\_printf.s">
+      <Filter>Source Files\LIBRARY\COMMON</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\common\strcat.s">
+      <Filter>Source Files\LIBRARY\COMMON</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\conio\callgoto.s">
+      <Filter>Source Files\LIBRARY\CONIO</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\conio\cputs.s">
+      <Filter>Source Files\LIBRARY\CONIO</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\pet\clrscr.s">
+      <Filter>Source Files\LIBRARY\PET</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\pet\cputc.s">
+      <Filter>Source Files\LIBRARY\PET</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\plus4\cputc.s">
+      <Filter>Source Files\LIBRARY\PLUS4</Filter>
+    </ClCompile>
+    <ClCompile Include="cc65\vic20\cputc.s">
+      <Filter>Source Files\LIBRARY\VIC20</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

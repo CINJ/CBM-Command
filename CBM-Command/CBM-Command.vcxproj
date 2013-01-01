@@ -351,6 +351,55 @@
     <Resource Include="cbmcommand_master.d64">
       <FileType>RES</FileType>
     </Resource>
+    <ClCompile Include="cc65\c128\cputc.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\c128\systime.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\c64\cputc.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\c64\systime.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\cbm\cbm_dir.c" />
+    <ClCompile Include="cc65\cbm\cbm_open.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\cbm\cclear.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\cbm\chline.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\cbm\cvline.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\common\strcat.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\common\_printf.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\conio\callgoto.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\conio\cputs.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\pet\clrscr.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\pet\cputc.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\plus4\cputc.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="cc65\vic20\cputc.s">
+      <FileType>CppCode</FileType>
+    </ClCompile>
     <None Include="res\common\CommandMenu.s">
       <FileType>CppCode</FileType>
     </None>

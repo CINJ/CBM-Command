@@ -3,6 +3,7 @@ CC := cc65.exe
 CA := ca65.exe
 LD := ld65.exe
 CL := cl65.exe
+AR := ar65.exe
 
 # POSIX-style programs
 CHMOD := chmod.exe +w
@@ -10,12 +11,14 @@ CP := cp.exe
 #MKDIR := mkdir.exe
 
 # VICE programs
-C1541 := c:\winvice\c1541.exe
-X64 := c:\winvice\x64.exe -autostart
-X128 := c:\winvice\x128.exe -autostart
-XPET := c:\winvice\xpet.exe -autostart
-XVIC := c:\winvice\xvic.exe -autostart
-XPLUS4 := c:\winvice\xplus4.exe -autostart
+#VICEPATH := "C:\Program Files\WinVICE-2.4"
+VICEPATH := c:\winvice
+C1541 := $(VICEPATH)\c1541.exe
+X64 := $(VICEPATH)\x64.exe -autostart
+X128 := $(VICEPATH)\x128.exe -autostart
+XPET := $(VICEPATH)\xpet.exe -autostart
+XVIC := $(VICEPATH)\xvic.exe -autostart
+XPLUS4 := $(VICEPATH)\xplus4.exe -autostart
 
 T := c128
 
@@ -50,9 +53,29 @@ SOURCES	:= \
 
 ASMFILES := \
 	res\common\driveRoutines.s \
-	res\$(T)\PlatformSpecific.s
+	res\$(T)\PlatformSpecific.s \
+	cc65\common\_printf.s \
+	${wildcard cc65/$(T)/systime.s}
+# _systime() is a library function; but, it's called by only another library
+# function -- in only some of the programs.  Therefore, its substitute
+# must be linked directly.  [If it was in cc65.lib, then ld65 would pass by it
+# before time() asked for it.]
 
-#DEBUG := --check-stack
+# These functions are called by the programs' files.
+# Their substitutes can be put into a library.
+LIBFILES := \
+	cc65\common\strcat.s \
+	cc65\cbm\cbm_dir.c \
+	cc65\cbm\cbm_open.s \
+	cc65\cbm\cclear.s \
+	cc65\cbm\chline.s \
+	cc65\cbm\cvline.s \
+	${wildcard cc65/$(T)/clrscr.s} \
+	cc65\$(T)\cputc.s \
+	cc65\conio\cputs.s \
+	cc65\conio\callgoto.s
+
+#DEBUG := -T --check-stack
 CFLAGS := -Wl -D,__STACKSIZE__=$$400
 CFLAGS1 := $(CFLAGS) $(DEBUG) #-m $(T)\cmd.map
 CFLAGS2 := $(CFLAGS) #-m $(T)\cfg.map
@@ -63,10 +86,10 @@ CONFIG_TITLE := cbmcmdcfg
 PROGRAM := $(TITLE).$(T)
 CONFIG_PROGRAM := $(CONFIG_TITLE).$(T)
 
-#LIBS := $(T)\cc65.lib
+LIBS := $(T)\cc65.lib
 
-# Default target -- Builds for the C128
-#.PHONY: all
+# Default target -- It builds for the C128.
+.PHONY: all
 ifeq "$(T)" "pet"
 all: pet\$(PROGRAM)40 pet\$(PROGRAM)80 pet\$(CONFIG_PROGRAM)40 pet\$(CONFIG_PROGRAM)80
 else
@@ -74,7 +97,12 @@ all: $(T)\$(PROGRAM) $(T)\$(CONFIG_PROGRAM)
 endif
 
 # Launch VICE
-#.PHONY: vice
+.PHONY: vice
+ifeq "$(T)" "pet"
+vice: clean pet\$(TITLE).pet80
+		$(XPET) pet\$(TITLE).pet80
+#		$(XPET) pet\$(TITLE).pet40
+else
 vice: clean $(T)\$(PROGRAM)
 ifeq "$(T)" "c64"
 		$(X64) $(T)\$(PROGRAM)
@@ -82,36 +110,27 @@ endif
 ifeq "$(T)" "c128"
 		$(X128) $(T)\$(PROGRAM)
 endif
-ifeq "$(T)" "pet"
-		$(XPET) $(T)\$(TITLE).pet80
-#		$(XPET) $(T)\$(TITLE).pet40
-endif
 ifeq "$(T)" "vic20"
 		$(XVIC) $(T)\$(PROGRAM)
 endif
 ifeq "$(T)" "plus4"
 		$(XPLUS4) $(T)\$(PROGRAM)
 endif
+endif
 
-#.PHONY: D64
+.PHONY: D64
 D64: all
 	$(RM) $(TITLE).d64
 	$(CP) $(TITLE)_master.d64 $(TITLE).d64
 	$(CHMOD) $(TITLE).d64
 
-	$(C1541) $(TITLE).d64 -write c64\$(TITLE).c64
-	$(C1541) $(TITLE).d64 -write c128\$(TITLE).c128
-#	$(C1541) $(TITLE).d64 -write pet\$(TITLE).pet80
-#	$(C1541) $(TITLE).d64 -write pet\$(TITLE).pet40
-	$(C1541) $(TITLE).d64 -write vic20\$(TITLE).vic20
-	$(C1541) $(TITLE).d64 -write plus4\$(TITLE).plus4
+	$(C1541) $(TITLE).d64 -write c64\$(TITLE).c64 -write c128\$(TITLE).c128
+#	$(C1541) $(TITLE).d64 -write pet\$(TITLE).pet80 -write pet\$(TITLE).pet40
+	$(C1541) $(TITLE).d64 -write vic20\$(TITLE).vic20 -write plus4\$(TITLE).plus4
 
-	$(C1541) $(TITLE).d64 -write c64\$(CONFIG_TITLE).c64
-	$(C1541) $(TITLE).d64 -write c128\$(CONFIG_TITLE).c128
-#	$(C1541) $(TITLE).d64 -write pet\$(CONFIG_TITLE).pet80
-#	$(C1541) $(TITLE).d64 -write pet\$(CONFIG_TITLE).pet40
-	$(C1541) $(TITLE).d64 -write vic20\$(CONFIG_TITLE).vic20
-	$(C1541) $(TITLE).d64 -write plus4\$(CONFIG_TITLE).plus4
+	$(C1541) $(TITLE).d64 -write c64\$(CONFIG_TITLE).c64 -write c128\$(CONFIG_TITLE).c128
+#	$(C1541) $(TITLE).d64 -write pet\$(CONFIG_TITLE).pet80 -write pet\$(CONFIG_TITLE).pet40
+	$(C1541) $(TITLE).d64 -write vic20\$(CONFIG_TITLE).vic20 -write plus4\$(CONFIG_TITLE).plus4
 
 # Build our programs
 $(T)\$(PROGRAM) pet\$(PROGRAM)40: $(SOURCES) $(ASMFILES) $(LIBS)
@@ -126,16 +145,21 @@ $(T)\$(CONFIG_PROGRAM) pet\$(CONFIG_PROGRAM)40: $(CONFIG_SOURCES) res\$(T)\Platf
 pet\$(CONFIG_PROGRAM)80: $(CONFIG_SOURCES) res\pet\PlatformSpecific.s $(LIBS)
 		$(CL) -D _PET80_ $(CFLAGS2) -Or -t pet -o $@ $+
 
+$(LIBS): $(LIBFILES)
+		$(CL) -Or -t $(T) -c $?
+		$(AR) a $@ $(addsuffix .o,${basename $?})
+
 # Our cleaning targets, for managing the project
-#.PHONY: mostly-clean clean zap
+.PHONY: mostly-clean clean zap
 mostly-clean:
 		$(RM) $(SOURCES:.c=.o) $(SOURCES:.c=.s)
 		$(RM) $(CONFIG_SOURCES:.c=.o) $(CONFIG_SOURCES:.c=.s)
 		$(RM) $(ASMFILES:.s=.o)
+		$(RM) $(addsuffix .o,${basename $(LIBFILES)}) $(LIBS)
 
 clean: mostly-clean
 ifeq "$(T)" "pet"
-		$(RM) ${wildcard pet/$(TITLE).pet*} ${wildcard pet/$(CONFIG_TITLE).pet*}
+		$(RM) ${wildcard pet/$(TITLE).pet* pet/$(CONFIG_TITLE).pet*}
 else
 		$(RM) $(T)\$(PROGRAM) $(T)\$(CONFIG_PROGRAM)
 endif

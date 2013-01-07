@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2012, Payton Byrd
+Copyright (c) 2013, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -414,11 +414,28 @@ void __fastcall displayDirectory(
 	char size[7];
 #endif
 
-	w = size_x / (screenOrientation == ORIENT_HORIZ || size_x < 40u ? 1u : 2u);
-
-	panelHeight = (screenOrientation == ORIENT_HORIZ ? ((size_y - 3u) / 2u) : 
-												(size_x < 40 ? (size_y - 4u): (size_y - 3u)));
-
+	w = size_x
+#if size_x > 22
+		/ (
+#if size_x < 80
+		screenOrientation == ORIENT_HORIZ ? 1u :
+#endif
+		2u)
+#endif
+		;
+	panelHeight = (size_y -
+#if size_x < 40
+// The function-key menu must be folded on the VIC-20's narrow screen.
+// So, the panels are one line shorter.
+		4u)
+#else
+		3u)
+#if size_x < 80
+		/ (screenOrientation == ORIENT_HORIZ ? 2u : 1u)
+#endif
+#endif
+		;
+	displayHeight = panelHeight - 1;
 
 #if size_x < 40
 		strcpy(filenameFormat, "%c%3s %-16s");
@@ -437,8 +454,6 @@ void __fastcall displayDirectory(
 			strcpy(filenameFormat, "%5s %-17s%c");
 		}
 #endif
-
-	displayHeight = panelHeight - 1;
 
 	beginDoubleBuffer();
 
@@ -550,10 +565,11 @@ void __fastcall displayDirectory(
 #else
 #if size_x > 40
 			currentNode->size,
+			currentNode->name,
 #else
 			size,
-#endif
 			shortenString(currentNode->name),
+#endif
 			fileType
 #endif
 			);
@@ -709,14 +725,14 @@ static void __fastcall shortenSize(char* buffer, unsigned int value)
 }
 #endif
 
-#if size_x > 22
+#if size_x == 40
 static char* __fastcall shortenString(char* source)
 {
 #define targetLength 13u
 	// buffer[] must be static because it's passed back to the caller.
 	static char buffer[targetLength + 1];
 
-	if(size_x == 40 && screenOrientation == ORIENT_VERT)
+	if(screenOrientation == ORIENT_VERT)
 	{
 		if(strlen(source) > targetLength)
 		{

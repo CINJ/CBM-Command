@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2011, Payton Byrd
+Copyright (c) 2013, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -570,17 +570,16 @@ void __fastcall drawProgressBar(
 	gotox(x + 14); cprintf("%3u%%", (unsigned int)result);
 }
 
+#if size_x == 40
 void swapOrientation(void)
 {
-#if size_x == 40
-	int y;
+	unsigned char y;
 
 	for(y = 1; y < 24; ++y)
 	{
-		gotoxy(0, y); cclear(40);
+		cclearxy(0, y, 40);
 	}
 
-	if(screenOrientation == ORIENT_HORIZ) screenOrientation = ORIENT_VERT;
-	else screenOrientation = ORIENT_HORIZ;
-#endif
+	screenOrientation ^= ORIENT_VERT ^ ORIENT_HORIZ;
 }
+#endif

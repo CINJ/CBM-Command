@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2012, Payton Byrd
+Copyright (c) 2013, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -149,6 +149,7 @@ void readKeyboard(void)
 	case KM_COPY_DISK:
 		copyDisk();
 		return;
+#if size_x == 40
 	case KM_ORIENTATION:
 		swapOrientation();
 
@@ -163,6 +164,7 @@ void readKeyboard(void)
 
 		writeSelectorPosition(selectedPanel, '>');
 		return;
+#endif
 	}
 
 	// Either the key isn't configured, or it has a non-configurable twin.  We

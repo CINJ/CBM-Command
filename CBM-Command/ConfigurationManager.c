@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2012 Payton Byrd
+Copyright (c) 2013 Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -83,6 +83,8 @@ void main(void)
 }
 
 static void __fastcall spin(unsigned char row) {
+	unsigned char oldDisk = defaultDisk[row];
+
 	revers(true);
 	for (;;)
 	{
@@ -94,7 +96,7 @@ static void __fastcall spin(unsigned char row) {
 #endif
 			, row + 5);
 		cprintf("%-3u", defaultDisk[row]);
-		switch (cgetc())
+		switch (getKey())
 		{
 		case CH_CURS_DOWN:
 		case CH_CURS_LEFT:
@@ -108,6 +110,8 @@ static void __fastcall spin(unsigned char row) {
 				defaultDisk[row] = 0;
 			}
 			break;
+		case CH_STOP:
+			defaultDisk[row] = oldDisk;
 		case CH_ENTER:
 			revers(false);
 			refreshScreen();

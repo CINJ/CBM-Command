@@ -118,19 +118,32 @@ ifeq "$(T)" "plus4"
 endif
 endif
 
-.PHONY: D64
+.PHONY: D64 D80
 D64: all
 	$(RM) $(TITLE).d64
 	$(CP) $(TITLE)_master.d64 $(TITLE).d64
 	$(CHMOD) $(TITLE).d64
 
 	$(C1541) $(TITLE).d64 -write c64\$(TITLE).c64 -write c128\$(TITLE).c128
-#	$(C1541) $(TITLE).d64 -write pet\$(TITLE).pet80 -write pet\$(TITLE).pet40
+#	$(C1541) $(TITLE).d64 -write pet\$(TITLE).pet40 -write pet\$(TITLE).pet80
 	$(C1541) $(TITLE).d64 -write vic20\$(TITLE).vic20 -write plus4\$(TITLE).plus4
 
 	$(C1541) $(TITLE).d64 -write c64\$(CONFIG_TITLE).c64 -write c128\$(CONFIG_TITLE).c128
-#	$(C1541) $(TITLE).d64 -write pet\$(CONFIG_TITLE).pet80 -write pet\$(CONFIG_TITLE).pet40
+#	$(C1541) $(TITLE).d64 -write pet\$(CONFIG_TITLE).pet40 -write pet\$(CONFIG_TITLE).pet80
 	$(C1541) $(TITLE).d64 -write vic20\$(CONFIG_TITLE).vic20 -write plus4\$(CONFIG_TITLE).plus4
+
+D80: all
+	$(RM) $(TITLE).d80
+	$(CP) $(TITLE)_master.d80 $(TITLE).d80
+	$(CHMOD) $(TITLE).d80
+
+	$(C1541) $(TITLE).d80 -write pet\$(TITLE).pet40 -write pet\$(TITLE).pet80
+	$(C1541) $(TITLE).d80 -write c64\$(TITLE).c64 -write c128\$(TITLE).c128
+	$(C1541) $(TITLE).d80 -write vic20\$(TITLE).vic20 -write plus4\$(TITLE).plus4
+
+	$(C1541) $(TITLE).d80 -write pet\$(CONFIG_TITLE).pet40 -write pet\$(CONFIG_TITLE).pet80
+	$(C1541) $(TITLE).d80 -write c64\$(CONFIG_TITLE).c64 -write c128\$(CONFIG_TITLE).c128
+	$(C1541) $(TITLE).d80 -write vic20\$(CONFIG_TITLE).vic20 -write plus4\$(CONFIG_TITLE).plus4
 
 # Build our programs
 $(T)\$(PROGRAM) pet\$(PROGRAM)40: $(SOURCES) $(ASMFILES) $(LIBS)
@@ -165,4 +178,4 @@ else
 endif
 
 zap: clean
-	$(RM) $(TITLE).d64
+	$(RM) $(TITLE).d64 $(TITLE).d80

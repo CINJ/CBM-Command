@@ -351,6 +351,9 @@
     <Resource Include="cbmcommand_master.d64">
       <FileType>RES</FileType>
     </Resource>
+    <Resource Include="cbmcommand_master.d80">
+      <FileType>RES</FileType>
+    </Resource>
     <ClCompile Include="cc65\c128\cputc.s">
       <FileType>CppCode</FileType>
     </ClCompile>

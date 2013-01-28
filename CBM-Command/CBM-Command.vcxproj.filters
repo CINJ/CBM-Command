@@ -11,7 +11,7 @@
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms;d64</Extensions>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms;d64;d80</Extensions>
     </Filter>
     <Filter Include="Source Files\C64">
       <UniqueIdentifier>{d4349f33-faea-486f-abf4-c1ed7e466465}</UniqueIdentifier>
@@ -283,6 +283,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="cbmcommand_master.d64">
+      <Filter>Resource Files</Filter>
+    </Resource>
+    <Resource Include="cbmcommand_master.d80">
       <Filter>Resource Files</Filter>
     </Resource>
   </ItemGroup>

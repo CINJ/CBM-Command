@@ -80,13 +80,11 @@ static unsigned char dd00;
 //static unsigned char dd02;
 #endif
 
-enum orientations screenOrientation = 
 #if size_x == 40
+enum orientations screenOrientation =
 	ORIENT_HORIZ;
-#else
-	ORIENT_VERT;
 #endif
-	
+
 bool copiedCharacters = false;
 void beginDoubleBuffer(void)
 {

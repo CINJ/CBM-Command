@@ -113,7 +113,7 @@ static int __fastcall getDriveStatus(
 	int size;
 	//unsigned char dr = drive->drive;
 
-	//if(dr < 8 || dr > 15)
+	//if(dr < 8 || dr > 16)
 	//{
 	//	return -1;
 	//}
@@ -418,7 +418,7 @@ void __fastcall displayDirectory(
 #if size_x > 22
 		/ (
 #if size_x < 80
-		screenOrientation == ORIENT_HORIZ ? 1u :
+		screenOrientation != ORIENT_VERT ? 1u :
 #endif
 		2u)
 #endif
@@ -431,7 +431,7 @@ void __fastcall displayDirectory(
 #else
 		3u)
 #if size_x < 80
-		/ (screenOrientation == ORIENT_HORIZ ? 2u : 1u)
+		/ (screenOrientation != ORIENT_VERT ? 2u : 1u)
 #endif
 #endif
 		;
@@ -471,7 +471,7 @@ void __fastcall displayDirectory(
 #if size_x == 40
 		if(screenOrientation != ORIENT_VERT)
 		{
-			y = 12u;
+			y = size_y / 2u;
 		}
 		else
 #endif
@@ -483,7 +483,9 @@ void __fastcall displayDirectory(
 
 	(void)textcolor(color_text_borders);
 	cvlinexy(0, y, panelHeight);
+#if size_x == 40
 	if(screenOrientation == ORIENT_VERT)
+#endif
 	{
 		cvlinexy(w, y, panelHeight);
 	}
@@ -496,10 +498,12 @@ void __fastcall displayDirectory(
 		"[%s]", drive->header.name
 #endif
 		);
-	if(screenOrientation == ORIENT_HORIZ)
+#if size_x == 40
+	if(screenOrientation != ORIENT_VERT)
 	{
 		cclear(20);
 	}
+#endif
 
 	gotoxy(x+1, y + panelHeight - 1); cprintf("[%2u;%s]", drive->drive->drive, drive->path);
 
@@ -576,10 +580,12 @@ void __fastcall displayDirectory(
 
 		(void)revers(false);
 
-		if(screenOrientation == ORIENT_HORIZ)
+#if size_x == 40
+		if(screenOrientation != ORIENT_VERT)
 		{
 			cclear(15);
 		}
+#endif
 	}
 
 	while(i<start + (panelHeight - 2u))
@@ -608,7 +614,7 @@ void __fastcall writeSelectorPosition(struct panel_drive *panel,
 	unsigned char y;
 
 #if size_x == 40
-	if(screenOrientation == ORIENT_HORIZ)
+	if(screenOrientation != ORIENT_VERT)
 	{
 		y = (panel == &leftPanelDrive  
 			? panel->currentIndex - panel->displayStartAt + 2

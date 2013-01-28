@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2012, Payton Byrd
+Copyright (c) 2013, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -46,7 +46,7 @@ enum results { OK_RESULT, CANCEL_RESULT, YES_RESULT, NO_RESULT };
 enum buttons { OK = 1, CANCEL = 2, YES = 4, NO = 8 };	// bit-masks
 enum orientations { ORIENT_VERT, ORIENT_HORIZ };
 
-extern enum orientations screenOrientation;
+extern enum orientations screenOrientation;	// direction of dividing line
 
 extern bool isDoubleBuffered;
 void beginDoubleBuffer(void);

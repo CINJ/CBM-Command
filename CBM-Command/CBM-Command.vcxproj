@@ -403,6 +403,7 @@
     <ClCompile Include="cc65\vic20\cputc.s">
       <FileType>CppCode</FileType>
     </ClCompile>
+    <None Include="buildall.bat" />
     <None Include="res\common\CommandMenu.s">
       <FileType>CppCode</FileType>
     </None>

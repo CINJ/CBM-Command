@@ -114,6 +114,9 @@
     <None Include="res\common\DriveMenu.s">
       <Filter>Source Files\COMMON</Filter>
     </None>
+    <None Include="buildall.bat">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CBM-Command.c">

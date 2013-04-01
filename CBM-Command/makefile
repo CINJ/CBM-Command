@@ -12,7 +12,7 @@ CP := cp.exe
 
 # VICE programs
 #VICEPATH := "C:\Program Files\WinVICE-2.4"
-VICEPATH := c:\winvice
+VICEPATH := s:\winvice-2.4.1
 C1541 := $(VICEPATH)\c1541.exe
 X64 := $(VICEPATH)\x64.exe -autostart
 X128 := $(VICEPATH)\x128.exe -autostart
@@ -52,9 +52,9 @@ SOURCES	:= \
 # builtStamp.c should be last in the list.
 
 ASMFILES := \
-	res\common\driveRoutines.s \
-	res\$(T)\PlatformSpecific.s \
-	cc65\common\_printf.s \
+	res/common/driveRoutines.s \
+	res/$(T)/PlatformSpecific.s \
+	cc65/common/_printf.s \
 	${wildcard cc65/$(T)/systime.s}
 # _systime() is a library function; but, it's called by only another library
 # function -- in only some of the programs.  Therefore, its substitute
@@ -64,21 +64,21 @@ ASMFILES := \
 # These functions are called by the programs' files.
 # Their substitutes can be put into a library.
 LIBFILES := \
-	cc65\common\strcat.s \
-	cc65\cbm\cbm_dir.c \
-	cc65\cbm\cbm_open.s \
-	cc65\cbm\cclear.s \
-	cc65\cbm\chline.s \
-	cc65\cbm\cvline.s \
+	cc65/common/strcat.s \
+	cc65/cbm/cbm_dir.c \
+	cc65/cbm\cbm_open.s \
+	cc65/cbm/cclear.s \
+	cc65/cbm/chline.s \
+	cc65/cbm/cvline.s \
 	${wildcard cc65/$(T)/clrscr.s} \
-	cc65\$(T)\cputc.s \
-	cc65\conio\cputs.s \
-	cc65\conio\callgoto.s
+	cc65/$(T)/cputc.s \
+	cc65/conio/cputs.s \
+	cc65/conio/callgoto.s
 
 #DEBUG := -T --check-stack
 CFLAGS := -Wl -D,__STACKSIZE__=$$400
-CFLAGS1 := $(CFLAGS) $(DEBUG) #-m $(T)\cmd.map
-CFLAGS2 := $(CFLAGS) #-m $(T)\cfg.map
+CFLAGS1 := $(CFLAGS) $(DEBUG) #-m $(T)/cmd.map
+CFLAGS2 := $(CFLAGS) #-m $(T)/cfg.map
 
 TITLE := cbmcommand
 CONFIG_TITLE := cbmcmdcfg
@@ -86,14 +86,14 @@ CONFIG_TITLE := cbmcmdcfg
 PROGRAM := $(TITLE).$(T)
 CONFIG_PROGRAM := $(CONFIG_TITLE).$(T)
 
-LIBS := $(T)\cc65.lib
+LIBS := $(T)/cc65.lib
 
 # Default target -- It builds for the C128.
 .PHONY: all
 ifeq "$(T)" "pet"
-all: pet\$(PROGRAM)40 pet\$(PROGRAM)80 pet\$(CONFIG_PROGRAM)40 pet\$(CONFIG_PROGRAM)80
+all: pet/$(PROGRAM)40 pet/$(PROGRAM)80 pet/$(CONFIG_PROGRAM)40 pet/$(CONFIG_PROGRAM)80
 else
-all: $(T)\$(PROGRAM) $(T)\$(CONFIG_PROGRAM)
+all: $(T)/$(PROGRAM) $(T)/$(CONFIG_PROGRAM)
 endif
 
 # Launch VICE
@@ -103,18 +103,18 @@ vice: clean pet\$(TITLE).pet80
 		$(XPET) pet\$(TITLE).pet80
 #		$(XPET) pet\$(TITLE).pet40
 else
-vice: clean $(T)\$(PROGRAM)
+vice: clean $(T)/$(PROGRAM)
 ifeq "$(T)" "c64"
-		$(X64) $(T)\$(PROGRAM)
+		$(X64) $(T)/$(PROGRAM)
 endif
 ifeq "$(T)" "c128"
-		$(X128) $(T)\$(PROGRAM)
+		$(X128) $(T)/$(PROGRAM)
 endif
 ifeq "$(T)" "vic20"
-		$(XVIC) $(T)\$(PROGRAM)
+		$(XVIC) $(T)/$(PROGRAM)
 endif
 ifeq "$(T)" "plus4"
-		$(XPLUS4) $(T)\$(PROGRAM)
+		$(XPLUS4) $(T)/$(PROGRAM)
 endif
 endif
 
@@ -138,24 +138,24 @@ D80: all
 	$(CHMOD) $(TITLE).d80
 
 	$(C1541) $(TITLE).d80 -write pet\$(TITLE).pet40 -write pet\$(TITLE).pet80
-	$(C1541) $(TITLE).d80 -write c64\$(TITLE).c64 -write c128\$(TITLE).c128
-	$(C1541) $(TITLE).d80 -write vic20\$(TITLE).vic20 -write plus4\$(TITLE).plus4
+#	$(C1541) $(TITLE).d80 -write c64\$(TITLE).c64 -write c128\$(TITLE).c128
+#	$(C1541) $(TITLE).d80 -write vic20\$(TITLE).vic20 -write plus4\$(TITLE).plus4
 
 	$(C1541) $(TITLE).d80 -write pet\$(CONFIG_TITLE).pet40 -write pet\$(CONFIG_TITLE).pet80
-	$(C1541) $(TITLE).d80 -write c64\$(CONFIG_TITLE).c64 -write c128\$(CONFIG_TITLE).c128
-	$(C1541) $(TITLE).d80 -write vic20\$(CONFIG_TITLE).vic20 -write plus4\$(CONFIG_TITLE).plus4
+#	$(C1541) $(TITLE).d80 -write c64\$(CONFIG_TITLE).c64 -write c128\$(CONFIG_TITLE).c128
+#	$(C1541) $(TITLE).d80 -write vic20\$(CONFIG_TITLE).vic20 -write plus4\$(CONFIG_TITLE).plus4
 
 # Build our programs
-$(T)\$(PROGRAM) pet\$(PROGRAM)40: $(SOURCES) $(ASMFILES) $(LIBS)
+$(T)/$(PROGRAM) pet/$(PROGRAM)40: $(SOURCES) $(ASMFILES) $(LIBS)
 		$(CL) $(CFLAGS1) -Or -t $(T) $(LD_CONFIG) -o $@ $+
 
-pet\$(PROGRAM)80: $(SOURCES) $(ASMFILES) $(LIBS)
+pet/$(PROGRAM)80: $(SOURCES) $(ASMFILES) $(LIBS)
 		$(CL) -D _PET80_ $(CFLAGS1) -Or -t pet -o $@ $+
 
-$(T)\$(CONFIG_PROGRAM) pet\$(CONFIG_PROGRAM)40: $(CONFIG_SOURCES) res\$(T)\PlatformSpecific.s $(LIBS)
+$(T)/$(CONFIG_PROGRAM) pet/$(CONFIG_PROGRAM)40: $(CONFIG_SOURCES) res/$(T)/PlatformSpecific.s $(LIBS)
 		$(CL) $(CFLAGS2) -Or -t $(T) $(LD_CONFIG) -o $@ $+
 
-pet\$(CONFIG_PROGRAM)80: $(CONFIG_SOURCES) res\pet\PlatformSpecific.s $(LIBS)
+pet/$(CONFIG_PROGRAM)80: $(CONFIG_SOURCES) res/pet/PlatformSpecific.s $(LIBS)
 		$(CL) -D _PET80_ $(CFLAGS2) -Or -t pet -o $@ $+
 
 $(LIBS): $(LIBFILES)
@@ -174,7 +174,7 @@ clean: mostly-clean
 ifeq "$(T)" "pet"
 		$(RM) ${wildcard pet/$(TITLE).pet* pet/$(CONFIG_TITLE).pet*}
 else
-		$(RM) $(T)\$(PROGRAM) $(T)\$(CONFIG_PROGRAM)
+		$(RM) $(T)/$(PROGRAM) $(T)/$(CONFIG_PROGRAM)
 endif
 
 zap: clean

@@ -1,6 +1,6 @@
 ;
 ; 2003-04-09, Ullrich von Bassewitz
-; 2012-09-10, Greg King
+; 2013-04-07, Greg King
 ;
 ; void __fastcall__ cputcxy (unsigned char x, unsigned char y, char c);
 ; void __fastcall__ cputc (char c);
@@ -27,10 +27,7 @@ _cputc:	cmp	#$0D		; Is it CBM '\n'?
 	beq	cr
 
 ; Printable char., of some sort.
-; Convert it from PETSCII into a screen-code.
-; (Note: This new method combines the fast speed of table look-up
-;  with the small size of the computation method.  I call it
-;  "folded-table look-up." -GK)
+; Convert it from PetSCII into a screen-code.
 
 	cmp	#$FF		; BASIC token
 	bne	convert
@@ -56,7 +53,10 @@ advance:
 	cpy	#XSIZE
 	bne	L3
 	jsr	newline		; new line
-	ldy	#0		; + cr
+				; + CR
+; Carriage-return
+
+cr:	ldy	#0
 L3:	sty	CURS_X
 	rts
 
@@ -78,11 +78,6 @@ newline:
 L5:	inc	CURS_Y
 	rts
 
-
-; Carriage-return
-
-cr:	ldy	#0
-	sty	CURS_X
 
 ; Set cursor position, calculate RAM pointers
 
@@ -106,5 +101,5 @@ putchar:
 
 	.rodata
 pet_to_screen:
-	.byte %10000000,%00000000,%01000000,%00100000  ; PETSCII -> screen-code
+	.byte %10000000,%00000000,%01000000,%00100000  ; PetSCII -> screen-code
 	.byte %01000000,%11000000,%10000000,%10000000

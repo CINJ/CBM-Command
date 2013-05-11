@@ -807,10 +807,11 @@ static bool __fastcall__ isDiskImage(struct panel_drive *panel)
 
 	if(currentDirNode != NULL)
 	{
-		return strstr(
-				// Make a copy of the name, and make that copy all lower-case.
-				// Then, only half as many suffix tests are needed.
-				strlower(strcpy(name, currentDirNode->name)), ".d64") != NULL
+		// Make a copy of the name, and make that copy all lower-case.
+		// Then, only half as many suffix tests are needed.
+		strcpy(name, currentDirNode->name);
+		strlower(name);
+		return strstr(name, ".d64") != NULL
 			|| strstr(name, ".d71") != NULL
 			|| strstr(name, ".d81") != NULL
 			|| strstr(name, ".dnp") != NULL

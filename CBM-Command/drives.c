@@ -477,7 +477,7 @@ void __fastcall displayDirectory(
 #endif
 		{
 			x = w;
-		}		
+		}
 	}
 #endif
 
@@ -616,7 +616,7 @@ void __fastcall writeSelectorPosition(struct panel_drive *panel,
 #if size_x == 40
 	if(screenOrientation != ORIENT_VERT)
 	{
-		y = (panel == &leftPanelDrive  
+		y = (panel == &leftPanelDrive
 			? panel->currentIndex - panel->displayStartAt + 2
 			: panel->currentIndex - panel->displayStartAt + 13);
 	}
@@ -809,8 +809,7 @@ static bool __fastcall__ isDiskImage(struct panel_drive *panel)
 	{
 		// Make a copy of the name, and make that copy all lower-case.
 		// Then, only half as many suffix tests are needed.
-		strcpy(name, currentDirNode->name);
-		strlower(name);
+		strlower(strcpy(name, currentDirNode->name));
 		return strstr(name, ".d64") != NULL
 			|| strstr(name, ".d71") != NULL
 			|| strstr(name, ".d81") != NULL

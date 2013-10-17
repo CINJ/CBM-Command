@@ -1441,6 +1441,13 @@ void writeDiskImage(void)
 		{ "in the target " },
 		{ "drive?" }
 	};
+
+	static const char* const confirm[] =
+	{
+		{ "Do you want to" },
+		{ "format first?" }
+	};
+
 	bool confirmed;
 	unsigned char sd, td, i, j;
 	const char *sp, *tp;
@@ -1493,6 +1500,9 @@ void writeDiskImage(void)
 
 			if(confirmed)
 			{
+				confirmed = writeYesNo("Format Disk",
+					confirm, A_SIZE(confirm));
+
 				//cbm_open(15, sd, 15, "");
 				if((r = cbmOpen(2, sd, CBM_SEQ, sp, currentNode->name, 15)) == 0)
 				{
@@ -1504,13 +1514,20 @@ void writeDiskImage(void)
 					140 CLOSE 2 : CLOSE 1
 					*/
 
-					writeStatusBar("Formatting disk...");
-					//cbm_open(14, td, 15, "n:temp,00");
-					sprintf(buffer, "n%s:temp,00", tp);
-					if ((r = cbmOpen(3, td, 15, "", buffer, 14)) == 0)
+					if(confirmed)
 					{
-						cbm_close(3); cbm_open(3,td,3,"#");
+						writeStatusBar("Formatting disk...");
+						//cbm_open(14, td, 15, "n:temp,00");
+						sprintf(buffer, "n%s:temp,00", tp);
+						r = cbmOpen(3, td, 15, "", buffer, 14);
+					}
 
+					cbm_close(3); 
+
+					if(!confirmed || r == 0)
+					{
+						cbm_open(3,td,3,"#");
+						
 						drawBox(
 							getCenterX(20), getCenterY(3),
 							19, 3,
@@ -1579,7 +1596,7 @@ void writeDiskImage(void)
 								//temp[256-1] = fileBuffer[0];
 								//
 								//cbm_write(3,temp,256);
-								cbm_write(14, "b-p 3 0", 7);
+								cbm_write(14,"b-p 3 0", 7);
 								cbm_write(3,fileBuffer,256);
 								cbm_write(14,buffer,
 									sprintf(buffer, "u2 3 0 %u %u", i+1, j));

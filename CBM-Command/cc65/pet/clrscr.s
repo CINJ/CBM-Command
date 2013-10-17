@@ -11,7 +11,6 @@
 
 	.include	"pet.inc"
 	.macpack	generic
-.define bnz bne
 
 _clrscr:
 
@@ -36,10 +35,10 @@ L1:	lda	#$20		; Screen code for blank
 	ldy	#$00
 L2:	sta	(ptr1),y
 	iny
-	bnz	L2
+	bne	L2
 	inc	ptr1+1
 	dex
-	bnz	L2
+	bne	L2
 
 ; Set the cursor to (0,0).
 

@@ -1,5 +1,5 @@
 /***************************************************************
-Copyright (c) 2012, Payton Byrd
+Copyright (c) 2013, Payton Byrd
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or
@@ -1445,7 +1445,7 @@ void writeDiskImage(void)
 	static const char* const confirm[] =
 	{
 		{ "Do you want to" },
-		{ "format first?" }
+		{ "format, first?" }
 	};
 
 	bool confirmed;
@@ -1522,12 +1522,15 @@ void writeDiskImage(void)
 						r = cbmOpen(3, td, 15, "", buffer, 14);
 					}
 
-					cbm_close(3); 
+					cbm_close(3); cbm_close(14);
 
-					if(!confirmed || r == 0)
+					// If the user didn't ask for a formatting,
+					// then "r" is zero from the previous cbmOpen().
+					//if(!confirmed || r == 0)
+					if(r == 0 && (r = cbmOpen(3,td,3,"","#",14)) == 0)
 					{
-						cbm_open(3,td,3,"#");
-						
+						//cbm_open(3,td,3,"#");
+
 						drawBox(
 							getCenterX(20), getCenterY(3),
 							19, 3,

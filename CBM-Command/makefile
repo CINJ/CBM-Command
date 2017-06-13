@@ -1,9 +1,10 @@
 # Program declarations
-CC := cc65.exe
-CA := ca65.exe
-LD := ld65.exe
-CL := cl65.exe
-AR := ar65.exe
+CC65_PATH = "C:\Users\Payton\Source\Repos\cc65\bin"
+CC := $(CC65_PATH)\cc65.exe
+CA := $(CC65_PATH)\ca65.exe
+LD := $(CC65_PATH)\ld65.exe
+CL := $(CC65_PATH)\cl65.exe
+AR := $(CC65_PATH)\ar65.exe
 
 # POSIX-style programs
 CHMOD := chmod.exe +w
@@ -11,8 +12,8 @@ CP := cp.exe
 #MKDIR := mkdir.exe
 
 # VICE programs
-#VICEPATH := "C:\Program Files\WinVICE-2.4"
-VICEPATH := s:\winvice-2.4.1
+VICEPATH := C:\WinVICE-2.4\WinVICE-2.4.28-x86-r31264
+#VICEPATH := s:\winvice-2.4.1
 C1541 := $(VICEPATH)\c1541.exe
 X64 := $(VICEPATH)\x64.exe -autostart
 X128 := $(VICEPATH)\x128.exe -autostart

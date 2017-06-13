@@ -200,7 +200,7 @@
     <NMakePreprocessorDefinitions>__C64__; __CBM__; __fastcall__=__fastcall</NMakePreprocessorDefinitions>
     <IncludePath>$(CC65_INC);$(CA65_INC);</IncludePath>
     <NMakeIncludeSearchPath>$(CC65_INC);$(CA65_INC)</NMakeIncludeSearchPath>
-    <ExecutablePath>$(PATH)</ExecutablePath>
+    <ExecutablePath>c:\gnuwin32\bin;$(PATH)</ExecutablePath>
     <ReferencePath />
     <LibraryPath />
     <SourcePath />

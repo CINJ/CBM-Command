@@ -1,40 +1,129 @@
-
-<img src="Home_CBM-Command Logo.png" /><div class="wikidoc">
-<h2>What is it?</h2>
-<p><strong>CBM-Command</strong> is a disk manager for the Commodore 64, Commodore 128, Commodore VIC-20, Commodore Plus/4, and Commodore Pet/CBM computers. It is written in the vein of Norton Commander or Midnight Commander; but, it is much simpler due to the
- target platforms. Each Commodore model has its own native version of the application.</p>
-<h2>What does it do?</h2>
-<p>It works on both real machines and the VICE emulators. <br>
-<br>
-So far,&nbsp;we have tested it with the following hardware:</p>
-<ul>
-<li>Flat Commodore 128 w/JiffyDOS </li><li>Commodore 1571 w/JiffyDOS </li><li>Commodore 1581 w/JiffyDOS </li><li>uIEC/SD </li><li>Commodore 64 (stock) </li><li>Commodore 64 w/JiffyDOS </li><li>Commodore 64 w/SuperCPU </li><li>Commodore 1541 (stock) </li><li>Commodore 1541 w/JiffyDOS </li><li>Blue Chip 128 Disk Drive </li><li>Creative Micro Designs FD-2000 Floppy Disk drive </li><li>ZoomFloppy USB-to-IEC adapter (w/ WinVICE and OpenCBM) </li></ul>
-<p><br>
-Additional testing has been performed under VICE, using the following file systems:</p>
-<ul>
-<li>IDE64 Native Filesystem </li><li>VICE File System </li><li>VICE Virtual Drives (not True Drive Emulation) </li><li>1541 TDE </li><li>1551 TDE </li><li>1571 TDE </li><li>1581 TDE </li><li>CBM&nbsp;8050 TDE </li><li>CBM 8250 TDE </li><li>Commodore Plus 4 Emulation </li><li>Commodore VIC 20 Emulation </li><li>Commodore 64 Emulations </li><li>Commodore 128 Emulation </li><li>Commodore Pet Emulation </li></ul>
-<h2>Features</h2>
-<ul>
-<li>File copying between drives </li><li>File renaming and deleting </li><li>D64 Image Writing, and Creation of Disks from Those Images </li><li>D71 Image Writing, and Creation of Disks from Those Images </li><li>D81 Image Writing, and Creation of Disks from Those Images </li><li>Send command to drive </li><li>Simple &quot;Paging&quot; Text-File Viewer </li><li>Moving into, and out of, sub-directories and disk-images </li><li>Configuration Utility </li><li>Whole Disk Copying </li></ul>
-<h2>Development tools</h2>
-<p><strong>CBM-Command</strong> has been developed with the following tools:</p>
-<ul>
-<li>CC65 <a href="http://www.cc65.org/">link</a> -- C and Assembler compilers with linker, for building 6502-based binaries.
-</li><li>GNU Make <a href="http://www.gnu.org/software/make/">link</a> -- Makefile processor which builds the sources, using CC65.
-</li><li>Visual Studio 2010 <a href="http://blogs.msdn.com/danielfe/archive/2009/10/21/download-visual-studio-2010-express-editions.aspx">
-link</a> -- I suggest downloading the ISO with all of the express editions; but specifically, you need the C&#43;&#43; edition.
-</li><li>WinVICE <a title="VICE Home Page" href="http://vice-emu.sf.net/" target="_blank">
-link</a> -- The best Commodore emulators available. </li><li>CodePlex <a href="http://www.codeplex.com/">link</a> -- Project management and source control.
-</li></ul>
-<h2>HELP!</h2>
-<p>I'm looking for folks who want to adopt portions of the code, and help to make it better. If you are familiar with C and/or Assembly, or just want to get familiar with them (I had practically zero Assembly knowledge when I started this project), then contact
- me; and, we'll see if I can find something for you to do. :-)</p>
-<h1>Screenshots</h1>
-<ul>
-<li>Removed old screenshots -- need to make new ones that are representative of the current code and platforms.
-</li></ul>
-<h1>Videos</h1>
-<div id="scid:5737277B-5D6D-4f48-ABFC-DD9C333F4C5D:6201a8b8-99f6-42dd-b7a0-2b228f805a61" style="margin:0px; display:inline; float:none; padding:0px">
-<div><a href="http://www.youtube.com/watch?v=pqrgx88H_Wk" target="_new"><img src="http://download.codeplex.com/download?ProjectName=cbmcommand&DownloadId=202448" alt="" style="border-style:none"></a></div>
-</div>
-</div><div class="ClearBoth"></div>
+<html>
+<head>
+    <title>CBM-Command - THE File Manager for all Commodore 8-Bit Computers</title>
+    <script src="Scripts/jquery-3.1.1.js"></script>
+    <script src="Scripts/bootstrap.js"></script>
+    <link href="Content/bootstrap-theme.css" rel="stylesheet" />
+    <link href="Content/bootstrap.css" rel="stylesheet" />
+</head>
+<body>
+<header class="page-header clearfix">
+            <div class="col-md-2 pull-left panel panel-heading navbar navbar-inverse">
+                <ul class="dropdown">
+                    <a href="#" data-toggle="dropdown" class="dropdown-toggle h3">Site Menu <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="https://www.github.com/sharpninja/CBM-Command/releases">Download CBM-Command</a></li>
+                        <li><a href="docs.html">Documentation</a></li>
+                    </ul>
+                </ul>
+            </div>
+            <div class="col-md-8 pull-right">
+                <img src="Home_CBM-Command Logo.png"/>
+            </div>
+</header>
+<article class="page panel clearfix">
+    <div class="panel-body">
+        <h2>What is it?</h2>
+        <p>
+            <strong>CBM-Command</strong> is a disk manager for the Commodore 64, Commodore 128, Commodore VIC-20, Commodore Plus/4, and Commodore Pet/CBM computers. It is written in the vein of Norton Commander or Midnight Commander; but, it is much simpler due to the
+            target platforms. Each Commodore model has its own native version of the application.
+        </p>
+        <h2>What does it do?</h2>
+        <p>
+            It works on both real machines and the VICE emulators. <br>
+            <br>
+            So far,&nbsp;we have tested it with the following hardware:
+        </p>
+        <ul>
+            <li>Flat Commodore 128 w/JiffyDOS </li>
+            <li>Commodore 1571 w/JiffyDOS </li>
+            <li>Commodore 1581 w/JiffyDOS </li>
+            <li>uIEC/SD </li>
+            <li>Commodore 64 (stock) </li>
+            <li>Commodore 64 w/JiffyDOS </li>
+            <li>Commodore 64 w/SuperCPU </li>
+            <li>Commodore 1541 (stock) </li>
+            <li>Commodore 1541 w/JiffyDOS </li>
+            <li>Blue Chip 128 Disk Drive </li>
+            <li>Creative Micro Designs FD-2000 Floppy Disk drive </li>
+            <li>ZoomFloppy USB-to-IEC adapter (w/ WinVICE and OpenCBM) </li>
+        </ul>
+        <p>
+            <br>
+            Additional testing has been performed under VICE, using the following file systems:
+        </p>
+        <ul>
+            <li>IDE64 Native Filesystem </li>
+            <li>VICE File System </li>
+            <li>VICE Virtual Drives (not True Drive Emulation) </li>
+            <li>1541 TDE </li>
+            <li>1551 TDE </li>
+            <li>1571 TDE </li>
+            <li>1581 TDE </li>
+            <li>CBM&nbsp;8050 TDE </li>
+            <li>CBM 8250 TDE </li>
+            <li>Commodore Plus 4 Emulation </li>
+            <li>Commodore VIC 20 Emulation </li>
+            <li>Commodore 64 Emulations </li>
+            <li>Commodore 128 Emulation </li>
+            <li>Commodore Pet Emulation </li>
+        </ul>
+        <h2>Features</h2>
+        <ul>
+            <li>File copying between drives </li>
+            <li>File renaming and deleting </li>
+            <li>D64 Image Writing, and Creation of Disks from Those Images </li>
+            <li>D71 Image Writing, and Creation of Disks from Those Images </li>
+            <li>D81 Image Writing, and Creation of Disks from Those Images </li>
+            <li>Send command to drive </li>
+            <li>Simple &quot;Paging&quot; Text-File Viewer </li>
+            <li>Moving into, and out of, sub-directories and disk-images </li>
+            <li>Configuration Utility </li>
+            <li>Whole Disk Copying </li>
+        </ul>
+        <h2>Development tools</h2>
+        <p>
+            <strong>CBM-Command</strong> has been developed with the following tools:
+        </p>
+        <ul>
+            <li>
+                CC65 <a href="http://www.cc65.org/">link</a> -- C and Assembler compilers with linker, for building 6502-based binaries.
+            </li>
+            <li>
+                GNU Make <a href="http://www.gnu.org/software/make/">link</a> -- Makefile processor which builds the sources, using CC65.
+            </li>
+            <li>
+                Visual Studio 2010 <a href="http://blogs.msdn.com/danielfe/archive/2009/10/21/download-visual-studio-2010-express-editions.aspx">
+                    link
+                </a> -- I suggest downloading the ISO with all of the express editions; but specifically, you need the C&#43;&#43; edition.
+            </li>
+            <li>
+                WinVICE <a title="VICE Home Page" href="http://vice-emu.sf.net/" target="_blank">
+                    link
+                </a> -- The best Commodore emulators available.
+            </li>
+            <li>
+                CodePlex <a href="http://www.codeplex.com/">link</a> -- Project management and source control.
+            </li>
+        </ul>
+        <h2>HELP!</h2>
+        <p>
+            I'm looking for folks who want to adopt portions of the code, and help to make it better. If you are familiar with C and/or Assembly, or just want to get familiar with them (I had practically zero Assembly knowledge when I started this project), then contact
+            me; and, we'll see if I can find something for you to do. :-)
+        </p>
+        <h1>Screenshots</h1>
+        <ul>
+            <li>
+                Removed old screenshots -- need to make new ones that are representative of the current code and platforms.
+            </li>
+        </ul>
+        <h1>Videos</h1>
+        <div id="scid:5737277B-5D6D-4f48-ABFC-DD9C333F4C5D:6201a8b8-99f6-42dd-b7a0-2b228f805a61" style="margin: 0px; display: inline; float: none; padding: 0px">
+            <div>
+                <a href="http://www.youtube.com/watch?v=pqrgx88H_Wk" target="_new"><img src="http://download.codeplex.com/download?ProjectName=cbmcommand&DownloadId=202448" alt="" style="border-style: none"></a>
+            </div>
+        </div>
+    </div>
+</article>
+</body>
+</html>
